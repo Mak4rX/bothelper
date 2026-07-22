@@ -570,70 +570,122 @@
             letter-spacing: 1px;
         }
 
-        /* Mobile improvements */
+        /* ── Mobile ─────────────────────────────────────────────── */
         @media (max-width: 768px) {
-            body { padding: 12px; }
+            body { padding: 10px 10px 80px; } /* bottom pad для sticky btn */
 
-            header h1 { font-size: 1.6em; letter-spacing: 2px; }
-            header p  { font-size: 0.95em; }
+            header { margin-bottom: 16px; }
+            header h1 { font-size: 1.5em; letter-spacing: 2px; }
+            header p  { font-size: 0.9em; }
 
+            /* ── Головні вкладки ── */
             .main-tabs {
-                flex-direction: row;
-                overflow-x: auto;
-                flex-wrap: nowrap;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
                 gap: 8px;
-                padding-bottom: 4px;
+                margin-bottom: 12px;
             }
             .main-tab {
-                padding: 12px 18px;
-                font-size: 0.95em;
+                padding: 14px 10px;
+                font-size: 0.9em;
+                min-height: 52px;
                 white-space: nowrap;
-                flex-shrink: 0;
+                justify-content: center;
             }
             .main-tab::before { display: none; }
 
+            /* ── Під-вкладки ── */
             .sub-tabs {
-                flex-direction: row;
-                overflow-x: auto;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
                 flex-wrap: nowrap;
                 padding-left: 0;
                 gap: 6px;
             }
             .sub-tab {
                 white-space: nowrap;
-                flex-shrink: 0;
-                padding: 8px 14px;
+                padding: 10px 6px;
+                font-size: 0.78em;
+                min-height: 44px;
+                text-align: center;
             }
 
-            .panel { padding: 16px; border-radius: 14px; }
+            /* ── Панель ── */
+            .panel { padding: 14px; border-radius: 14px; }
             .panel::before { display: none; }
-            .panel h2 { font-size: 1.3em; }
+            .panel h2 { font-size: 1.2em; margin-bottom: 14px; }
 
-            .shift-selector { flex-direction: column; gap: 8px; }
-            .shift-btn { padding: 14px; font-size: 1em; }
+            /* ── Вибір зміни ── */
+            .shift-selector { flex-direction: row; gap: 10px; }
+            .shift-btn {
+                padding: 18px 10px;
+                font-size: 1em;
+                min-height: 64px;
+                flex: 1;
+            }
 
-            .calculator-mode { flex-direction: column; gap: 8px; }
-            .mode-btn { padding: 12px; }
+            /* ── Калькулятор режим ── */
+            .calculator-mode { flex-direction: row; gap: 8px; }
+            .mode-btn { padding: 14px 8px; min-height: 50px; font-size: 0.9em; }
 
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-            .stat-card { padding: 16px; }
-            .stat-card .value { font-size: 1.8em; }
+            /* ── Статистика ── */
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-card { padding: 14px 10px; }
+            .stat-card .value { font-size: 1.6em; }
 
-            .calc-banner-hours { font-size: 2.2em; }
+            /* ── Калькулятор баннер ── */
+            .calc-banner-hours { font-size: 2em; }
+            .result-card .highlight { font-size: 1.3em; }
 
-            .result-card .highlight { font-size: 1.4em; }
+            /* ── Інпути (iOS zoom fix) ── */
+            input, select, textarea { font-size: 16px !important; }
 
-            input, select, textarea { font-size: 16px; } /* prevents iOS zoom */
+            /* ── Кнопки ── */
+            .btn {
+                width: 100%;
+                min-height: 52px;
+                padding: 15px;
+                font-size: 1.1em;
+                border-radius: 10px;
+            }
+            /* Sticky "Створити звіт" кнопка знизу */
+            .panel-report .btn[onclick="generateReport()"],
+            .panel-collection .btn[onclick="addCollection()"] {
+                position: fixed;
+                bottom: 16px;
+                left: 10px;
+                right: 10px;
+                width: calc(100% - 20px);
+                z-index: 100;
+                box-shadow: 0 0 20px rgba(255, 234, 0, 0.5);
+                border-radius: 12px;
+            }
 
-            .btn { width: 100%; padding: 14px; }
-            .btn-delete { padding: 8px 10px; font-size: 0.8em; }
+            /* ── Кнопка видалення ── */
+            .btn-delete {
+                min-height: 40px;
+                padding: 8px 14px;
+                font-size: 0.85em;
+                border-radius: 8px;
+            }
+
+            /* ── Активний стан (tap feedback) ── */
+            .btn:active { transform: scale(0.97); opacity: 0.9; }
+            .shift-btn:active { transform: scale(0.97); }
+            .mode-btn:active { transform: scale(0.97); }
+            .main-tab:active { transform: scale(0.97); }
+            .sub-tab:active { opacity: 0.8; }
 
             .collection-item { flex-wrap: wrap; gap: 8px; }
-            .report-item .date { flex-direction: column; align-items: flex-start; gap: 6px; }
+            .report-item .date { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .form-group { margin-bottom: 14px; }
+            .form-group label { font-size: 0.9em; }
         }
 
         @media (max-width: 420px) {
             .stats-grid { grid-template-columns: 1fr; }
+            .sub-tabs { grid-template-columns: repeat(2, 1fr); }
+            .sub-tab { font-size: 0.82em; }
         }
 
         /* Additional cyberpunk effects */
