@@ -177,14 +177,30 @@ ZONES = {
         weekend_package5=0,
         weekend_package10=550,
     ),
+    "school": Zone(
+        id="school",
+        name="🎒 ШКОЛЯР ZONE",
+        morning_price=50,
+        weekday_hour=70,
+        weekday_package3=180,
+        weekday_package5=275,
+        weekday_package10=350,
+        weekend_hour=80,
+        weekend_package3=210,
+        weekend_package5=325,
+        weekend_package10=450,
+    ),
 }
 
 
-# Пакет Школяр (окремо)
+# Пакет Школяр — тільки для зони "school"
 SCHOOL_PACKAGE = {
-    "weekday": {"hours": None, "price": 130, "name": "🎒 ШКОЛЯР (Пн-Чт до 15:00)"},
-    "weekend": {"hours": None, "price": 180, "name": "🎒 ШКОЛЯР (Пт-Нд до 12:00)"},
+    "weekday": {"hours": 4, "price": 130, "name": "🎒 ШКОЛЯР (Пн-Чт до 15:00)"},
+    "weekend": {"hours": 4, "price": 180, "name": "🎒 ШКОЛЯР (Пт-Нд до 12:00)"},
 }
+
+# Зони, для яких показувати пакет ШКОЛЯР
+SCHOOL_ZONES = {"school", "gamer"}
 
 
 def calculate_hours(amount: int, zone_id: str, day_type: DayType) -> list[dict]:
@@ -209,17 +225,18 @@ def calculate_hours(amount: int, zone_id: str, day_type: DayType) -> list[dict]:
                 "remaining": remaining,
             })
 
-    # Додаємо школяр, якщо підходить
-    school = SCHOOL_PACKAGE[day_type]
-    if amount >= school["price"]:
-        packages = amount // school["price"]
-        remaining = amount % school["price"]
-        results.append({
-            "package": school["name"],
-            "hours": f"{packages} пакет(и)",
-            "price": packages * school["price"],
-            "remaining": remaining,
-        })
+    # Додаємо пакет ШКОЛЯР тільки для відповідних зон
+    if zone_id in SCHOOL_ZONES:
+        school = SCHOOL_PACKAGE[day_type]
+        if amount >= school["price"]:
+            packages = amount // school["price"]
+            remaining = amount % school["price"]
+            results.append({
+                "package": school["name"],
+                "hours": packages * school["hours"],
+                "price": packages * school["price"],
+                "remaining": remaining,
+            })
 
     return results
 
