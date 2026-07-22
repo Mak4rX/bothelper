@@ -98,8 +98,9 @@
             display: none;
             gap: 8px;
             margin-bottom: 20px;
-            padding-left: 20px;
+            padding-left: 0;
             flex-wrap: wrap;
+            overflow-x: auto;
         }
 
         .sub-tabs.active {
@@ -117,20 +118,22 @@
             color: #A0A0A0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .sub-tab:hover {
-            border-color: #FFEA00;
+            border-color: #00D9FF;
             transform: translateY(-1px);
-            box-shadow: 0 0 10px rgba(255, 234, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
             color: #FFFFFF;
         }
 
         .sub-tab.active {
-            background: #1A1A1C;
-            color: #FFEA00;
-            border-color: #FFEA00;
-            box-shadow: 0 0 15px rgba(255, 234, 0, 0.3);
+            background: rgba(0, 217, 255, 0.1);
+            color: #00D9FF;
+            border-color: #00D9FF;
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
         }
 
         .panel {
@@ -596,18 +599,20 @@
 
             /* ── Під-вкладки ── */
             .sub-tabs {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
+                display: flex !important;
+                flex-direction: row;
+                overflow-x: auto;
                 flex-wrap: nowrap;
-                padding-left: 0;
-                gap: 6px;
+                gap: 8px;
+                padding-bottom: 4px;
+                -webkit-overflow-scrolling: touch;
             }
             .sub-tab {
                 white-space: nowrap;
-                padding: 10px 6px;
-                font-size: 0.78em;
-                min-height: 44px;
-                text-align: center;
+                flex-shrink: 0;
+                padding: 10px 14px;
+                font-size: 0.82em;
+                min-height: 42px;
             }
 
             /* ── Панель ── */
@@ -695,7 +700,7 @@
     <div class="container">
         <header>
             <h1>⚡ CyberHelper</h1>
-            <p>Управління касою киберклубу</p>
+            <p>Управління касою кіберклубу</p>
         </header>
 
         <div class="main-tabs">
@@ -740,7 +745,7 @@
 
             <div class="form-group">
                 <label>Торгівельні витрати (грн)</label>
-                <input type="number" id="expenses" placeholder="0" min="0" value="0">
+                <input type="number" id="expenses" placeholder="0" min="0">
             </div>
 
             <div class="form-group">
