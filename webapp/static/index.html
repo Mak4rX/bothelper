@@ -598,8 +598,8 @@
             .main-tab::before { display: none; }
 
             /* ── Під-вкладки ── */
-            .sub-tabs {
-                display: flex !important;
+            .sub-tabs.active {
+                display: flex;
                 flex-direction: row;
                 overflow-x: auto;
                 flex-wrap: nowrap;
@@ -704,15 +704,15 @@
         </header>
 
         <div class="main-tabs">
-            <button class="main-tab active" onclick="showMainTab('cash-management')">💼 Управління касою</button>
-            <button class="main-tab" onclick="showMainTab('calculator')">🧮 Калькулятор годин</button>
+            <button class="main-tab active" onclick="showMainTab('cash-management', this)">💼 Управління касою</button>
+            <button class="main-tab" onclick="showMainTab('calculator', this)">🧮 Калькулятор годин</button>
         </div>
 
         <div class="sub-tabs active" id="cash-management-subtabs">
-            <button class="sub-tab active" onclick="showSubTab('report')">📋 Закриття зміни</button>
-            <button class="sub-tab" onclick="showSubTab('collection')">💰 Інкасація</button>
-            <button class="sub-tab" onclick="showSubTab('history')">🕓 Історія</button>
-            <button class="sub-tab" onclick="showSubTab('stats')">📊 Статистика</button>
+            <button class="sub-tab active" onclick="showSubTab('report', this)">📋 Закриття зміни</button>
+            <button class="sub-tab" onclick="showSubTab('collection', this)">💰 Інкасація</button>
+            <button class="sub-tab" onclick="showSubTab('history', this)">🕓 Історія</button>
+            <button class="sub-tab" onclick="showSubTab('stats', this)">📊 Статистика</button>
         </div>
 
         <!-- Report Panel -->
@@ -867,9 +867,9 @@
 
         // ─── Navigation ───────────────────────────────────────────────
 
-        function showMainTab(mainTabName) {
+        function showMainTab(mainTabName, btn) {
             document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            btn.classList.add('active');
 
             const subTabsContainer = document.getElementById('cash-management-subtabs');
 
@@ -886,8 +886,8 @@
             }
         }
 
-        function showSubTab(subTabName) {
-            showSubTabByName(subTabName, event.target);
+        function showSubTab(subTabName, btn) {
+            showSubTabByName(subTabName, btn);
         }
 
         function showSubTabByName(subTabName, tabEl) {
