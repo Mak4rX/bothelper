@@ -599,20 +599,17 @@
 
             /* ── Під-вкладки ── */
             .sub-tabs.active {
-                display: flex;
-                flex-direction: row;
-                overflow-x: auto;
-                flex-wrap: nowrap;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
                 gap: 8px;
-                padding-bottom: 4px;
-                -webkit-overflow-scrolling: touch;
             }
             .sub-tab {
-                white-space: nowrap;
-                flex-shrink: 0;
-                padding: 10px 14px;
-                font-size: 0.82em;
-                min-height: 42px;
+                white-space: normal;
+                text-align: center;
+                padding: 10px 6px;
+                font-size: 0.78em;
+                min-height: 44px;
+                line-height: 1.3;
             }
 
             /* ── Панель ── */
