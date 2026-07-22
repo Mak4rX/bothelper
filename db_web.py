@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 _default = Path(__file__).resolve().parent / "bothelper.db"
 DB_PATH = Path(os.environ.get("DB_PATH", str(_default)))
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)  # створюємо директорію якщо немає
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS reports (
