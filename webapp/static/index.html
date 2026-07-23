@@ -588,6 +588,10 @@
                 gap: 8px;
                 margin-bottom: 12px;
             }
+            /* 3-я вкладка — на всю ширину */
+            .main-tab:nth-child(3) {
+                grid-column: 1 / -1;
+            }
             .main-tab {
                 padding: 14px 10px;
                 font-size: 0.9em;
@@ -679,7 +683,86 @@
             .sub-tab { font-size: 0.82em; }
         }
 
-        /* Additional cyberpunk effects */
+        /* ── Рахунок каси ──────────────────────────────────────────── */
+        .cashcount-total-box {
+            background: #1A1A1C;
+            border: 2px solid #FFEA00;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            box-shadow: 0 0 25px rgba(255, 234, 0, 0.2);
+        }
+
+        .cashcount-total-label {
+            color: #A0A0A0;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .cashcount-total-amount {
+            font-size: 3em;
+            font-weight: 700;
+            color: #FFEA00;
+            text-shadow: 0 0 20px rgba(255, 234, 0, 0.6);
+            line-height: 1.1;
+        }
+
+        .denom-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .denom-row {
+            display: grid;
+            grid-template-columns: 90px 1fr 120px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .denom-badge {
+            background: #1A1A1C;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 6px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.95em;
+            color: #FFEA00;
+            letter-spacing: 0.5px;
+        }
+
+        .denom-input {
+            text-align: center;
+        }
+
+        .denom-subtotal {
+            text-align: right;
+            color: #555;
+            font-size: 0.95em;
+            font-family: 'Courier New', monospace;
+            transition: color 0.2s;
+        }
+
+        .denom-subtotal.has-value {
+            color: #FFFFFF;
+        }
+
+        @media (max-width: 768px) {
+            .denom-row {
+                grid-template-columns: 75px 1fr 90px;
+                gap: 8px;
+            }
+            .denom-badge { font-size: 0.88em; padding: 7px 4px; }
+            .denom-subtotal { font-size: 0.85em; }
+            .cashcount-total-amount { font-size: 2.2em; }
+        }
+
+        /* ── 3 головних вкладки ──────────────────────────────────────── */
         h3 {
             color: #FFEA00;
             text-transform: uppercase;
@@ -703,6 +786,7 @@
         <div class="main-tabs">
             <button class="main-tab active" onclick="showMainTab('cash-management', this)">💼 Управління касою</button>
             <button class="main-tab" onclick="showMainTab('calculator', this)">🧮 Калькулятор годин</button>
+            <button class="main-tab" onclick="showMainTab('cashcount', this)">💵 Рахунок каси</button>
         </div>
 
         <div class="sub-tabs active" id="cash-management-subtabs">
@@ -861,6 +945,72 @@
 
             <div id="calc-results" style="margin-top: 20px;"></div>
         </div>
+
+        <!-- Cash Count Panel -->
+        <div id="cashcount" class="panel">
+            <h2>💵 Рахунок каси</h2>
+            <p style="color: #666; margin-bottom: 20px;">Введіть кількість купюр та монет</p>
+
+            <div class="cashcount-total-box">
+                <div class="cashcount-total-label">Разом у касі</div>
+                <div class="cashcount-total-amount" id="cashcount-total">0 грн</div>
+            </div>
+
+            <div class="denom-grid">
+                <div class="denom-row">
+                    <div class="denom-badge">1000₴</div>
+                    <input type="number" class="denom-input" data-value="1000" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-1000"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">500₴</div>
+                    <input type="number" class="denom-input" data-value="500" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-500"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">200₴</div>
+                    <input type="number" class="denom-input" data-value="200" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-200"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">100₴</div>
+                    <input type="number" class="denom-input" data-value="100" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-100"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">50₴</div>
+                    <input type="number" class="denom-input" data-value="50" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-50"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">20₴</div>
+                    <input type="number" class="denom-input" data-value="20" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-20"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">10₴</div>
+                    <input type="number" class="denom-input" data-value="10" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-10"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">5₴</div>
+                    <input type="number" class="denom-input" data-value="5" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-5"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">2₴</div>
+                    <input type="number" class="denom-input" data-value="2" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-2"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">1₴</div>
+                    <input type="number" class="denom-input" data-value="1" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-1"></div>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="clearCashCount()">🗑 Очистити</button>
+        </div>
     </div>
 
     <script>
@@ -884,8 +1034,8 @@
             } else {
                 subTabsContainer.classList.remove('active');
                 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-                document.getElementById('calculator').classList.add('active');
-                loadZones();
+                document.getElementById(mainTabName).classList.add('active');
+                if (mainTabName === 'calculator') loadZones();
             }
         }
 
@@ -1336,6 +1486,40 @@
             if (isNaN(m) || m >= 60) return null;
             const decimal = h + m / 60;
             return decimal <= 0 ? null : decimal;
+        }
+
+        // ─── Cash Count ─────────────────────────────────────────────────
+
+        const DENOMS = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
+
+        function calcCash() {
+            let total = 0;
+            DENOMS.forEach(d => {
+                const input = document.querySelector(`.denom-input[data-value="${d}"]`);
+                const qty = parseInt(input.value) || 0;
+                const sub = qty * d;
+                total += sub;
+                const subEl = document.getElementById(`sub-${d}`);
+                if (sub > 0) {
+                    subEl.textContent = `= ${fmt(sub)} грн`;
+                    subEl.classList.add('has-value');
+                } else {
+                    subEl.textContent = '';
+                    subEl.classList.remove('has-value');
+                }
+            });
+            document.getElementById('cashcount-total').textContent = `${fmt(total)} грн`;
+        }
+
+        function clearCashCount() {
+            DENOMS.forEach(d => {
+                const input = document.querySelector(`.denom-input[data-value="${d}"]`);
+                input.value = '';
+                const subEl = document.getElementById(`sub-${d}`);
+                subEl.textContent = '';
+                subEl.classList.remove('has-value');
+            });
+            document.getElementById('cashcount-total').textContent = '0 грн';
         }
 
         // ─── Init ───────────────────────────────────────────────────────
