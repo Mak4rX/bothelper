@@ -60,6 +60,7 @@ class ReportCreate(BaseModel):
     close_cash: int  # фізична каса в кінці зміни
     expenses: int
     senet: int
+    note: str = ""   # необов'язкова нотатка до результату
 
 
 class CollectionCreate(BaseModel):
@@ -135,7 +136,7 @@ async def create_report(data: ReportCreate):
         # Генерируем отчет
         text, earned, surplus = build_report(
             scheme, data.open_cash, data.close_cash, data.expenses,
-            data.senet, collection=collected
+            data.senet, collection=collected, note=data.note
         )
 
         # Сохраняем

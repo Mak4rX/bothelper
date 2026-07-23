@@ -19,7 +19,7 @@ DAY = ShiftScheme(
     title="Денна зміна",
     open_label="Каса готівки зранку",
     earned_label="Зароблено за день готівки",
-    close_label="Каса готівки вечері",
+    close_label="Каса готівки ввечері",
 )
 
 NIGHT = ShiftScheme(
@@ -40,13 +40,15 @@ def fmt(amount: int) -> str:
 
 def build_report(scheme: ShiftScheme, open_cash: int, close_cash: int,
                  expenses: int, senet: int,
-                 collection: int = 0) -> tuple[str, int, int]:
+                 collection: int = 0,
+                 note: str = "") -> tuple[str, int, int]:
     """
     Повертає (текст_звіту, зароблено_розраховане, надлишок).
 
     close_cash — фізична каса наприкінці зміни (те що полічив).
     Зароблено = close_cash − open_cash + expenses + інкасація.
     Надлишок  = зароблено − сенет  (плюс = надлишок, мінус = недостача).
+    note      — необов'язкова нотатка, додається до рядка результату.
     """
     earned = close_cash - open_cash + expenses + collection
     surplus = earned - senet
@@ -60,13 +62,14 @@ def build_report(scheme: ShiftScheme, open_cash: int, close_cash: int,
     if collection:
         lines.append(f"Інкасація: {fmt(collection)}")
     lines.append(f"{scheme.close_label}: {fmt(close_cash)}")
-    lines.append(f"Нараховано у сенеті: {fmt(senet)}")
+
+    note_suffix = f", {note.strip()}" if note and note.strip() else ""
 
     if surplus > 0:
-        lines.append(f"{fmt(surplus)} грн надлишку.")
+        lines.append(f"{fmt(surplus)} грн надлишку{note_suffix}.")
     elif surplus < 0:
-        lines.append(f"{fmt(-surplus)} грн недостачі.")
+        lines.append(f"{fmt(-surplus)} грн недостачі{note_suffix}.")
     else:
-        lines.append("Каса сходиться ✅")
+        lines.append(f"Каса сходиться ✅{note_suffix}")
 
     return "\n".join(lines), earned, surplus

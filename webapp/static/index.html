@@ -751,6 +751,12 @@
                 <small id="expectedTotal" style="color: #A0A0A0; margin-top: 5px; display: block;"></small>
             </div>
 
+            <div class="form-group">
+                <label>Нотатка (необов'язково)</label>
+                <input type="text" id="report-note" placeholder="напр. клієнт відмовився від решти">
+                <small style="color: #555555; margin-top: 5px; display: block;">Додається до рядка результату через кому</small>
+            </div>
+
             <button class="btn" onclick="generateReport()">Створити звіт</button>
 
             <div id="report-result"></div>
@@ -968,6 +974,7 @@
             const close_cash = parseInt(document.getElementById('close_cash').value);
             const expenses   = parseInt(document.getElementById('expenses').value) || 0;
             const senet      = parseInt(document.getElementById('senet').value);
+            const note       = document.getElementById('report-note').value.trim();
             const resultDiv  = document.getElementById('report-result');
 
             if (isNaN(close_cash) || isNaN(senet)) {
@@ -979,7 +986,7 @@
                 const response = await fetch('/api/reports', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ shift: selectedShift, open_cash, close_cash, expenses, senet })
+                    body: JSON.stringify({ shift: selectedShift, open_cash, close_cash, expenses, senet, note })
                 });
                 const data = await response.json();
 
@@ -1001,6 +1008,7 @@
                     document.getElementById('close_cash').value = '';
                     document.getElementById('expenses').value = '0';
                     document.getElementById('senet').value = '';
+                    document.getElementById('report-note').value = '';
                     loadExpectedCash();
                 } else {
                     resultDiv.innerHTML = `<div class="alert alert-warning">Помилка: ${data.detail || 'невідома'}</div>`;
