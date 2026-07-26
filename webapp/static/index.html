@@ -588,10 +588,6 @@
                 gap: 8px;
                 margin-bottom: 12px;
             }
-            /* 3-я вкладка — на всю ширину */
-            .main-tab:nth-child(3) {
-                grid-column: 1 / -1;
-            }
             .main-tab {
                 padding: 14px 10px;
                 font-size: 0.9em;
@@ -752,6 +748,64 @@
             color: #FFFFFF;
         }
 
+        /* ── Решта ───────────────────────────────────────────────────── */
+        .expr-preview {
+            margin-top: 6px;
+            min-height: 1.2em;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #A0A0A0;
+        }
+
+        .expr-preview.is-error {
+            color: #E50914;
+        }
+
+        input.input-error {
+            border-color: #E50914;
+        }
+
+        .change-box-short {
+            border-color: #E50914;
+            box-shadow: 0 0 25px rgba(229, 9, 20, 0.2);
+        }
+
+        .change-box-short .cashcount-total-amount {
+            color: #E50914;
+            text-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+        }
+
+        .change-exact {
+            color: #28a745;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .change-breakdown {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .change-denom {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .change-denom-count {
+            color: #FFFFFF;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .change-note {
+            color: #A0A0A0;
+            font-size: 0.85em;
+            margin-bottom: 20px;
+        }
+
         @media (max-width: 768px) {
             .denom-row {
                 grid-template-columns: 75px 1fr 90px;
@@ -787,6 +841,7 @@
             <button class="main-tab active" onclick="showMainTab('cash-management', this)">💼 Управління касою</button>
             <button class="main-tab" onclick="showMainTab('calculator', this)">🧮 Калькулятор годин</button>
             <button class="main-tab" onclick="showMainTab('cashcount', this)">💵 Рахунок каси</button>
+            <button class="main-tab" onclick="showMainTab('change', this)">💱 Решта</button>
         </div>
 
         <div class="sub-tabs active" id="cash-management-subtabs">
@@ -1011,8 +1066,35 @@
 
             <button class="btn btn-secondary" onclick="clearCashCount()">🗑 Очистити</button>
         </div>
+
+        <!-- Change Panel -->
+        <div id="change" class="panel">
+            <h2>💱 Решта</h2>
+            <p style="color: #666; margin-bottom: 20px;">
+                Суму можна писати виразом: 50+100 · 3*70 · 2*80+50 · (50+100)*2
+            </p>
+
+            <div class="form-group">
+                <label>До сплати</label>
+                <input type="text" id="change-due" placeholder="напр. 50+100 або 3*70"
+                       autocomplete="off" spellcheck="false" oninput="calcChange()">
+                <div class="expr-preview" id="change-due-preview"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Дали готівкою</label>
+                <input type="text" id="change-paid" placeholder="напр. 200 або 200+50"
+                       autocomplete="off" spellcheck="false" oninput="calcChange()">
+                <div class="expr-preview" id="change-paid-preview"></div>
+            </div>
+
+            <div id="change-result"></div>
+
+            <button class="btn btn-secondary" onclick="clearChange()">🗑 Очистити</button>
+        </div>
     </div>
 
+    <script type="module" src="/static/change.js"></script>
     <script>
         let selectedShift = 'day';
         let selectedMode = 'money';
@@ -1520,6 +1602,87 @@
                 subEl.classList.remove('has-value');
             });
             document.getElementById('cashcount-total').textContent = '0 грн';
+        }
+
+        // ─── Решта ──────────────────────────────────────────────────────
+
+        /** Читає поле з виразом, малює підсумок під ним і повертає копійки. */
+        function readExpr(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+
+            let value = null;
+            let error = null;
+            try {
+                value = ChangeCalc.parseExpression(input.value);
+            } catch (e) {
+                error = e.message;
+            }
+
+            input.classList.toggle('input-error', error !== null);
+            preview.classList.toggle('is-error', error !== null);
+            preview.textContent = error
+                ? error
+                : (value === null ? '' : `= ${ChangeCalc.formatUah(value)}`);
+
+            return { value, error };
+        }
+
+        function denomLabel(denom) {
+            return denom >= 100 ? `${denom / 100}₴` : `${denom}к`;
+        }
+
+        function calcChange() {
+            const due = readExpr('change-due', 'change-due-preview');
+            const paid = readExpr('change-paid', 'change-paid-preview');
+            const box = document.getElementById('change-result');
+
+            if (due.error || paid.error || due.value === null || paid.value === null) {
+                box.innerHTML = '';
+                return;
+            }
+
+            const diff = paid.value - due.value;
+
+            if (diff < 0) {
+                box.innerHTML = `
+                    <div class="cashcount-total-box change-box-short">
+                        <div class="cashcount-total-label">Не вистачає</div>
+                        <div class="cashcount-total-amount">${ChangeCalc.formatUah(-diff)}</div>
+                    </div>`;
+                return;
+            }
+
+            const { rounded, wasRounded, breakdown } = ChangeCalc.makeChange(diff);
+
+            const rows = breakdown.map(r => `
+                <div class="change-denom">
+                    <span class="denom-badge">${denomLabel(r.denom)}</span>
+                    <span class="change-denom-count">× ${r.count}</span>
+                </div>`).join('');
+
+            box.innerHTML = `
+                <div class="cashcount-total-box">
+                    <div class="cashcount-total-label">Решта</div>
+                    <div class="cashcount-total-amount">${ChangeCalc.formatUah(rounded)}</div>
+                </div>
+                ${rounded === 0 ? '<div class="change-exact">Без решти ✅</div>' : ''}
+                ${rows ? `<div class="change-breakdown">${rows}</div>` : ''}
+                ${wasRounded ? '<div class="change-note">заокруглено до 10 к</div>' : ''}`;
+        }
+
+        function clearChange() {
+            ['change-due', 'change-paid'].forEach(id => {
+                const el = document.getElementById(id);
+                el.value = '';
+                el.classList.remove('input-error');
+            });
+            ['change-due-preview', 'change-paid-preview'].forEach(id => {
+                const el = document.getElementById(id);
+                el.textContent = '';
+                el.classList.remove('is-error');
+            });
+            document.getElementById('change-result').innerHTML = '';
         }
 
         // ─── Init ───────────────────────────────────────────────────────
