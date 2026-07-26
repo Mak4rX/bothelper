@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberHelper — Управління касою</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 20px;
+            color: #FFFFFF;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: #FFEA00;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(255, 234, 0, 0.6),
+                         0 0 40px rgba(255, 234, 0, 0.4);
+        }
+
+        header p {
+            font-size: 1.2em;
+            color: #CCCCCC;
+            letter-spacing: 2px;
+        }
+
+        .main-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .main-tab {
+            background: #0E0E10;
+            border: 1px solid #222222;
+            padding: 16px 32px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 1.15em;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #A0A0A0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        .main-tab::before {
+            content: '⬤ ⬤ ⬤';
+            position: absolute;
+            left: 12px;
+            top: 8px;
+            font-size: 0.5em;
+            color: #333333;
+            letter-spacing: 2px;
+        }
+
+        .main-tab:hover {
+            border-color: #FFEA00;
+            box-shadow: 0 0 15px rgba(255, 234, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .main-tab.active {
+            background: #1A1A1C;
+            color: #FFEA00;
+            border-color: #FFEA00;
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.4);
+        }
+
+        .sub-tabs {
+            display: none;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-left: 0;
+            flex-wrap: wrap;
+            overflow-x: auto;
+        }
+
+        .sub-tabs.active {
+            display: flex;
+        }
+
+        .sub-tab {
+            background: #0E0E10;
+            border: 1px solid #1A1A1A;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            color: #A0A0A0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .sub-tab:hover {
+            border-color: #00D9FF;
+            transform: translateY(-1px);
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+            color: #FFFFFF;
+        }
+
+        .sub-tab.active {
+            background: rgba(0, 217, 255, 0.1);
+            color: #00D9FF;
+            border-color: #00D9FF;
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+        }
+
+        .panel {
+            display: none;
+            background: #0E0E10;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            border: 1px solid #222222;
+            position: relative;
+        }
+
+        .panel::before {
+            content: '⬤ ⬤ ⬤';
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            font-size: 0.7em;
+            color: #333333;
+            letter-spacing: 4px;
+        }
+
+        .panel.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .panel h2 {
+            color: #FFEA00;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            text-shadow: 0 0 15px rgba(255, 234, 0, 0.4);
+        }
+
+        .panel > p {
+            color: #A0A0A0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #FFEA00;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+            background: #1A1A1C;
+            color: #FFFFFF;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #FFEA00;
+            box-shadow: 0 0 15px rgba(255, 234, 0, 0.3);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: #555555;
+        }
+
+        .btn {
+            background: #FFEA00;
+            color: #000000;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: #FFEE00;
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(255, 234, 0, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #333333;
+            color: #FFFFFF;
+            box-shadow: 0 0 15px rgba(51, 51, 51, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background: #444444;
+            box-shadow: 0 0 20px rgba(51, 51, 51, 0.6);
+        }
+
+        .shift-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .shift-btn {
+            flex: 1;
+            padding: 20px;
+            border: 2px solid #333333;
+            background: #1A1A1C;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            color: #A0A0A0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shift-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 234, 0, 0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .shift-btn:hover {
+            border-color: #FFEA00;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.3);
+            color: #FFFFFF;
+        }
+
+        .shift-btn:hover::before {
+            opacity: 1;
+        }
+
+        .shift-btn.selected {
+            border-color: #FFEA00;
+            background: #1A1A1C;
+            color: #FFEA00;
+            box-shadow: 0 0 25px rgba(255, 234, 0, 0.4);
+        }
+
+        .shift-btn.selected::before {
+            opacity: 1;
+        }
+
+        .report-preview {
+            background: #1A1A1C;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            white-space: pre-line;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            border: 1px solid #333333;
+            color: #CCCCCC;
+        }
+
+        .report-item {
+            background: #1A1A1C;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #FFEA00;
+            border: 1px solid #333333;
+            border-left: 4px solid #FFEA00;
+        }
+
+        .report-item .date {
+            color: #FFEA00;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .report-item .content {
+            white-space: pre-line;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            color: #CCCCCC;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #1A1A1C;
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.2);
+            border: 1px solid #333333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #FFEA00 0%, transparent 50%);
+            opacity: 0.1;
+            border-radius: 16px;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            color: #A0A0A0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #FFEA00;
+            text-shadow: 0 0 15px rgba(255, 234, 0, 0.5);
+            position: relative;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid;
+        }
+
+        .alert-info {
+            background: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+            border-color: #17a2b8;
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border-color: #ffc107;
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border-color: #28a745;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #A0A0A0;
+        }
+
+        .collection-item {
+            background: #1A1A1C;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #333333;
+            position: relative;
+        }
+
+        .collection-item.pending {
+            border-left: 4px solid #ffc107;
+        }
+
+        .collection-item.pending::after {
+            content: 'АКЦІЯ!';
+            position: absolute;
+            top: 10px;
+            right: -25px;
+            background: #E50914;
+            color: #FFFFFF;
+            padding: 4px 30px;
+            font-size: 0.7em;
+            font-weight: bold;
+            transform: rotate(35deg);
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+            letter-spacing: 1px;
+        }
+
+        .collection-item.completed {
+            border-left: 4px solid #28a745;
+        }
+
+        /* Calculator styles */
+        .calculator-mode {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #333333;
+            background: #1A1A1C;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            color: #A0A0A0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mode-btn:hover {
+            border-color: #FFEA00;
+            color: #FFFFFF;
+            box-shadow: 0 0 15px rgba(255, 234, 0, 0.3);
+        }
+
+        .mode-btn.selected {
+            border-color: #FFEA00;
+            background: #1A1A1C;
+            color: #FFEA00;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.4);
+        }
+
+        .result-card {
+            background: #1A1A1C;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #FFEA00;
+            border: 1px solid #333333;
+            border-left: 4px solid #FFEA00;
+        }
+
+        .result-card h4 {
+            margin-bottom: 8px;
+            color: #FFEA00;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-card .highlight {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #FFFFFF;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(255, 234, 0, 0.3);
+        }
+
+        .result-card .detail {
+            color: #A0A0A0;
+            font-size: 0.95em;
+        }
+
+            .btn-delete {
+            background: transparent;
+            color: #E50914;
+            border: 1px solid #E50914;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-family: 'Rajdhani', sans-serif;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-delete:hover {
+            background: rgba(229, 9, 20, 0.15);
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
+        }
+
+        /* Calculator banner */
+        .calc-banner {
+            background: #1A1A1C;
+            border: 2px solid #FFEA00;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 10px;
+            box-shadow: 0 0 30px rgba(255, 234, 0, 0.2);
+        }
+
+        .calc-banner-label {
+            color: #A0A0A0;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .calc-banner-hours {
+            font-size: 3em;
+            font-weight: 700;
+            color: #FFEA00;
+            text-shadow: 0 0 20px rgba(255, 234, 0, 0.6);
+            line-height: 1.1;
+        }
+
+        .calc-banner-rate {
+            color: #A0A0A0;
+            font-size: 0.9em;
+            margin-top: 6px;
+            letter-spacing: 1px;
+        }
+
+        /* ── Mobile ─────────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            body { padding: 10px 10px 80px; } /* bottom pad для sticky btn */
+
+            header { margin-bottom: 16px; }
+            header h1 { font-size: 1.5em; letter-spacing: 2px; }
+            header p  { font-size: 0.9em; }
+
+            /* ── Головні вкладки ── */
+            .main-tabs {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            /* 3-я вкладка — на всю ширину */
+            .main-tab:nth-child(3) {
+                grid-column: 1 / -1;
+            }
+            .main-tab {
+                padding: 14px 10px;
+                font-size: 0.9em;
+                min-height: 52px;
+                white-space: nowrap;
+                justify-content: center;
+            }
+            .main-tab::before { display: none; }
+
+            /* ── Під-вкладки ── */
+            .sub-tabs.active {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .sub-tab {
+                white-space: normal;
+                text-align: center;
+                padding: 10px 6px;
+                font-size: 0.78em;
+                min-height: 44px;
+                line-height: 1.3;
+            }
+
+            /* ── Панель ── */
+            .panel { padding: 14px; border-radius: 14px; }
+            .panel::before { display: none; }
+            .panel h2 { font-size: 1.2em; margin-bottom: 14px; }
+
+            /* ── Вибір зміни ── */
+            .shift-selector { flex-direction: row; gap: 10px; }
+            .shift-btn {
+                padding: 18px 10px;
+                font-size: 1em;
+                min-height: 64px;
+                flex: 1;
+            }
+
+            /* ── Калькулятор режим ── */
+            .calculator-mode { flex-direction: row; gap: 8px; }
+            .mode-btn { padding: 14px 8px; min-height: 50px; font-size: 0.9em; }
+
+            /* ── Статистика ── */
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-card { padding: 14px 10px; }
+            .stat-card .value { font-size: 1.6em; }
+
+            /* ── Калькулятор баннер ── */
+            .calc-banner-hours { font-size: 2em; }
+            .result-card .highlight { font-size: 1.3em; }
+
+            /* ── Інпути (iOS zoom fix) ── */
+            input, select, textarea { font-size: 16px !important; }
+
+            /* ── Кнопки ── */
+            .btn {
+                width: 100%;
+                min-height: 54px;
+                padding: 16px;
+                font-size: 1.15em;
+                border-radius: 12px;
+                margin-top: 4px;
+            }
+
+            /* ── Кнопка видалення ── */
+            .btn-delete {
+                min-height: 40px;
+                padding: 8px 14px;
+                font-size: 0.85em;
+                border-radius: 8px;
+            }
+
+            /* ── Активний стан (tap feedback) ── */
+            .btn:active { transform: scale(0.97); opacity: 0.9; }
+            .shift-btn:active { transform: scale(0.97); }
+            .mode-btn:active { transform: scale(0.97); }
+            .main-tab:active { transform: scale(0.97); }
+            .sub-tab:active { opacity: 0.8; }
+
+            .collection-item { flex-wrap: wrap; gap: 8px; }
+            .report-item .date { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .form-group { margin-bottom: 14px; }
+            .form-group label { font-size: 0.9em; }
+        }
+
+        @media (max-width: 420px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .sub-tabs { grid-template-columns: repeat(2, 1fr); }
+            .sub-tab { font-size: 0.82em; }
+        }
+
+        /* ── Рахунок каси ──────────────────────────────────────────── */
+        .cashcount-total-box {
+            background: #1A1A1C;
+            border: 2px solid #FFEA00;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            box-shadow: 0 0 25px rgba(255, 234, 0, 0.2);
+        }
+
+        .cashcount-total-label {
+            color: #A0A0A0;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .cashcount-total-amount {
+            font-size: 3em;
+            font-weight: 700;
+            color: #FFEA00;
+            text-shadow: 0 0 20px rgba(255, 234, 0, 0.6);
+            line-height: 1.1;
+        }
+
+        .denom-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .denom-row {
+            display: grid;
+            grid-template-columns: 90px 1fr 120px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .denom-badge {
+            background: #1A1A1C;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 6px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.95em;
+            color: #FFEA00;
+            letter-spacing: 0.5px;
+        }
+
+        .denom-input {
+            text-align: center;
+        }
+
+        .denom-subtotal {
+            text-align: right;
+            color: #555;
+            font-size: 0.95em;
+            font-family: 'Courier New', monospace;
+            transition: color 0.2s;
+        }
+
+        .denom-subtotal.has-value {
+            color: #FFFFFF;
+        }
+
+        @media (max-width: 768px) {
+            .denom-row {
+                grid-template-columns: 75px 1fr 90px;
+                gap: 8px;
+            }
+            .denom-badge { font-size: 0.88em; padding: 7px 4px; }
+            .denom-subtotal { font-size: 0.85em; }
+            .cashcount-total-amount { font-size: 2.2em; }
+        }
+
+        /* ── 3 головних вкладки ──────────────────────────────────────── */
+        h3 {
+            color: #FFEA00;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1.2em;
+        }
+
+        strong {
+            color: #FFEA00;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ CyberHelper</h1>
+            <p>Управління касою кіберклубу</p>
+        </header>
+
+        <div class="main-tabs">
+            <button class="main-tab active" onclick="showMainTab('cash-management', this)">💼 Управління касою</button>
+            <button class="main-tab" onclick="showMainTab('calculator', this)">🧮 Калькулятор годин</button>
+            <button class="main-tab" onclick="showMainTab('cashcount', this)">💵 Рахунок каси</button>
+        </div>
+
+        <div class="sub-tabs active" id="cash-management-subtabs">
+            <button class="sub-tab active" onclick="showSubTab('report', this)">📋 Закриття зміни</button>
+            <button class="sub-tab" onclick="showSubTab('collection', this)">💰 Інкасація</button>
+            <button class="sub-tab" onclick="showSubTab('history', this)">🕓 Історія</button>
+            <button class="sub-tab" onclick="showSubTab('stats', this)">📊 Статистика</button>
+        </div>
+
+        <!-- Report Panel -->
+        <div id="report" class="panel active">
+            <h2>📋 Закриття зміни</h2>
+
+            <div id="expectedCashAlert"></div>
+            <div id="pendingCollectionAlert"></div>
+
+            <div class="shift-selector">
+                <div class="shift-btn selected" onclick="selectShift('day')" id="shift-day">
+                    <div>☀️ Денна зміна</div>
+                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">9:00 — 21:00</div>
+                </div>
+                <div class="shift-btn" onclick="selectShift('night')" id="shift-night">
+                    <div>🌙 Нічна зміна</div>
+                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">21:00 — 9:00</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Каса на початку зміни (грн)</label>
+                <input type="number" id="open_cash" placeholder="0" min="0">
+            </div>
+
+            <div class="form-group">
+                <label>Каса готівки в кінці зміни (грн)</label>
+                <input type="number" id="close_cash" placeholder="0" min="0">
+            </div>
+
+            <div class="form-group">
+                <label>Торгівельні витрати (грн)</label>
+                <input type="number" id="expenses" placeholder="0" min="0">
+            </div>
+
+            <div class="form-group">
+                <label>Нараховано у сенеті (грн)</label>
+                <input type="number" id="senet" placeholder="0" min="0">
+                <small id="expectedTotal" style="color: #A0A0A0; margin-top: 5px; display: block;"></small>
+            </div>
+
+            <div class="form-group">
+                <label>Нотатка (необов'язково)</label>
+                <input type="text" id="report-note" placeholder="напр. клієнт відмовився від решти">
+                <small style="color: #555555; margin-top: 5px; display: block;">Додається до рядка результату через кому</small>
+            </div>
+
+            <button class="btn" onclick="generateReport()">Створити звіт</button>
+
+            <div id="report-result"></div>
+        </div>
+
+        <!-- Collection Panel -->
+        <div id="collection" class="panel">
+            <h2>💰 Інкасація</h2>
+
+            <div class="form-group">
+                <label>Сума інкасації (грн)</label>
+                <input type="number" id="collection-amount" placeholder="0" min="1">
+            </div>
+
+            <div class="form-group">
+                <label>Коментар (необов'язково)</label>
+                <textarea id="collection-comment" rows="2" placeholder="Наприклад: забрав власник..."></textarea>
+            </div>
+
+            <button class="btn" onclick="createCollection()">Записати інкасацію</button>
+
+            <div style="margin-top: 30px;">
+                <h3 style="margin-bottom: 15px;">Останні інкасації</h3>
+                <div id="collections-list" class="loading">Завантаження...</div>
+            </div>
+        </div>
+
+        <!-- History Panel -->
+        <div id="history" class="panel">
+            <h2>🕓 Історія звітів</h2>
+            <p style="color: #666; margin-bottom: 20px;">Перегляд попередніх звітів</p>
+
+            <div class="form-group">
+                <label>Період</label>
+                <select id="history-period" onchange="loadHistory()">
+                    <option value="7">Останні 7 днів</option>
+                    <option value="14">Останні 14 днів</option>
+                    <option value="30">Останній місяць</option>
+                </select>
+            </div>
+
+            <div id="history-list" class="loading">Завантаження...</div>
+        </div>
+
+        <!-- Stats Panel -->
+        <div id="stats" class="panel">
+            <h2>📊 Статистика</h2>
+
+            <div class="form-group">
+                <label>Період</label>
+                <select id="stats-period" onchange="loadStats()">
+                    <option value="1">Сьогодні</option>
+                    <option value="7" selected>7 днів</option>
+                    <option value="30">30 днів</option>
+                </select>
+            </div>
+
+            <div id="stats-content" class="loading">Завантаження...</div>
+        </div>
+
+        <!-- Calculator Panel -->
+        <div id="calculator" class="panel">
+            <h2>🧮 Калькулятор годин</h2>
+            <p style="color: #666; margin-bottom: 20px;">Розрахунок часу для пакетів</p>
+
+            <div class="calculator-mode">
+                <div class="mode-btn selected" onclick="selectMode('money')" id="mode-money">
+                    💰 Сума → Години
+                </div>
+                <div class="mode-btn" onclick="selectMode('hours')" id="mode-hours">
+                    ⏱️ Години → Сума
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Зона</label>
+                <select id="calc-zone">
+                    <option value="">Завантаження зон...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Тип дня</label>
+                <select id="calc-day-type">
+                    <option value="weekday">Понеділок-Четвер</option>
+                    <option value="weekend">П'ятниця-Неділя</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="money-input-group">
+                <label>Сума (грн)</label>
+                <input type="number" id="calc-money" placeholder="Введіть суму">
+            </div>
+
+            <div class="form-group" id="hours-input-group" style="display: none;">
+                <label>Години</label>
+                <input type="text" id="calc-hours" placeholder="напр. 3.20 = 3 год 20 хв" inputmode="decimal">
+                <small style="color:#A0A0A0; margin-top:5px; display:block;">Формат: 3 = 3 год · 3.30 = 3 год 30 хв · 0.45 = 45 хв</small>
+            </div>
+
+            <button class="btn" onclick="calculate()">Розрахувати</button>
+
+            <div id="calc-results" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Cash Count Panel -->
+        <div id="cashcount" class="panel">
+            <h2>💵 Рахунок каси</h2>
+            <p style="color: #666; margin-bottom: 20px;">Введіть кількість купюр та монет</p>
+
+            <div class="cashcount-total-box">
+                <div class="cashcount-total-label">Разом у касі</div>
+                <div class="cashcount-total-amount" id="cashcount-total">0 грн</div>
+            </div>
+
+            <div class="denom-grid">
+                <div class="denom-row">
+                    <div class="denom-badge">1000₴</div>
+                    <input type="number" class="denom-input" data-value="1000" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-1000"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">500₴</div>
+                    <input type="number" class="denom-input" data-value="500" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-500"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">200₴</div>
+                    <input type="number" class="denom-input" data-value="200" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-200"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">100₴</div>
+                    <input type="number" class="denom-input" data-value="100" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-100"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">50₴</div>
+                    <input type="number" class="denom-input" data-value="50" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-50"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">20₴</div>
+                    <input type="number" class="denom-input" data-value="20" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-20"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">10₴</div>
+                    <input type="number" class="denom-input" data-value="10" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-10"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">5₴</div>
+                    <input type="number" class="denom-input" data-value="5" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-5"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">2₴</div>
+                    <input type="number" class="denom-input" data-value="2" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-2"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">1₴</div>
+                    <input type="number" class="denom-input" data-value="1" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-1"></div>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="clearCashCount()">🗑 Очистити</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedShift = 'day';
+        let selectedMode = 'money';
+        let lastReportText = '';
+
+        // ─── Navigation ───────────────────────────────────────────────
+
+        function showMainTab(mainTabName, btn) {
+            document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+
+            const subTabsContainer = document.getElementById('cash-management-subtabs');
+
+            if (mainTabName === 'cash-management') {
+                subTabsContainer.classList.add('active');
+                // активуємо першу підвкладку
+                const firstSubTab = subTabsContainer.querySelector('.sub-tab');
+                showSubTabByName('report', firstSubTab);
+            } else {
+                subTabsContainer.classList.remove('active');
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(mainTabName).classList.add('active');
+                if (mainTabName === 'calculator') loadZones();
+            }
+        }
+
+        function showSubTab(subTabName, btn) {
+            showSubTabByName(subTabName, btn);
+        }
+
+        function showSubTabByName(subTabName, tabEl) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+
+            document.getElementById(subTabName).classList.add('active');
+            if (tabEl) tabEl.classList.add('active');
+
+            if (subTabName === 'report')     loadExpectedCash();
+            if (subTabName === 'collection') loadCollections();
+            if (subTabName === 'history')    loadHistory();
+            if (subTabName === 'stats')      loadStats();
+        }
+
+        // ─── Shift / Mode selectors ────────────────────────────────────
+
+        function selectShift(shift) {
+            selectedShift = shift;
+            document.querySelectorAll('.shift-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('shift-' + shift).classList.add('selected');
+        }
+
+        function selectMode(mode) {
+            selectedMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('mode-' + mode).classList.add('selected');
+            document.getElementById('money-input-group').style.display = mode === 'money' ? 'block' : 'none';
+            document.getElementById('hours-input-group').style.display = mode === 'hours' ? 'block' : 'none';
+        }
+
+        // ─── Report ────────────────────────────────────────────────────
+
+        async function copyReport(btn) {
+            if (!lastReportText) return;
+            try {
+                await navigator.clipboard.writeText(lastReportText);
+                btn.textContent = '✅ Скопійовано!';
+                setTimeout(() => { btn.innerHTML = '📋 Скопіювати звіт'; }, 2000);
+            } catch (e) {
+                // fallback для старих браузерів
+                const ta = document.createElement('textarea');
+                ta.value = lastReportText;
+                ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                btn.textContent = '✅ Скопійовано!';
+                setTimeout(() => { btn.innerHTML = '📋 Скопіювати звіт'; }, 2000);
+            }
+        }
+
+        async function loadExpectedCash() {
+            const [cashRes, pendingRes] = await Promise.all([
+                fetch('/api/expected-cash').then(r => r.json()).catch(() => null),
+                fetch('/api/pending-collection').then(r => r.json()).catch(() => null),
+            ]);
+
+            const cashAlert = document.getElementById('expectedCashAlert');
+            const pendingAlert = document.getElementById('pendingCollectionAlert');
+
+            if (cashRes && cashRes.expected_cash !== null) {
+                const val = cashRes.expected_cash;
+                document.getElementById('open_cash').value = val;
+                cashAlert.innerHTML = `<div class="alert alert-info">💡 За попереднім звітом у касі має бути <strong>${fmt(val)} грн</strong></div>`;
+            } else {
+                cashAlert.innerHTML = '';
+            }
+
+            if (pendingRes && pendingRes.has_pending) {
+                const p = pendingRes;
+                pendingAlert.innerHTML = `<div class="alert alert-warning">⚠️ Є неврахована інкасація: <strong>${fmt(p.amount)} грн</strong> (${p.created_at})${p.comment ? ' — ' + p.comment : ''}. Буде автоматично врахована у звіті.</div>`;
+            } else {
+                pendingAlert.innerHTML = '';
+            }
+        }
+
+        async function generateReport() {
+            const open_cash  = parseInt(document.getElementById('open_cash').value) || 0;
+            const close_cash = parseInt(document.getElementById('close_cash').value);
+            const expenses   = parseInt(document.getElementById('expenses').value) || 0;
+            const senet      = parseInt(document.getElementById('senet').value);
+            const note       = document.getElementById('report-note').value.trim();
+            const resultDiv  = document.getElementById('report-result');
+
+            if (isNaN(close_cash) || isNaN(senet)) {
+                resultDiv.innerHTML = '<div class="alert alert-warning">Заповніть всі поля</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/reports', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ shift: selectedShift, open_cash, close_cash, expenses, senet, note })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    const surplusColor = data.surplus >= 0 ? '#28a745' : '#E50914';
+                    const surplusLabel = data.surplus >= 0 ? 'Надлишок' : 'Недостача';
+                    lastReportText = data.report_text;
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">✅ Звіт успішно створено!</div>
+                        <div class="report-preview">${data.report_text}</div>
+                        <div style="margin-top:10px; font-size:1.2em; color:${surplusColor};">
+                            ${surplusLabel}: <strong>${fmt(Math.abs(data.surplus))} грн</strong>
+                        </div>
+                        <button class="btn btn-copy" onclick="copyReport(this)" style="margin-top:12px;">
+                            📋 Скопіювати звіт
+                        </button>
+                    `;
+                    // очищаємо поля після успіху
+                    document.getElementById('close_cash').value = '';
+                    document.getElementById('expenses').value = '0';
+                    document.getElementById('senet').value = '';
+                    document.getElementById('report-note').value = '';
+                    loadExpectedCash();
+                } else {
+                    resultDiv.innerHTML = `<div class="alert alert-warning">Помилка: ${data.detail || 'невідома'}</div>`;
+                }
+            } catch (e) {
+                resultDiv.innerHTML = '<div class="alert alert-warning">Помилка з\'єднання з сервером</div>';
+            }
+        }
+
+        // ─── Collections ───────────────────────────────────────────────
+
+        async function createCollection() {
+            const amount  = parseInt(document.getElementById('collection-amount').value);
+            const comment = document.getElementById('collection-comment').value.trim() || null;
+
+            if (!amount || amount <= 0) {
+                alert('Введіть суму більше нуля');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/collections', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ amount, comment })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('collection-amount').value = '';
+                    document.getElementById('collection-comment').value = '';
+                    loadCollections();
+                } else {
+                    alert('Помилка: ' + (data.detail || 'невідома'));
+                }
+            } catch (e) {
+                alert('Помилка з\'єднання з сервером');
+            }
+        }
+
+        async function loadCollections() {
+            const listDiv = document.getElementById('collections-list');
+            try {
+                const rows = await fetch('/api/collections?limit=20').then(r => r.json());
+
+                if (rows.length > 0) {
+                    listDiv.innerHTML = rows.map(c => `
+                        <div class="collection-item ${c.report_id ? 'completed' : 'pending'}">
+                            <div style="flex:1;">
+                                <strong>${fmt(c.amount)} грн</strong>
+                                <div style="font-size:0.9em; color:#A0A0A0; margin-top:3px;">${c.created_at}</div>
+                                ${c.comment ? `<div style="font-size:0.9em; margin-top:4px;">${c.comment}</div>` : ''}
+                            </div>
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <span style="font-weight:bold; color:${c.report_id ? '#28a745' : '#ffc107'};">
+                                    ${c.report_id ? '✅ Враховано' : '⏳ Очікує'}
+                                </span>
+                                ${!c.report_id ? `
+                                <button class="btn-delete" onclick="deleteCollection(${c.id})" title="Видалити">🗑</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    listDiv.innerHTML = '<div class="alert alert-info">Інкасацій ще немає</div>';
+                }
+            } catch (e) {
+                listDiv.innerHTML = '<div class="alert alert-warning">Помилка завантаження</div>';
+            }
+        }
+
+        async function deleteCollection(id) {
+            if (!confirm('Видалити цю інкасацію?')) return;
+            try {
+                const res = await fetch(`/api/collections/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadCollections();
+                } else {
+                    const data = await res.json();
+                    alert('Помилка: ' + (data.detail || 'невідома'));
+                }
+            } catch (e) {
+                alert('Помилка з\'єднання');
+            }
+        }
+
+        // ─── History ────────────────────────────────────────────────────
+
+        async function loadHistory() {
+            const period  = document.getElementById('history-period').value;
+            const listDiv = document.getElementById('history-list');
+            listDiv.innerHTML = '<div class="loading">Завантаження...</div>';
+
+            try {
+                const rows = await fetch(`/api/reports?limit=${period}`).then(r => r.json());
+
+                if (rows.length > 0) {
+                    listDiv.innerHTML = rows.map(r => `
+                        <div class="report-item">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <div class="date">${r.shift === 'day' ? '☀️ Денна' : '🌙 Нічна'} — ${r.created_at}</div>
+                                <button class="btn-delete" onclick="deleteReport(${r.id})" title="Видалити звіт">🗑 Видалити</button>
+                            </div>
+                            <div class="content">${r.report_text}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    listDiv.innerHTML = '<div class="alert alert-info">Звітів ще немає</div>';
+                }
+            } catch (e) {
+                listDiv.innerHTML = '<div class="alert alert-warning">Помилка завантаження</div>';
+            }
+        }
+
+        async function deleteReport(id) {
+            if (!confirm('Видалити цей звіт? Пов\'язана інкасація стане неврахованою.')) return;
+            try {
+                const res = await fetch(`/api/reports/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadHistory();
+                    loadExpectedCash(); // оновити підказку каси
+                } else {
+                    const data = await res.json();
+                    alert('Помилка: ' + (data.detail || 'невідома'));
+                }
+            } catch (e) {
+                alert('Помилка з\'єднання');
+            }
+        }
+
+        // ─── Stats ──────────────────────────────────────────────────────
+
+        async function loadStats() {
+            const days       = document.getElementById('stats-period').value;
+            const contentDiv = document.getElementById('stats-content');
+            contentDiv.innerHTML = '<div class="loading">Завантаження...</div>';
+
+            try {
+                const data = await fetch(`/api/stats?days=${days}`).then(r => r.json());
+
+                if (data.cnt > 0) {
+                    contentDiv.innerHTML = `
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3>Звітів</h3>
+                                <div class="value">${data.cnt}</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Зароблено готівки</h3>
+                                <div class="value">${fmt(data.earned)} <span style="font-size:0.5em">грн</span></div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Витрати</h3>
+                                <div class="value">${fmt(data.expenses)} <span style="font-size:0.5em">грн</span></div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Надлишок / Недостача</h3>
+                                <div class="value" style="color:${data.surplus >= 0 ? '#FFEA00' : '#E50914'}">
+                                    ${data.surplus >= 0 ? '+' : ''}${fmt(data.surplus)} <span style="font-size:0.5em">грн</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    contentDiv.innerHTML = '<div class="alert alert-info">Немає даних за обраний період</div>';
+                }
+            } catch (e) {
+                contentDiv.innerHTML = '<div class="alert alert-warning">Помилка завантаження</div>';
+            }
+        }
+
+        // ─── Calculator ─────────────────────────────────────────────────
+
+        let zonesData = {};
+
+        async function loadZones() {
+            try {
+                const zones  = await fetch('/api/zones').then(r => r.json());
+                const select = document.getElementById('calc-zone');
+                select.innerHTML = '<option value="">Оберіть зону</option>';
+                zones.forEach(z => {
+                    zonesData[z.id] = z;
+                    const opt = document.createElement('option');
+                    opt.value = z.id;
+                    opt.textContent = z.name;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                document.getElementById('calc-zone').innerHTML = '<option value="">Помилка завантаження</option>';
+            }
+        }
+
+        async function calculate() {
+            const zone    = document.getElementById('calc-zone').value;
+            const dayType = document.getElementById('calc-day-type').value;
+            const resDiv  = document.getElementById('calc-results');
+
+            if (!zone) {
+                resDiv.innerHTML = '<div class="alert alert-warning">Оберіть зону</div>';
+                return;
+            }
+
+            const zInfo    = zonesData[zone] || {};
+            const hourRate = dayType === 'weekday' ? zInfo.weekday_hour : zInfo.weekend_hour;
+
+            try {
+                let data;
+
+                if (selectedMode === 'money') {
+                    const amount = parseInt(document.getElementById('calc-money').value);
+                    if (!amount || amount <= 0) {
+                        resDiv.innerHTML = '<div class="alert alert-warning">Введіть суму</div>';
+                        return;
+                    }
+                    data = await fetch(`/api/calculator/money-to-hours?amount=${amount}&zone=${zone}&day_type=${dayType}`).then(r => r.json());
+
+                    const options = data.options || [];
+
+                    // Головний банер — безперервний час
+                    let bannerHtml = '';
+                    if (hourRate) {
+                        const totalMins = Math.floor((amount / hourRate) * 60);
+                        bannerHtml = `
+                            <div class="calc-banner">
+                                <div class="calc-banner-label">За ${fmt(amount)} грн по тарифу ${fmt(hourRate)} грн/год</div>
+                                <div class="calc-banner-hours">${fmtHours(totalMins)}</div>
+                                <div class="calc-banner-rate">безперервної гри</div>
+                            </div>`;
+                    }
+
+                    if (!options.length) {
+                        resDiv.innerHTML = bannerHtml + '<div class="alert alert-info" style="margin-top:15px;">Суми недостатньо для жодного пакету</div>';
+                        return;
+                    }
+
+                    resDiv.innerHTML = bannerHtml +
+                        '<h3 style="margin:18px 0 12px;">Або вигідніші пакети:</h3>' +
+                        options.map(o => `
+                            <div class="result-card">
+                                <h4>${o.package}</h4>
+                                <div class="highlight">${o.hours}<span style="font-size:0.5em;color:#A0A0A0"> год</span> &nbsp;за&nbsp; ${fmt(o.price)}<span style="font-size:0.5em;color:#A0A0A0"> грн</span></div>
+                                ${o.remaining > 0
+                                    ? `<div class="detail">💰 Залишок: ${fmt(o.remaining)} грн</div>`
+                                    : '<div class="detail" style="color:#28a745;">✅ Без залишку</div>'}
+                            </div>`).join('');
+
+                } else {
+                    const hours = parseHoursInput(document.getElementById('calc-hours').value);
+                    if (!hours || hours <= 0) {
+                        resDiv.innerHTML = '<div class="alert alert-warning">Введіть кількість годин (напр. 3.20 = 3 год 20 хв)</div>';
+                        return;
+                    }
+                    data = await fetch(`/api/calculator/hours-to-money?hours=${hours}&zone=${zone}&day_type=${dayType}`).then(r => r.json());
+
+                    const options = data.options || [];
+
+                    // Головний банер — безперервна ціна
+                    let bannerHtml = '';
+                    if (hourRate) {
+                        const totalPrice = Math.ceil(hours * hourRate);
+                        const hoursLabel = fmtHours(Math.round(hours * 60));
+                        bannerHtml = `
+                            <div class="calc-banner">
+                                <div class="calc-banner-label">За ${hoursLabel} по тарифу ${fmt(hourRate)} грн/год</div>
+                                <div class="calc-banner-hours">${fmt(totalPrice)} грн</div>
+                                <div class="calc-banner-rate">по погодинному тарифу</div>
+                            </div>`;
+                    }
+
+                    if (!options.length) {
+                        resDiv.innerHTML = bannerHtml + '<div class="alert alert-info" style="margin-top:15px;">Немає відповідних пакетів</div>';
+                        return;
+                    }
+
+                    resDiv.innerHTML = bannerHtml +
+                        '<h3 style="margin:18px 0 12px;">Або вигідніші пакети:</h3>' +
+                        options.map(o => `
+                            <div class="result-card">
+                                <h4>${o.package}</h4>
+                                <div class="highlight">${fmt(o.price)}<span style="font-size:0.5em;color:#A0A0A0"> грн</span> &nbsp;за&nbsp; ${o.hours_used}<span style="font-size:0.5em;color:#A0A0A0"> год</span></div>
+                                ${o.remaining_hours > 0
+                                    ? `<div class="detail">⏱ Залишок: ${o.remaining_hours} год</div>`
+                                    : '<div class="detail" style="color:#28a745;">✅ Рівно</div>'}
+                            </div>`).join('');
+                }
+            } catch (e) {
+                resDiv.innerHTML = '<div class="alert alert-warning">Помилка розрахунку</div>';
+            }
+        }
+
+        // ─── Helpers ────────────────────────────────────────────────────
+
+        function fmt(n) {
+            return Number(n).toLocaleString('uk-UA');
+        }
+
+        function fmtHours(totalMinutes) {
+            const h = Math.floor(totalMinutes / 60);
+            const m = totalMinutes % 60;
+            if (m === 0) return `${h} год`;
+            return `${h} год ${m} хв`;
+        }
+
+        /**
+         * Парсить введення годин у форматі "ГГ.ХХ" як години.хвилини:
+         *   3     → 3 год 0 хв  (= 3.0 decimal)
+         *   3.2   → 3 год 20 хв (= 3.333...)
+         *   3.20  → 3 год 20 хв
+         *   3.30  → 3 год 30 хв
+         *   0.45  → 0 год 45 хв (= 0.75)
+         */
+        function parseHoursInput(raw) {
+            if (!raw || !String(raw).trim()) return null;
+            const str = String(raw).trim().replace(',', '.');
+            if (!str.includes('.')) {
+                const v = parseFloat(str);
+                return isNaN(v) || v <= 0 ? null : v;
+            }
+            const [hPart, mPart] = str.split('.');
+            const h = parseInt(hPart) || 0;
+            // "3.2" → mPart="2" → padEnd(2,"0") = "20" → 20 хв
+            // "3.20"→ mPart="20"→ substring(0,2) = "20" → 20 хв
+            const mStr = mPart.padEnd(2, '0').substring(0, 2);
+            const m = parseInt(mStr);
+            if (isNaN(m) || m >= 60) return null;
+            const decimal = h + m / 60;
+            return decimal <= 0 ? null : decimal;
+        }
+
+        // ─── Cash Count ─────────────────────────────────────────────────
+
+        const DENOMS = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
+
+        function calcCash() {
+            let total = 0;
+            DENOMS.forEach(d => {
+                const input = document.querySelector(`.denom-input[data-value="${d}"]`);
+                const qty = parseInt(input.value) || 0;
+                const sub = qty * d;
+                total += sub;
+                const subEl = document.getElementById(`sub-${d}`);
+                if (sub > 0) {
+                    subEl.textContent = `= ${fmt(sub)} грн`;
+                    subEl.classList.add('has-value');
+                } else {
+                    subEl.textContent = '';
+                    subEl.classList.remove('has-value');
+                }
+            });
+            document.getElementById('cashcount-total').textContent = `${fmt(total)} грн`;
+        }
+
+        function clearCashCount() {
+            DENOMS.forEach(d => {
+                const input = document.querySelector(`.denom-input[data-value="${d}"]`);
+                input.value = '';
+                const subEl = document.getElementById(`sub-${d}`);
+                subEl.textContent = '';
+                subEl.classList.remove('has-value');
+            });
+            document.getElementById('cashcount-total').textContent = '0 грн';
+        }
+
+        // ─── Init ───────────────────────────────────────────────────────
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExpectedCash();
+        });
+    </script>
+</body>
+</html>
