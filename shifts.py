@@ -33,9 +33,17 @@ NIGHT = ShiftScheme(
 SCHEMES: dict[str, ShiftScheme] = {s.code: s for s in (DAY, NIGHT)}
 
 
-def fmt(amount: int) -> str:
-    """7 791 — формат числа з роздільником тисяч (як у звіті)."""
-    return f"{amount:,}".replace(",", " ")
+def fmt(kopecks: int) -> str:
+    """7 791 або 11142.50 → «11 142,50» — формат сум з роздільником тисяч.
+
+    На вхід — копійки (ціле). Роздільник тисяч — звичайний пробіл (як у звіті),
+    десятковий роздільник — кома. Копійки не показуємо, коли їх 0.
+    """
+    sign = "-" if kopecks < 0 else ""
+    kopecks = abs(int(kopecks))
+    hryvnas, kop = divmod(kopecks, 100)
+    hr_str = f"{hryvnas:,}".replace(",", " ")
+    return f"{sign}{hr_str},{kop:02d}" if kop else f"{sign}{hr_str}"
 
 
 def build_report(scheme: ShiftScheme, open_cash: int, close_cash: int,
@@ -70,6 +78,6 @@ def build_report(scheme: ShiftScheme, open_cash: int, close_cash: int,
     elif surplus < 0:
         lines.append(f"{fmt(-surplus)} грн недостачі{note_suffix}.")
     else:
-        lines.append(f"Каса сходиться ✅{note_suffix}")
+        lines.append(f"Надлишок: 0 грн{note_suffix}")
 
     return "\n".join(lines), earned, surplus
