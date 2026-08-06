@@ -903,6 +903,7 @@
             <button class="main-tab" onclick="showMainTab('calculator', this)">🧮 Калькулятор годин</button>
             <button class="main-tab" onclick="showMainTab('cashcount', this)">💵 Рахунок каси</button>
             <button class="main-tab" onclick="showMainTab('change', this)">💱 Решта</button>
+            <button class="main-tab" onclick="showMainTab('shift-gen', this)">📝 Генерація звіту</button>
         </div>
 
         <div class="sub-tabs active" id="cash-management-subtabs">
@@ -1146,6 +1147,57 @@
             <div id="change-result"></div>
             <button class="btn" id="confirm-sale" onclick="confirmCashSale()" style="display:none; margin-bottom:12px;">✅ Підтвердити продаж</button>
             <button class="btn btn-secondary" onclick="clearChange()">🗑 Очистити</button>
+        </div>
+
+        <!-- Shift Report Generator Panel -->
+        <div id="shift-gen" class="panel">
+            <h2>📝 Генерація звіту зміни</h2>
+            <p style="color: #A0A0A0; margin-bottom: 20px;">Генератор текстового опису проблем, відвідуваності та відгуків для чату</p>
+
+            <div class="shift-selector">
+                <div class="shift-btn selected" onclick="selectGenShift('day')" id="gen-shift-day">
+                    <div>☀️ Денна зміна</div>
+                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">9:00, 13:00, 14:00, 17:00, 21:00</div>
+                </div>
+                <div class="shift-btn" onclick="selectGenShift('night')" id="gen-shift-night">
+                    <div>🌙 Нічна зміна</div>
+                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">21:00, 00:00, 03:00, 06:00, 09:00</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Технічні проблеми</label>
+                <input type="text" id="gen-tech" placeholder="відсутні">
+                <small style="color: #555555; margin-top: 4px; display: block;">Якщо залишити порожнім — буде «відсутні»</small>
+            </div>
+
+            <div class="form-group">
+                <label>Інші проблеми</label>
+                <input type="text" id="gen-other" placeholder="відсутні">
+                <small style="color: #555555; margin-top: 4px; display: block;">Якщо залишити порожнім — буде «відсутні»</small>
+            </div>
+
+            <div class="form-group">
+                <label>Динаміка гостей по годинах</label>
+                <small style="color: #A0A0A0; margin-bottom: 12px; display: block;">
+                    Вкажіть приблизну кількість людей у кожну годину. Скрипт сам сформує опис (гостей не було / прийшли перші / мало / помірно / багато).
+                </small>
+                <div id="gen-timeline-container"></div>
+                <button type="button" class="btn btn-secondary" onclick="addTimelineSlot()" style="margin-top: 8px; font-size: 0.85em; padding: 8px 16px;">➕ Додати часову точку</button>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Відгуки та побажання</label>
+                <input type="text" id="gen-feedback" placeholder="немає">
+                <small style="color: #555555; margin-top: 4px; display: block;">Якщо залишити порожнім — буде «немає»</small>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 25px; flex-wrap: wrap;">
+                <button type="button" class="btn" onclick="generateTextReport()">✨ Згенерувати звіт</button>
+                <button type="button" class="btn btn-secondary" onclick="resetGenForm()">🗑 Скинути</button>
+            </div>
+
+            <div id="gen-result-container" style="margin-top: 20px;"></div>
         </div>
     </div>
 
@@ -1853,10 +1905,185 @@
             invalidatePendingSale();
         }
 
+        // ─── Shift Text Report Generator ───────────────────────────────
+
+        let selectedGenShift = 'day';
+        let lastGenReportText = '';
+
+        const DEFAULT_DAY_SLOTS = [
+            { prep: 'о', time: '9:00', count: 0 },
+            { prep: 'з', time: '13:00', count: 3 },
+            { prep: 'о', time: '14:00', count: 5 },
+            { prep: 'з', time: '17:00', count: 12 },
+            { prep: 'до', time: '21:00', count: 4 }
+        ];
+
+        const DEFAULT_NIGHT_SLOTS = [
+            { prep: 'о', time: '21:00', count: 0 },
+            { prep: 'з', time: '00:00', count: 5 },
+            { prep: 'о', time: '03:00', count: 15 },
+            { prep: 'з', time: '06:00', count: 6 },
+            { prep: 'до', time: '09:00', count: 2 }
+        ];
+
+        let timelineSlots = JSON.parse(JSON.stringify(DEFAULT_DAY_SLOTS));
+
+        function selectGenShift(shift) {
+            selectedGenShift = shift;
+            document.querySelectorAll('#shift-gen .shift-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('gen-shift-' + shift).classList.add('selected');
+            timelineSlots = JSON.parse(JSON.stringify(shift === 'day' ? DEFAULT_DAY_SLOTS : DEFAULT_NIGHT_SLOTS));
+            renderTimelineSlots();
+        }
+
+        function computeGuestPhrase(count, index, prevCount) {
+            const num = parseInt(count);
+            if (isNaN(num) || num === 0) {
+                return "гостей не було";
+            }
+            if (num >= 20) {
+                return "гостей було багато";
+            }
+            if (num >= 8) {
+                return "гостей було помірно";
+            }
+            // 1..7 людей
+            if (num <= 3 && (index === 0 || prevCount === 0 || prevCount === undefined)) {
+                return "прийшли перші гості";
+            }
+            if (prevCount !== undefined && prevCount > num) {
+                return "гостей стало мало";
+            }
+            return "було гостей мало";
+        }
+
+        function renderTimelineSlots() {
+            const container = document.getElementById('gen-timeline-container');
+            if (!container) return;
+
+            let html = '';
+            let prevCount = undefined;
+
+            timelineSlots.forEach((slot, idx) => {
+                const autoPhrase = computeGuestPhrase(slot.count, idx, prevCount);
+                prevCount = parseInt(slot.count) || 0;
+
+                html += `
+                    <div class="gen-timeline-row" style="display: grid; grid-template-columns: 75px 95px 95px 1fr 36px; gap: 8px; align-items: center; background: #1A1A1C; padding: 10px; border-radius: 12px; border: 1px solid #333333; margin-bottom: 8px;">
+                        <select onchange="updateTimelineSlot(${idx}, 'prep', this.value)" style="padding: 8px; font-size: 0.9em; background: #0E0E10; color: #FFF; border: 1px solid #333; border-radius: 6px;">
+                            <option value="о" ${slot.prep === 'о' ? 'selected' : ''}>о</option>
+                            <option value="з" ${slot.prep === 'з' ? 'selected' : ''}>з</option>
+                            <option value="до" ${slot.prep === 'до' ? 'selected' : ''}>до</option>
+                        </select>
+
+                        <input type="text" value="${slot.time}" onchange="updateTimelineSlot(${idx}, 'time', this.value)" placeholder="9:00" style="padding: 8px; font-size: 0.9em; text-align: center;">
+
+                        <input type="number" value="${slot.count !== undefined && slot.count !== null ? slot.count : ''}" min="0" oninput="updateTimelineSlot(${idx}, 'count', this.value)" placeholder="людей" style="padding: 8px; font-size: 0.9em; text-align: center;">
+
+                        <div style="font-size: 0.95em; color: #FFEA00; padding: 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            ${slot.prep} ${slot.time} ${autoPhrase}
+                        </div>
+
+                        <button type="button" class="btn-delete" onclick="removeTimelineSlot(${idx})" title="Видалити точку" style="padding: 6px; text-align: center;">✕</button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function updateTimelineSlot(idx, key, val) {
+            if (!timelineSlots[idx]) return;
+            if (key === 'count') {
+                timelineSlots[idx].count = val === '' ? '' : Math.max(0, parseInt(val) || 0);
+            } else {
+                timelineSlots[idx][key] = val;
+            }
+            renderTimelineSlots();
+        }
+
+        function addTimelineSlot() {
+            const lastSlot = timelineSlots[timelineSlots.length - 1];
+            const newPrep = lastSlot ? 'з' : 'о';
+            const newTime = '12:00';
+            timelineSlots.push({ prep: newPrep, time: newTime, count: 0 });
+            renderTimelineSlots();
+        }
+
+        function removeTimelineSlot(idx) {
+            if (timelineSlots.length <= 1) return;
+            timelineSlots.splice(idx, 1);
+            renderTimelineSlots();
+        }
+
+        function resetGenForm() {
+            document.getElementById('gen-tech').value = '';
+            document.getElementById('gen-other').value = '';
+            document.getElementById('gen-feedback').value = '';
+            timelineSlots = JSON.parse(JSON.stringify(selectedGenShift === 'day' ? DEFAULT_DAY_SLOTS : DEFAULT_NIGHT_SLOTS));
+            renderTimelineSlots();
+            document.getElementById('gen-result-container').innerHTML = '';
+            lastGenReportText = '';
+        }
+
+        function generateTextReport() {
+            const tech = document.getElementById('gen-tech').value.trim() || 'відсутні';
+            const other = document.getElementById('gen-other').value.trim() || 'відсутні';
+            const feedback = document.getElementById('gen-feedback').value.trim() || 'немає';
+
+            const lines = [];
+            lines.push(`Технічні проблеми: ${tech}`);
+            lines.push(`Інші проблеми: ${other}`);
+
+            let prevCount = undefined;
+            timelineSlots.forEach((slot, idx) => {
+                const prep = slot.prep || 'о';
+                const time = slot.time || '00:00';
+                const phrase = computeGuestPhrase(slot.count, idx, prevCount);
+                prevCount = parseInt(slot.count) || 0;
+                lines.push(`${prep} ${time} ${phrase}`);
+            });
+
+            lines.push(`Відгуки та побажання: ${feedback}`);
+
+            lastGenReportText = lines.join('\n\n');
+
+            const resultDiv = document.getElementById('gen-result-container');
+            resultDiv.innerHTML = `
+                <div style="background: rgba(40, 167, 69, 0.15); border: 1px solid #28a745; color: #28a745; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-weight: 600;">
+                    ✅ Звіт згенеровано!
+                </div>
+                <div style="background: #141416; border: 1px solid #333333; border-left: 4px solid #FFEA00; border-radius: 12px; padding: 20px; font-family: monospace, 'Courier New'; white-space: pre-wrap; font-size: 1.05em; line-height: 1.6; color: #FFFFFF;">${lastGenReportText}</div>
+                <button type="button" class="btn" onclick="copyGenReport(this)" style="margin-top: 15px;">
+                    📋 Скопіювати результат
+                </button>
+            `;
+        }
+
+        async function copyGenReport(btn) {
+            if (!lastGenReportText) return;
+            try {
+                await navigator.clipboard.writeText(lastGenReportText);
+                btn.textContent = '✅ Скопійовано!';
+                setTimeout(() => { btn.textContent = '📋 Скопіювати результат'; }, 2000);
+            } catch (e) {
+                const ta = document.createElement('textarea');
+                ta.value = lastGenReportText;
+                ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                btn.textContent = '✅ Скопійовано!';
+                setTimeout(() => { btn.textContent = '📋 Скопіювати результат'; }, 2000);
+            }
+        }
+
         // ─── Init ───────────────────────────────────────────────────────
 
         window.addEventListener('DOMContentLoaded', () => {
             loadExpectedCash();
+            renderTimelineSlots();
             const waitForModules = setInterval(() => {
                 if (!window.ChangeCalc || !window.CashRegister) return;
                 clearInterval(waitForModules);
