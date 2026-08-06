@@ -980,9 +980,21 @@
             color: #FFEA00;
         }
 
+        /* ── Animated Canvas Background ───────────────────────────────── */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+        }
+
     </style>
 </head>
 <body>
+    <canvas id="bg-canvas"></canvas>
     <div id="toast-container"></div>
     <div class="container">
         <header>
@@ -2209,9 +2221,123 @@
             }
         }
 
+        // ─── Interactive Background ────────────────────────────────────
+
+        function initInteractiveBackground() {
+            const canvas = document.getElementById('bg-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let width, height;
+            let particles = [];
+            const mouse = { x: null, y: null, radius: 160 };
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                initParticles();
+            }
+
+            function initParticles() {
+                particles = [];
+                const count = Math.floor((width * height) / 15000);
+                const colors = ['#FFEA00', '#00D9FF', '#FFFFFF', '#FFEA00'];
+
+                for (let i = 0; i < Math.min(Math.max(count, 35), 90); i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 0.7,
+                        vy: (Math.random() - 0.5) * 0.7,
+                        radius: Math.random() * 1.8 + 1,
+                        color: colors[Math.floor(Math.random() * colors.length)]
+                    });
+                }
+            }
+
+            window.addEventListener('resize', resize);
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            });
+            window.addEventListener('mouseleave', () => {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+
+                // Draw inter-particle lines
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < 110) {
+                            const alpha = (1 - dist / 110) * 0.16;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(255, 234, 0, ${alpha})`;
+                            ctx.lineWidth = 0.6;
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                // Update & draw particles + mouse interaction
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0) p.x = width;
+                    if (p.x > width) p.x = 0;
+                    if (p.y < 0) p.y = height;
+                    if (p.y > height) p.y = 0;
+
+                    // Mouse interaction
+                    if (mouse.x !== null && mouse.y !== null) {
+                        const mdx = mouse.x - p.x;
+                        const mdy = mouse.y - p.y;
+                        const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+
+                        if (mdist < mouse.radius) {
+                            const force = (1 - mdist / mouse.radius);
+                            p.x += (mdx / mdist) * force * 0.6;
+                            p.y += (mdy / mdist) * force * 0.6;
+
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(mouse.x, mouse.y);
+                            ctx.strokeStyle = `rgba(0, 217, 255, ${force * 0.35})`;
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                        }
+                    }
+
+                    // Draw particle
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = p.color;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            resize();
+            animate();
+        }
+
         // ─── Init ───────────────────────────────────────────────────────
 
         window.addEventListener('DOMContentLoaded', () => {
+            initInteractiveBackground();
             loadExpectedCash();
             renderTimelineSlots();
             const waitForModules = setInterval(() => {
