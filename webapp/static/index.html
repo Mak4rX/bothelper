@@ -50,40 +50,35 @@
         }
 
         .main-tabs {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .main-tab {
             background: #0E0E10;
             border: 1px solid #222222;
-            padding: 16px 32px;
-            border-radius: 16px;
+            padding: 14px 10px;
+            border-radius: 14px;
             cursor: pointer;
-            font-size: 1.15em;
-            font-weight: 600;
-            transition: all 0.3s;
+            font-size: 0.98em;
+            font-weight: 700;
+            transition: all 0.25s ease;
             color: #A0A0A0;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-        }
-
-        .main-tab::before {
-            content: '⬤ ⬤ ⬤';
-            position: absolute;
-            left: 12px;
-            top: 8px;
-            font-size: 0.5em;
-            color: #333333;
-            letter-spacing: 2px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .main-tab:hover {
             border-color: #FFEA00;
-            box-shadow: 0 0 15px rgba(255, 234, 0, 0.3);
+            color: #FFFFFF;
+            box-shadow: 0 0 15px rgba(255, 234, 0, 0.25);
             transform: translateY(-2px);
         }
 
@@ -91,16 +86,14 @@
             background: #1A1A1C;
             color: #FFEA00;
             border-color: #FFEA00;
-            box-shadow: 0 0 20px rgba(255, 234, 0, 0.4);
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.35);
         }
 
         .sub-tabs {
             display: none;
-            gap: 8px;
+            gap: 10px;
             margin-bottom: 20px;
-            padding-left: 0;
-            flex-wrap: wrap;
-            overflow-x: auto;
+            justify-content: flex-start;
         }
 
         .sub-tabs.active {
@@ -110,30 +103,29 @@
         .sub-tab {
             background: #0E0E10;
             border: 1px solid #1A1A1A;
-            padding: 10px 20px;
-            border-radius: 12px;
+            padding: 8px 18px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 0.95em;
-            transition: all 0.3s;
+            font-size: 0.88em;
+            font-weight: 600;
+            transition: all 0.25s ease;
             color: #A0A0A0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             white-space: nowrap;
-            flex-shrink: 0;
         }
 
         .sub-tab:hover {
             border-color: #00D9FF;
-            transform: translateY(-1px);
-            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
             color: #FFFFFF;
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
         }
 
         .sub-tab.active {
-            background: rgba(0, 217, 255, 0.1);
+            background: rgba(0, 217, 255, 0.12);
             color: #00D9FF;
             border-color: #00D9FF;
-            box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 217, 255, 0.3);
         }
 
         .panel {
@@ -583,33 +575,34 @@
 
             /* ── Головні вкладки ── */
             .main-tabs {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
+                display: flex;
+                overflow-x: auto;
                 gap: 8px;
-                margin-bottom: 12px;
+                margin-bottom: 14px;
+                padding-bottom: 4px;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .main-tabs::-webkit-scrollbar {
+                display: none;
             }
             .main-tab {
-                padding: 14px 10px;
-                font-size: 0.9em;
-                min-height: 52px;
-                white-space: nowrap;
-                justify-content: center;
+                flex: 0 0 auto;
+                padding: 12px 16px;
+                font-size: 0.88em;
+                min-height: 44px;
+                border-radius: 12px;
             }
-            .main-tab::before { display: none; }
 
             /* ── Під-вкладки ── */
             .sub-tabs.active {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
+                display: flex;
                 gap: 8px;
             }
             .sub-tab {
-                white-space: normal;
-                text-align: center;
-                padding: 10px 6px;
-                font-size: 0.78em;
-                min-height: 44px;
-                line-height: 1.3;
+                padding: 8px 14px;
+                font-size: 0.82em;
+                min-height: 38px;
             }
 
             /* ── Панель ── */
