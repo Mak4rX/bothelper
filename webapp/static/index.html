@@ -909,7 +909,6 @@
         <div class="sub-tabs active" id="cash-management-subtabs">
             <button class="sub-tab active" onclick="showSubTab('report', this)">📋 Закриття зміни</button>
             <button class="sub-tab" onclick="showSubTab('history', this)">🕓 Історія</button>
-            <button class="sub-tab" onclick="showSubTab('stats', this)">📊 Статистика</button>
         </div>
 
         <!-- Report Panel -->
@@ -985,22 +984,6 @@
             </div>
 
             <div id="history-list" class="loading">Завантаження...</div>
-        </div>
-
-        <!-- Stats Panel -->
-        <div id="stats" class="panel">
-            <h2>📊 Статистика</h2>
-
-            <div class="form-group">
-                <label>Період</label>
-                <select id="stats-period" onchange="loadStats()">
-                    <option value="1">Сьогодні</option>
-                    <option value="7" selected>7 днів</option>
-                    <option value="30">30 днів</option>
-                </select>
-            </div>
-
-            <div id="stats-content" class="loading">Завантаження...</div>
         </div>
 
         <!-- Calculator Panel -->
@@ -1242,7 +1225,6 @@
 
             if (subTabName === 'report')  loadExpectedCash();
             if (subTabName === 'history') loadHistory();
-            if (subTabName === 'stats')      loadStats();
         }
 
         // ─── Shift / Mode selectors ────────────────────────────────────
