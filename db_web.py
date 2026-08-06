@@ -41,8 +41,37 @@ _MIGRATIONS = (
     "ALTER TABLE collections ADD COLUMN report_id INTEGER",
 )
 
-# Используем виртуальный user_id для веб-приложения
+# Одноразова міграція грошових колонок у копійки.
+# Значення множимо на 100 саме там, де ще були «цілі гривні» (округлення .00).
+_MONEY_MIGRATION_MARK = "PRAGMA user_version"
+
+
+# Використовуємо виртуальный user_id для веб-приложения
 WEB_USER_ID = 0
+
+
+async def _migrate_money_to_kopecks(db) -> None:
+    """Усі грошові суми переводимо з гривень у копійки (×100), один раз.
+
+    Визначник — флаг у meta-таблиці, бо старих записів із «цілими гривнями»
+    вже неможливо відрізнити від нових копійкових тільки за числом.
+    """
+    await db.execute(
+        "CREATE TABLE IF NOT EXISTS _meta (key TEXT PRIMARY KEY, value TEXT)"
+    )
+    cur = await db.execute("SELECT value FROM _meta WHERE key = 'money_unit'")
+    row = await cur.fetchone()
+    if row and row[0] == "kopecks":
+        return
+
+    money_cols = ("open_cash", "earned", "expenses", "close_cash", "senet", "surplus")
+    for col in money_cols:
+        await db.execute(f"UPDATE reports SET {col} = {col} * 100")
+    await db.execute("UPDATE collections SET amount = amount * 100")
+    await db.execute(
+        "INSERT INTO _meta (key, value) VALUES ('money_unit', 'kopecks') "
+        "ON CONFLICT(key) DO UPDATE SET value = 'kopecks'"
+    )
 
 
 async def init_db() -> None:
@@ -53,6 +82,7 @@ async def init_db() -> None:
                 await db.execute(sql)
             except aiosqlite.OperationalError:
                 pass
+        await _migrate_money_to_kopecks(db)
         await db.commit()
 
 
@@ -122,6 +152,18 @@ async def add_collection(amount: int, comment: str | None) -> int:
         )
         await db.commit()
         return cur.lastrowid
+
+
+async def update_pending_collection(collection_id: int, amount: int) -> bool:
+    """Змінити суму ще не врахованої інкасації."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            """UPDATE collections SET amount = ?
+               WHERE id = ? AND user_id = ? AND report_id IS NULL""",
+            (amount, collection_id, WEB_USER_ID),
+        )
+        await db.commit()
+        return cur.rowcount > 0
 
 
 async def get_collection(collection_id: int) -> aiosqlite.Row | None:

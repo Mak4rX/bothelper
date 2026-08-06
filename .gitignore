@@ -46,3 +46,6 @@ dmypy.json
 
 # Артефакти тестів
 tests/screenshot-*.png
+
+# Служебные данные WorkBuddy
+.workbuddy-ai/

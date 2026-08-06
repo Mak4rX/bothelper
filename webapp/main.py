@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -16,7 +16,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from shifts import SCHEMES, build_report, fmt
 import db_web as db
-from pricing import ZONES, calculate_hours, calculate_price
+from pricing import ZONES, calculate_hours, calculate_price, is_morning_rate_active
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -54,39 +54,55 @@ app.add_middleware(
 
 # ---------- Модели ----------
 
+def to_kopecks(grivnas: float) -> int:
+    """Переводить гривні (можливо дробові з копійками) у копійки.
+
+    Рахуємо цілими копійками — float для грошей не тримаємо ніде далі.
+    Погрішність float на рівні 1e-9 приводимо round() до найближчої копійки.
+    """
+    return round(grivnas * 100)
+
+
+def to_grivnas(kopecks: int) -> int | float:
+    """Назад для API-відповіді: ціле число, якщо копійок 0, інакше float з 2 знаками."""
+    kopecks = int(kopecks)
+    return kopecks // 100 if kopecks % 100 == 0 else round(kopecks / 100, 2)
+
+
 class ReportCreate(BaseModel):
-    shift: str       # 'day' | 'night'
-    open_cash: int
-    close_cash: int  # фізична каса в кінці зміни
-    expenses: int
-    senet: int
-    note: str = ""   # необов'язкова нотатка до результату
+    shift: str          # 'day' | 'night'
+    open_cash: float    # приймаємо копійки: 11142.5 або 11142,50
+    close_cash: float   # фізична каса в кінці зміни
+    expenses: float = 0
+    collection: float = 0  # інкасація, введена у формі закриття зміни
+    senet: float = 0
+    note: str = ""      # необов'язкова нотатка до результату
 
 
 class CollectionCreate(BaseModel):
-    amount: int
+    amount: float
     comment: Optional[str] = None
 
 
 class ReportResponse(BaseModel):
     id: int
     shift: str
-    open_cash: int
-    earned: int
-    expenses: int
-    close_cash: int
-    senet: int
-    surplus: int
+    open_cash: float
+    earned: float
+    expenses: float
+    close_cash: float
+    senet: float
+    surplus: float
     report_text: str
     created_at: str
-    collection_amount: Optional[int] = None
+    collection_amount: Optional[float] = None
 
 
 class StatsResponse(BaseModel):
     cnt: int
-    earned: int
-    expenses: int
-    surplus: int
+    earned: float
+    expenses: float
+    surplus: float
 
 
 # ---------- API endpoints ----------
@@ -99,9 +115,9 @@ async def root():
 
 @app.get("/api/expected-cash")
 async def get_expected_cash():
-    """Ожидаемая сумма в кассе (из последнего отчета)"""
+    """Ожидаемая сумма в кассе (из последнего отчета). У гривнях з копійками."""
     cash = await db.expected_cash()
-    return {"expected_cash": cash}
+    return {"expected_cash": to_grivnas(cash) if cash is not None else None}
 
 
 @app.get("/api/pending-collection")
@@ -113,7 +129,7 @@ async def get_pending_collection():
     return {
         "has_pending": True,
         "id": pending["id"],
-        "amount": pending["amount"],
+        "amount": to_grivnas(pending["amount"]),
         "comment": pending["comment"],
         "created_at": pending["created_at"],
     }
@@ -128,26 +144,46 @@ async def create_report(data: ReportCreate):
 
         scheme = SCHEMES[data.shift]
 
-        # Проверяем неучтенную инкассацию
-        pending = await db.pending_collection()
-        collection_id = pending["id"] if pending else None
-        collected = pending["amount"] if pending else 0
+        # Переводимо гривні (з можливими копійками) у копійки — все далі й зберігаємо цілими
+        open_cash = to_kopecks(data.open_cash)
+        close_cash = to_kopecks(data.close_cash)
+        expenses = to_kopecks(data.expenses)
+        senet = to_kopecks(data.senet)
+        collection = to_kopecks(data.collection)
 
-        # Генерируем отчет
+        if collection < 0:
+            raise HTTPException(400, "Collection amount cannot be negative")
+
+        # Если ранее была сохранена неучтенная инкассация, используем её.
+        # Если кассир ввёл сумму прямо в закрытии смены — создаём запись здесь.
+        pending = await db.pending_collection()
+        collection_id = None
+        collected = collection
+
+        if pending and collection > 0:
+            collection_id = pending["id"]
+            if collection != pending["amount"]:
+                await db.update_pending_collection(collection_id, collection)
+        elif pending and collection == 0:
+            await db.delete_collection(pending["id"])
+        elif collection > 0:
+            collection_id = await db.add_collection(collection, "Введено при закритті зміни")
+
+        # Генерируем отчет (усі суми — копійки)
         text, earned, surplus = build_report(
-            scheme, data.open_cash, data.close_cash, data.expenses,
-            data.senet, collection=collected, note=data.note
+            scheme, open_cash, close_cash, expenses,
+            senet, collection=collected, note=data.note
         )
 
         # Сохраняем
         report_id = await db.save_report(
             shift=data.shift,
-            open_cash=data.open_cash,
+            open_cash=open_cash,
             earned=earned,
-            expenses=data.expenses,
+            expenses=expenses,
             collection_id=collection_id,
-            close_cash=data.close_cash,
-            senet=data.senet,
+            close_cash=close_cash,
+            senet=senet,
             surplus=surplus,
             report_text=text,
         )
@@ -157,10 +193,10 @@ async def create_report(data: ReportCreate):
         return {
             "id": report_id,
             "report_text": text,
-            "close_cash": data.close_cash,
-            "earned": earned,
-            "surplus": surplus,
-            "collection_amount": collected if collected else None,
+            "close_cash": to_grivnas(close_cash),
+            "earned": to_grivnas(earned),
+            "surplus": to_grivnas(surplus),
+            "collection_amount": to_grivnas(collected) if collected else None,
         }
     except HTTPException:
         raise
@@ -178,15 +214,15 @@ async def get_reports(limit: int = 20):
         result.append(ReportResponse(
             id=row["id"],
             shift=row["shift"],
-            open_cash=row["open_cash"],
-            earned=row["earned"],
-            expenses=row["expenses"],
-            close_cash=row["close_cash"],
-            senet=row["senet"],
-            surplus=row["surplus"],
+            open_cash=to_grivnas(row["open_cash"]),
+            earned=to_grivnas(row["earned"]),
+            expenses=to_grivnas(row["expenses"]),
+            close_cash=to_grivnas(row["close_cash"]),
+            senet=to_grivnas(row["senet"]),
+            surplus=to_grivnas(row["surplus"]),
             report_text=row["report_text"],
             created_at=row["created_at"],
-            collection_amount=row["collection_amount"],
+            collection_amount=to_grivnas(row["collection_amount"]) if row["collection_amount"] is not None else None,
         ))
     return result
 
@@ -199,9 +235,9 @@ async def get_stats(days: int = 7):
         return StatsResponse(cnt=0, earned=0, expenses=0, surplus=0)
     return StatsResponse(
         cnt=row["cnt"],
-        earned=row["earned"],
-        expenses=row["expenses"],
-        surplus=row["surplus"],
+        earned=to_grivnas(row["earned"]),
+        expenses=to_grivnas(row["expenses"]),
+        surplus=to_grivnas(row["surplus"]),
     )
 
 
@@ -209,12 +245,13 @@ async def get_stats(days: int = 7):
 async def create_collection(data: CollectionCreate):
     """Записать инкассацию"""
     try:
-        if data.amount <= 0:
+        amount_kop = to_kopecks(data.amount)
+        if amount_kop <= 0:
             raise HTTPException(400, "Amount must be positive")
 
-        collection_id = await db.add_collection(data.amount, data.comment)
-        log.info(f"Создана инкассация #{collection_id}, сумма: {data.amount}")
-        return {"id": collection_id, "amount": data.amount, "comment": data.comment}
+        collection_id = await db.add_collection(amount_kop, data.comment)
+        log.info(f"Создана инкассация #{collection_id}, сумма: {amount_kop}")
+        return {"id": collection_id, "amount": to_grivnas(amount_kop), "comment": data.comment}
     except HTTPException:
         raise
     except Exception as e:
@@ -230,7 +267,7 @@ async def get_collections(limit: int = 10):
     for row in rows:
         result.append({
             "id": row["id"],
-            "amount": row["amount"],
+            "amount": to_grivnas(row["amount"]),
             "comment": row["comment"],
             "report_id": row["report_id"],
             "created_at": row["created_at"],
@@ -266,6 +303,8 @@ async def get_zones():
             "id": zone.id,
             "name": zone.name,
             "morning_price": zone.morning_price,
+            "morning_active": is_morning_rate_active(),
+            "morning_hours": "09:00–16:00",
             "weekday_hour": zone.weekday_hour,
             "weekend_hour": zone.weekend_hour,
         }
@@ -274,23 +313,45 @@ async def get_zones():
 
 
 @app.get("/api/calculator/money-to-hours")
-async def money_to_hours(amount: int, zone: str, day_type: str):
-    """Калькулятор: сумма → часы"""
+async def money_to_hours(
+    amount: int,
+    zone: str,
+    day_type: str,
+    current_hour: int | None = Query(default=None, ge=0, le=23),
+):
+    """Калькулятор: сумма → часы."""
     if day_type not in ["weekday", "weekend"]:
         raise HTTPException(400, "day_type must be 'weekday' or 'weekend'")
 
-    results = calculate_hours(amount, zone, day_type)
-    return {"amount": amount, "zone": zone, "day_type": day_type, "options": results}
+    results = calculate_hours(amount, zone, day_type, current_hour=current_hour)
+    return {
+        "amount": amount,
+        "zone": zone,
+        "day_type": day_type,
+        "morning_active": is_morning_rate_active(current_hour),
+        "options": results,
+    }
 
 
 @app.get("/api/calculator/hours-to-money")
-async def hours_to_money(hours: float, zone: str, day_type: str):
-    """Калькулятор: часы → сумма"""
+async def hours_to_money(
+    hours: float,
+    zone: str,
+    day_type: str,
+    current_hour: int | None = Query(default=None, ge=0, le=23),
+):
+    """Калькулятор: часы → сумма."""
     if day_type not in ["weekday", "weekend"]:
         raise HTTPException(400, "day_type must be 'weekday' or 'weekend'")
 
-    results = calculate_price(hours, zone, day_type)
-    return {"hours": hours, "zone": zone, "day_type": day_type, "options": results}
+    results = calculate_price(hours, zone, day_type, current_hour=current_hour)
+    return {
+        "hours": hours,
+        "zone": zone,
+        "day_type": day_type,
+        "morning_active": is_morning_rate_active(current_hour),
+        "options": results,
+    }
 
 
 # Статические файлы последними

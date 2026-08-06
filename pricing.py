@@ -1,10 +1,22 @@
 """Тарифи кіберклубу для калькулятора годин."""
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Literal
 
 DayType = Literal["weekday", "weekend"]
-PackageType = Literal["hour", "package3", "package5", "package10", "package2", "school"]
+PackageType = Literal["hour", "package3", "package5", "package10", "package2"]
+
+MORNING_START_HOUR = 9
+MORNING_END_HOUR = 16
+
+
+def is_morning_rate_active(current_hour: int | None = None) -> bool:
+    """Чи діє ранковий тариф: з 09:00 включно до 16:00 невключно."""
+    hour = datetime.now().hour if current_hour is None else current_hour
+    if not 0 <= hour <= 23:
+        raise ValueError("current_hour must be between 0 and 23")
+    return MORNING_START_HOUR <= hour < MORNING_END_HOUR
 
 
 @dataclass
@@ -21,7 +33,7 @@ class Zone:
     """Ігрова зона з тарифами."""
     id: str
     name: str
-    morning_price: int  # до 16:00
+    morning_price: int  # з 09:00 до 16:00
 
     # Понеділок-Четвер
     weekday_hour: int
@@ -39,13 +51,13 @@ class Zone:
     weekday_package2: int = 0
     weekend_package2: int = 0
 
-    def get_options(self, day_type: DayType, with_morning: bool = True) -> list[PriceOption]:
-        """Повертає всі доступні варіанти для обраного дня."""
+    def get_options(self, day_type: DayType, current_hour: int | None = None) -> list[PriceOption]:
+        """Повертає доступні варіанти; ранковий тариф діє з 09:00 до 16:00."""
         options = []
 
-        if with_morning:
+        if is_morning_rate_active(current_hour):
             options.append(PriceOption(
-                name="🌅 Ранок (до 16:00)",
+                name="🌅 Ранок (09:00–16:00)",
                 hours=1,
                 price=self.morning_price,
                 price_per_hour=self.morning_price
@@ -72,18 +84,20 @@ class Zone:
                     price=self.weekday_package3,
                     price_per_hour=self.weekday_package3 // 3
                 ))
-            options.append(PriceOption(
-                name="Пакет 5 годин (Пн-Чт)",
-                hours=5,
-                price=self.weekday_package5,
-                price_per_hour=self.weekday_package5 // 5
-            ))
-            options.append(PriceOption(
-                name="Пакет Ніч 10 годин (Пн-Чт)",
-                hours=10,
-                price=self.weekday_package10,
-                price_per_hour=self.weekday_package10 // 10
-            ))
+            if self.weekday_package5:
+                options.append(PriceOption(
+                    name="Пакет 5 годин (Пн-Чт)",
+                    hours=5,
+                    price=self.weekday_package5,
+                    price_per_hour=self.weekday_package5 // 5
+                ))
+            if self.weekday_package10:
+                options.append(PriceOption(
+                    name="Пакет Ніч 10 годин (Пн-Чт)",
+                    hours=10,
+                    price=self.weekday_package10,
+                    price_per_hour=self.weekday_package10 // 10
+                ))
         else:  # weekend
             options.append(PriceOption(
                 name="1 година (Пт-Нд)",
@@ -105,18 +119,20 @@ class Zone:
                     price=self.weekend_package3,
                     price_per_hour=self.weekend_package3 // 3
                 ))
-            options.append(PriceOption(
-                name="Пакет 5 годин (Пт-Нд)",
-                hours=5,
-                price=self.weekend_package5,
-                price_per_hour=self.weekend_package5 // 5
-            ))
-            options.append(PriceOption(
-                name="Пакет Ніч 10 годин (Пт-Нд)",
-                hours=10,
-                price=self.weekend_package10,
-                price_per_hour=self.weekend_package10 // 10
-            ))
+            if self.weekend_package5:
+                options.append(PriceOption(
+                    name="Пакет 5 годин (Пт-Нд)",
+                    hours=5,
+                    price=self.weekend_package5,
+                    price_per_hour=self.weekend_package5 // 5
+                ))
+            if self.weekend_package10:
+                options.append(PriceOption(
+                    name="Пакет Ніч 10 годин (Пт-Нд)",
+                    hours=10,
+                    price=self.weekend_package10,
+                    price_per_hour=self.weekend_package10 // 10
+                ))
 
         return options
 
@@ -177,39 +193,44 @@ ZONES = {
         weekend_package5=0,
         weekend_package10=550,
     ),
-    "school": Zone(
-        id="school",
-        name="🎒 ШКОЛЯР ZONE",
-        morning_price=50,
-        weekday_hour=70,
-        weekday_package3=180,
-        weekday_package5=275,
-        weekday_package10=350,
-        weekend_hour=80,
-        weekend_package3=210,
-        weekend_package5=325,
-        weekend_package10=450,
-    ),
 }
 
 
-# Пакет Школяр — тільки для зони "school"
+# Пакет Школяр — для відвідувачів до 16 років включно, тільки PC GAMER.
 SCHOOL_PACKAGE = {
-    "weekday": {"hours": 4, "price": 130, "name": "🎒 ШКОЛЯР (Пн-Чт до 15:00)"},
-    "weekend": {"hours": 4, "price": 180, "name": "🎒 ШКОЛЯР (Пт-Нд до 12:00)"},
+    "weekday": {
+        "hours": 3,
+        "price": 130,
+        "end_hour": 15,
+        "name": "🎒 ШКОЛЯР 3 години (до 16 років, Пн-Чт до 15:00)",
+    },
+    "weekend": {
+        "hours": 3,
+        "price": 180,
+        "end_hour": 12,
+        "name": "🎒 ШКОЛЯР 3 години (до 16 років, Пт-Нд/свята до 12:00)",
+    },
 }
 
-# Зони, для яких показувати пакет ШКОЛЯР
-SCHOOL_ZONES = {"school", "gamer"}
+SCHOOL_ZONES = {"gamer"}
 
 
-def calculate_hours(amount: int, zone_id: str, day_type: DayType) -> list[dict]:
+def is_school_package_active(day_type: DayType, current_hour: int | None = None) -> bool:
+    """Чи можна зараз продати пакет Школяр для вибраного типу дня."""
+    hour = datetime.now().hour if current_hour is None else current_hour
+    if not 0 <= hour <= 23:
+        raise ValueError("current_hour must be between 0 and 23")
+    return hour < SCHOOL_PACKAGE[day_type]["end_hour"]
+
+
+def calculate_hours(amount: int, zone_id: str, day_type: DayType,
+                    current_hour: int | None = None) -> list[dict]:
     """Рахує скільки годин можна отримати за дану суму."""
     if zone_id not in ZONES:
         return []
 
     zone = ZONES[zone_id]
-    options = zone.get_options(day_type)
+    options = zone.get_options(day_type, current_hour=current_hour)
 
     results = []
     for opt in options:
@@ -225,8 +246,8 @@ def calculate_hours(amount: int, zone_id: str, day_type: DayType) -> list[dict]:
                 "remaining": remaining,
             })
 
-    # Додаємо пакет ШКОЛЯР тільки для відповідних зон
-    if zone_id in SCHOOL_ZONES:
+    # Пакет ШКОЛЯР доступний лише в Gamer і тільки до граничного часу.
+    if zone_id in SCHOOL_ZONES and is_school_package_active(day_type, current_hour):
         school = SCHOOL_PACKAGE[day_type]
         if amount >= school["price"]:
             packages = amount // school["price"]
@@ -241,13 +262,14 @@ def calculate_hours(amount: int, zone_id: str, day_type: DayType) -> list[dict]:
     return results
 
 
-def calculate_price(hours: float, zone_id: str, day_type: DayType) -> list[dict]:
+def calculate_price(hours: float, zone_id: str, day_type: DayType,
+                    current_hour: int | None = None) -> list[dict]:
     """Рахує скільки коштує задана кількість годин."""
     if zone_id not in ZONES:
         return []
 
     zone = ZONES[zone_id]
-    options = zone.get_options(day_type)
+    options = zone.get_options(day_type, current_hour=current_hour)
 
     results = []
     for opt in options:
@@ -261,6 +283,20 @@ def calculate_price(hours: float, zone_id: str, day_type: DayType) -> list[dict]
                 "packages": packages,
                 "hours_used": packages * opt.hours,
                 "price": total_price,
+                "remaining_hours": remaining_hours,
+            })
+
+    # Пакет ШКОЛЯР доступний в обох напрямках калькулятора.
+    if zone_id in SCHOOL_ZONES and is_school_package_active(day_type, current_hour):
+        school = SCHOOL_PACKAGE[day_type]
+        if hours >= school["hours"]:
+            packages = int(hours / school["hours"])
+            remaining_hours = hours - (packages * school["hours"])
+            results.append({
+                "package": school["name"],
+                "packages": packages,
+                "hours_used": packages * school["hours"],
+                "price": packages * school["price"],
                 "remaining_hours": remaining_hours,
             })
 
