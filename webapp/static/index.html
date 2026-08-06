@@ -290,6 +290,58 @@
             border-color: #00E676;
         }
 
+        /* ── Toast Notifications ───────────────────────────────────────── */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            max-width: calc(100vw - 40px);
+        }
+
+        .toast {
+            pointer-events: auto;
+            background: #141416;
+            color: #FFFFFF;
+            border: 1px solid #333338;
+            border-left: 4px solid #00E676;
+            padding: 14px 22px;
+            border-radius: 12px;
+            font-size: 0.98em;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            border-left-color: #00E676;
+            color: #00E676;
+        }
+
+        .toast-warning {
+            border-left-color: #FFC107;
+            color: #FFC107;
+        }
+
+        .toast-info {
+            border-left-color: #00D9FF;
+            color: #00D9FF;
+        }
+
         .shift-selector {
             display: flex;
             gap: 10px;
@@ -931,6 +983,7 @@
     </style>
 </head>
 <body>
+    <div id="toast-container"></div>
     <div class="container">
         <header>
             <h1>⚡ CyberHelper</h1>
@@ -1284,10 +1337,39 @@
 
         // ─── Report ────────────────────────────────────────────────────
 
+        function showToast(message, type = 'success', duration = 3500) {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = message;
+
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 400);
+            }, duration);
+        }
+
         async function copyReport(btn) {
             if (!lastReportText) return;
             try {
                 await navigator.clipboard.writeText(lastReportText);
+                showToast('📋 Звіт скопійовано у буфер!', 'info', 2500);
                 btn.textContent = '✅ Скопійовано!';
                 setTimeout(() => { btn.innerHTML = '📋 Скопіювати звіт'; }, 2000);
             } catch (e) {
@@ -1299,6 +1381,7 @@
                 ta.select();
                 document.execCommand('copy');
                 document.body.removeChild(ta);
+                showToast('📋 Звіт скопійовано у буфер!', 'info', 2500);
                 btn.textContent = '✅ Скопійовано!';
                 setTimeout(() => { btn.innerHTML = '📋 Скопіювати звіт'; }, 2000);
             }
@@ -1337,6 +1420,7 @@
             const resultDiv  = document.getElementById('report-result');
 
             if (close_cash === null || senet === null) {
+                showToast('⚠️ Заповніть всі необхідні поля', 'warning', 3000);
                 resultDiv.innerHTML = '<div class="alert alert-warning">Заповніть всі поля</div>';
                 return;
             }
@@ -1351,8 +1435,8 @@
 
                 if (response.ok) {
                     lastReportText = data.report_text;
+                    showToast('✅ Звіт успішно створено!', 'success', 3500);
                     resultDiv.innerHTML = `
-                        <div class="alert alert-success">✅ Звіт успішно створено!</div>
                         <div class="report-preview">${data.report_text}</div>
                         <button class="btn btn-copy" onclick="copyReport(this)" style="margin-top: 15px; width: 100%;">
                             📋 Скопіювати звіт
@@ -2093,13 +2177,12 @@
 
             lastGenReportText = lines.join('\n\n');
 
+            showToast('✅ Звіт згенеровано!', 'success', 3000);
+
             const resultDiv = document.getElementById('gen-result-container');
             resultDiv.innerHTML = `
-                <div style="background: rgba(40, 167, 69, 0.15); border: 1px solid #28a745; color: #28a745; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-weight: 600;">
-                    ✅ Звіт згенеровано!
-                </div>
                 <div style="background: #141416; border: 1px solid #333333; border-left: 4px solid #FFEA00; border-radius: 12px; padding: 20px; font-family: monospace, 'Courier New'; white-space: pre-wrap; font-size: 1.05em; line-height: 1.6; color: #FFFFFF;">${lastGenReportText}</div>
-                <button type="button" class="btn" onclick="copyGenReport(this)" style="margin-top: 15px;">
+                <button type="button" class="btn" onclick="copyGenReport(this)" style="margin-top: 15px; width: 100%;">
                     📋 Скопіювати результат
                 </button>
             `;
@@ -2109,6 +2192,7 @@
             if (!lastGenReportText) return;
             try {
                 await navigator.clipboard.writeText(lastGenReportText);
+                showToast('📋 Скопійовано у буфер!', 'info', 2500);
                 btn.textContent = '✅ Скопійовано!';
                 setTimeout(() => { btn.textContent = '📋 Скопіювати результат'; }, 2000);
             } catch (e) {
@@ -2119,6 +2203,7 @@
                 ta.select();
                 document.execCommand('copy');
                 document.body.removeChild(ta);
+                showToast('📋 Скопійовано у буфер!', 'info', 2500);
                 btn.textContent = '✅ Скопійовано!';
                 setTimeout(() => { btn.textContent = '📋 Скопіювати результат'; }, 2000);
             }
