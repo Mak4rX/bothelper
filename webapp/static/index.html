@@ -205,7 +205,7 @@
         }
 
         input::placeholder, textarea::placeholder {
-            color: #555555;
+            color: #777777;
         }
 
         .btn {
@@ -213,20 +213,20 @@
             color: #000000;
             border: none;
             padding: 14px 28px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1em;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 0 20px rgba(255, 234, 0, 0.4);
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(255, 234, 0, 0.25);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .btn:hover {
             background: #FFEE00;
             transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(255, 234, 0, 0.6);
+            box-shadow: 0 6px 18px rgba(255, 234, 0, 0.4);
         }
 
         .btn:active {
@@ -234,14 +234,59 @@
         }
 
         .btn-secondary {
-            background: #333333;
+            background: #222226;
             color: #FFFFFF;
-            box-shadow: 0 0 15px rgba(51, 51, 51, 0.4);
+            border: 1px solid #333338;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         .btn-secondary:hover {
-            background: #444444;
-            box-shadow: 0 0 20px rgba(51, 51, 51, 0.6);
+            background: #2D2D33;
+            border-color: #44444D;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+        }
+
+        .report-preview {
+            background: #141416;
+            padding: 22px;
+            border-radius: 12px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 1.1em;
+            font-weight: 600;
+            line-height: 1.7;
+            border: 1px solid #2D2D32;
+            border-left: 4px solid #FFEA00;
+            color: #FFFFFF;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .alert {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid;
+            font-size: 0.98em;
+            font-weight: 600;
+        }
+
+        .alert-info {
+            background: rgba(0, 217, 255, 0.1);
+            color: #00D9FF;
+            border-color: #00D9FF;
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.12);
+            color: #FFC107;
+            border-color: #FFC107;
+        }
+
+        .alert-success {
+            background: rgba(0, 230, 118, 0.12);
+            color: #00E676;
+            border-color: #00E676;
         }
 
         .shift-selector {
@@ -954,7 +999,7 @@
             <div class="form-group">
                 <label>Нотатка (необов'язково)</label>
                 <input type="text" id="report-note" placeholder="напр. клієнт відмовився від решти">
-                <small style="color: #555555; margin-top: 5px; display: block;">Додається до рядка результату через кому</small>
+                <small style="color: #A0A0A0; margin-top: 5px; display: block;">Додається до рядка результату через кому</small>
             </div>
 
             <button class="btn" onclick="generateReport()">Створити звіт</button>
@@ -1304,16 +1349,11 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    const surplusColor = data.surplus >= 0 ? '#28a745' : '#E50914';
-                    const surplusLabel = data.surplus >= 0 ? 'Надлишок' : 'Недостача';
                     lastReportText = data.report_text;
                     resultDiv.innerHTML = `
                         <div class="alert alert-success">✅ Звіт успішно створено!</div>
                         <div class="report-preview">${data.report_text}</div>
-                        <div style="margin-top:10px; font-size:1.2em; color:${surplusColor};">
-                            ${surplusLabel}: <strong>${fmtMoney(Math.abs(data.surplus))} грн</strong>
-                        </div>
-                        <button class="btn btn-copy" onclick="copyReport(this)" style="margin-top:12px;">
+                        <button class="btn btn-copy" onclick="copyReport(this)" style="margin-top: 15px; width: 100%;">
                             📋 Скопіювати звіт
                         </button>
                     `;
