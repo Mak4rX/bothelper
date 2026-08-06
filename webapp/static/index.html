@@ -1161,7 +1161,7 @@
                 </div>
                 <div class="shift-btn" onclick="selectGenShift('night')" id="gen-shift-night">
                     <div>🌙 Нічна зміна</div>
-                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">21:00, 00:00, 03:00, 06:00, 09:00</div>
+                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">21:00, 23:00, 09:00</div>
                 </div>
             </div>
 
@@ -1920,13 +1920,20 @@
 
         const DEFAULT_NIGHT_SLOTS = [
             { prep: 'о', time: '21:00', count: 0 },
-            { prep: 'з', time: '00:00', count: 5 },
-            { prep: 'о', time: '03:00', count: 15 },
-            { prep: 'з', time: '06:00', count: 6 },
-            { prep: 'до', time: '09:00', count: 2 }
+            { prep: 'з', time: '23:00', count: 8 },
+            { prep: 'до', time: '09:00', count: 3 }
         ];
 
         let timelineSlots = JSON.parse(JSON.stringify(DEFAULT_DAY_SLOTS));
+
+        function formatPrep(prep) {
+            if (!prep) return 'О';
+            const p = prep.trim();
+            if (p.toLowerCase() === 'о') return 'О';
+            if (p.toLowerCase() === 'з') return 'З';
+            if (p.toLowerCase() === 'до') return 'До';
+            return p.charAt(0).toUpperCase() + p.slice(1);
+        }
 
         function selectGenShift(shift) {
             selectedGenShift = shift;
@@ -1936,8 +1943,28 @@
             renderTimelineSlots();
         }
 
-        function computeGuestPhrase(count, index, prevCount) {
+        function computeGuestPhrase(count, index, prevCount, isNight, timeStr) {
             const num = parseInt(count);
+            const time = (timeStr || '').trim();
+
+            if (isNight) {
+                if (index === 0 || time === '21:00') {
+                    if (isNaN(num) || num === 0) return "гостей не було";
+                    if (num >= 20) return "гостей було багато";
+                    if (num >= 8) return "гостей було помірно";
+                    return "було гостей мало";
+                }
+                if (time === '23:00' || (index === 1 && time !== '09:00')) {
+                    if (isNaN(num) || num === 0) return "гостей не було";
+                    return "залишилися люди, які на ніч";
+                }
+                if (time === '09:00' || index === 2) {
+                    if (isNaN(num) || num === 0) return "всі гості залишили приміщення";
+                    return "деякі гості залишили приміщення";
+                }
+            }
+
+            // Денна зміна
             if (isNaN(num) || num === 0) {
                 return "гостей не було";
             }
@@ -1947,7 +1974,6 @@
             if (num >= 8) {
                 return "гостей було помірно";
             }
-            // 1..7 людей
             if (num <= 3 && (index === 0 || prevCount === 0 || prevCount === undefined)) {
                 return "прийшли перші гості";
             }
@@ -1963,17 +1989,19 @@
 
             let html = '';
             let prevCount = undefined;
+            const isNight = selectedGenShift === 'night';
 
             timelineSlots.forEach((slot, idx) => {
-                const autoPhrase = computeGuestPhrase(slot.count, idx, prevCount);
+                const autoPhrase = computeGuestPhrase(slot.count, idx, prevCount, isNight, slot.time);
                 prevCount = parseInt(slot.count) || 0;
+                const fmtP = formatPrep(slot.prep);
 
                 html += `
                     <div class="gen-timeline-row" style="display: grid; grid-template-columns: 75px 95px 95px 1fr 36px; gap: 8px; align-items: center; background: #1A1A1C; padding: 10px; border-radius: 12px; border: 1px solid #333333; margin-bottom: 8px;">
                         <select onchange="updateTimelineSlot(${idx}, 'prep', this.value)" style="padding: 8px; font-size: 0.9em; background: #0E0E10; color: #FFF; border: 1px solid #333; border-radius: 6px;">
-                            <option value="о" ${slot.prep === 'о' ? 'selected' : ''}>о</option>
-                            <option value="з" ${slot.prep === 'з' ? 'selected' : ''}>з</option>
-                            <option value="до" ${slot.prep === 'до' ? 'selected' : ''}>до</option>
+                            <option value="о" ${slot.prep.toLowerCase() === 'о' ? 'selected' : ''}>О</option>
+                            <option value="з" ${slot.prep.toLowerCase() === 'з' ? 'selected' : ''}>З</option>
+                            <option value="до" ${slot.prep.toLowerCase() === 'до' ? 'selected' : ''}>До</option>
                         </select>
 
                         <input type="text" value="${slot.time}" onchange="updateTimelineSlot(${idx}, 'time', this.value)" placeholder="9:00" style="padding: 8px; font-size: 0.9em; text-align: center;">
@@ -1981,7 +2009,7 @@
                         <input type="number" value="${slot.count !== undefined && slot.count !== null ? slot.count : ''}" min="0" oninput="updateTimelineSlot(${idx}, 'count', this.value)" placeholder="людей" style="padding: 8px; font-size: 0.9em; text-align: center;">
 
                         <div style="font-size: 0.95em; color: #FFEA00; padding: 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                            ${slot.prep} ${slot.time} ${autoPhrase}
+                            ${fmtP} ${slot.time} ${autoPhrase}
                         </div>
 
                         <button type="button" class="btn-delete" onclick="removeTimelineSlot(${idx})" title="Видалити точку" style="padding: 6px; text-align: center;">✕</button>
@@ -2030,6 +2058,7 @@
             const tech = document.getElementById('gen-tech').value.trim() || 'відсутні';
             const other = document.getElementById('gen-other').value.trim() || 'відсутні';
             const feedback = document.getElementById('gen-feedback').value.trim() || 'немає';
+            const isNight = selectedGenShift === 'night';
 
             const lines = [];
             lines.push(`Технічні проблеми: ${tech}`);
@@ -2037,11 +2066,11 @@
 
             let prevCount = undefined;
             timelineSlots.forEach((slot, idx) => {
-                const prep = slot.prep || 'о';
+                const fmtP = formatPrep(slot.prep || 'о');
                 const time = slot.time || '00:00';
-                const phrase = computeGuestPhrase(slot.count, idx, prevCount);
+                const phrase = computeGuestPhrase(slot.count, idx, prevCount, isNight, slot.time);
                 prevCount = parseInt(slot.count) || 0;
-                lines.push(`${prep} ${time} ${phrase}`);
+                lines.push(`${fmtP} ${time} ${phrase}`);
             });
 
             lines.push(`Відгуки та побажання: ${feedback}`);
