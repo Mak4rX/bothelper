@@ -2199,7 +2199,8 @@
             // Для нічної зміни додаємо рядки про закриття дверей і кількість нічників
             if (isNight) {
                 var nightstayCount = parseInt(document.getElementById('gen-nightstay').value) || 0;
-                lines.push('23:00\tДвері зачинені.');
+                lines.push('23:00');
+                lines.push('Двері зачинені.');
                 lines.push('Кількість нічників: ' + nightstayCount);
             }
 
