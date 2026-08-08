@@ -1250,8 +1250,13 @@
                     <div>🌙 Нічна зміна</div>
                     <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">21:00, 23:00, 09:00</div>
                 </div>
+                <div class="shift-btn" onclick="selectGenShift('doors')" id="gen-shift-doors">
+                    <div>🚪 23:00</div>
+                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">Закриття дверей</div>
+                </div>
             </div>
 
+            <div id="gen-main-fields">
             <div class="form-group">
                 <label>Технічні проблеми</label>
                 <input type="text" id="gen-tech" placeholder="відсутні">
@@ -1273,16 +1278,19 @@
                 <button type="button" class="btn btn-secondary" onclick="addTimelineSlot()" style="margin-top: 8px; font-size: 0.85em; padding: 8px 16px;">➕ Додати часову точку</button>
             </div>
 
-            <div class="form-group" id="gen-nightstay-group" style="margin-top: 20px; display: none;">
-                <label>Кількість нічників</label>
-                <input type="number" id="gen-nightstay" placeholder="0" min="0" step="1" inputmode="numeric">
-                <small style="color: #555555; margin-top: 4px; display: block;">Скільки гостей залишилися на ніч (після 23:00)</small>
-            </div>
-
             <div class="form-group" style="margin-top: 20px;">
                 <label>Відгуки та побажання</label>
                 <input type="text" id="gen-feedback" placeholder="немає">
                 <small style="color: #555555; margin-top: 4px; display: block;">Якщо залишити порожнім — буде «немає»</small>
+            </div>
+            </div>
+
+            <div id="gen-doors-fields" style="display: none;">
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Кількість нічників</label>
+                <input type="number" id="gen-nightstay" placeholder="0" min="0" step="1" inputmode="numeric">
+                <small style="color: #555555; margin-top: 4px; display: block;">Скільки гостей залишилися на ніч (після 23:00)</small>
+            </div>
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 25px; flex-wrap: wrap;">
@@ -2057,12 +2065,18 @@
             selectedGenShift = shift;
             document.querySelectorAll('#shift-gen .shift-btn').forEach(b => b.classList.remove('selected'));
             document.getElementById('gen-shift-' + shift).classList.add('selected');
-            timelineSlots = JSON.parse(JSON.stringify(shift === 'day' ? DEFAULT_DAY_SLOTS : DEFAULT_NIGHT_SLOTS));
-            renderTimelineSlots();
-            // Показуємо поле «Кількість нічників» тільки для нічної зміни
-            var nightstayGroup = document.getElementById('gen-nightstay-group');
-            if (nightstayGroup) nightstayGroup.style.display = shift === 'night' ? 'block' : 'none';
-        }
+            var mainFields = document.getElementById('gen-main-fields');
+            var doorsFields = document.getElementById('gen-doors-fields');
+            if (shift === 'doors') {
+                mainFields.style.display = 'none';
+                doorsFields.style.display = 'block';
+            } else {
+                mainFields.style.display = 'block';
+                doorsFields.style.display = 'none';
+                timelineSlots = JSON.parse(JSON.stringify(shift === 'day' ? DEFAULT_DAY_SLOTS : DEFAULT_NIGHT_SLOTS));
+                renderTimelineSlots();
+            }
+         }
 
         function computeGuestPhrase(count, index, prevCount, isNight, timeStr) {
             const num = parseInt(count);
@@ -2178,33 +2192,33 @@
         }
 
         function generateTextReport() {
-            const tech = document.getElementById('gen-tech').value.trim() || 'відсутні';
-            const other = document.getElementById('gen-other').value.trim() || 'відсутні';
-            const feedback = document.getElementById('gen-feedback').value.trim() || 'немає';
-            const isNight = selectedGenShift === 'night';
-
             const lines = [];
-            lines.push(`Технічні проблеми: ${tech}`);
-            lines.push(`Інші проблеми: ${other}`);
 
-            let prevCount = undefined;
-            timelineSlots.forEach((slot, idx) => {
-                const fmtP = formatPrep(slot.prep || 'о');
-                const time = slot.time || '00:00';
-                const phrase = computeGuestPhrase(slot.count, idx, prevCount, isNight, slot.time);
-                prevCount = parseInt(slot.count) || 0;
-                lines.push(`${fmtP} ${time} ${phrase}`);
-            });
-
-            // Для нічної зміни додаємо рядки про закриття дверей і кількість нічників
-            if (isNight) {
+            if (selectedGenShift === 'doors') {
                 var nightstayCount = parseInt(document.getElementById('gen-nightstay').value) || 0;
                 lines.push('23:00');
                 lines.push('Двері зачинені.');
                 lines.push('Кількість нічників: ' + nightstayCount);
-            }
+            } else {
+                const tech = document.getElementById('gen-tech').value.trim() || 'відсутні';
+                const other = document.getElementById('gen-other').value.trim() || 'відсутні';
+                const feedback = document.getElementById('gen-feedback').value.trim() || 'немає';
+                const isNight = selectedGenShift === 'night';
 
-            lines.push(`Відгуки та побажання: ${feedback}`);
+                lines.push(`Технічні проблеми: ${tech}`);
+                lines.push(`Інші проблеми: ${other}`);
+
+                let prevCount = undefined;
+                timelineSlots.forEach((slot, idx) => {
+                    const fmtP = formatPrep(slot.prep || 'о');
+                    const time = slot.time || '00:00';
+                    const phrase = computeGuestPhrase(slot.count, idx, prevCount, isNight, slot.time);
+                    prevCount = parseInt(slot.count) || 0;
+                    lines.push(`${fmtP} ${time} ${phrase}`);
+                });
+
+                lines.push(`Відгуки та побажання: ${feedback}`);
+            }
 
             lastGenReportText = lines.join('\n\n');
 
