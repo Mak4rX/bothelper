@@ -2197,8 +2197,7 @@
             if (selectedGenShift === 'doors') {
                 var nightstayCount = parseInt(document.getElementById('gen-nightstay').value) || 0;
                 lines.push('23:00');
-                lines.push('Двері зачинені.');
-                lines.push('Кількість нічників: ' + nightstayCount);
+                lines.push('Двері зачинені.\nКількість нічників: ' + nightstayCount);
             } else {
                 const tech = document.getElementById('gen-tech').value.trim() || 'відсутні';
                 const other = document.getElementById('gen-other').value.trim() || 'відсутні';
