@@ -84,6 +84,27 @@ class PricingTests(unittest.TestCase):
             for row in calculate_price(3, "gamer", "weekend", current_hour=12)
         ))
 
+    def test_package30_calculations(self):
+        # PC GAMER: 1699 грн за 30 год
+        gamer_hours = calculate_hours(1699, "gamer", "weekday", current_hour=18)
+        gamer_opt = [r for r in gamer_hours if "30" in r["package"]]
+        self.assertTrue(gamer_opt)
+        self.assertEqual(gamer_opt[0]["hours"], 30)
+        self.assertEqual(gamer_opt[0]["price"], 1699)
+
+        # PC PRO: 1899 грн за 30 год
+        pro_price = calculate_price(30, "pro", "weekend", current_hour=18)
+        pro_opt = [r for r in pro_price if "30" in r["package"]]
+        self.assertTrue(pro_opt)
+        self.assertEqual(pro_opt[0]["price"], 1899)
+
+        # PC BOOTCAMP: 2499 грн за 30 год
+        bootcamp_price = calculate_price(30, "bootcamp", "weekday", current_hour=18)
+        bootcamp_opt = [r for r in bootcamp_price if "30" in r["package"]]
+        self.assertTrue(bootcamp_opt)
+        self.assertEqual(bootcamp_opt[0]["price"], 2499)
+
 
 if __name__ == "__main__":
     unittest.main()
+

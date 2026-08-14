@@ -307,6 +307,7 @@ async def get_zones():
             "morning_hours": "09:00–16:00",
             "weekday_hour": zone.weekday_hour,
             "weekend_hour": zone.weekend_hour,
+            "package30": zone.weekday_package30,
         }
         for zone in ZONES.values()
     ]
