@@ -49,3 +49,6 @@ tests/screenshot-*.png
 
 # Служебные данные WorkBuddy
 .workbuddy-ai/
+
+# Скріншоти GUI-тестів
+gui-test-screenshots/

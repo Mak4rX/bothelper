@@ -1035,22 +1035,22 @@
 
             <div class="form-group">
                 <label>Каса на початку зміни (грн)</label>
-                <input type="number" id="open_cash" placeholder="0" min="0" step="0.01" inputmode="decimal">
+                <input type="number" id="open_cash" placeholder="0" min="0" step="0.01" inputmode="decimal" oninput="updateExpectedTotal()">
             </div>
 
             <div class="form-group">
                 <label>Каса готівки в кінці зміни (грн)</label>
-                <input type="number" id="close_cash" placeholder="0" min="0" step="0.01" inputmode="decimal">
+                <input type="number" id="close_cash" placeholder="0" min="0" step="0.01" inputmode="decimal" oninput="updateExpectedTotal()">
             </div>
 
             <div class="form-group">
                 <label>Торгівельні витрати (грн)</label>
-                <input type="number" id="expenses" placeholder="0" min="0">
+                <input type="number" id="expenses" placeholder="0" min="0" oninput="updateExpectedTotal()">
             </div>
 
             <div class="form-group" id="report-collection-group">
                 <label>Інкасація (грн)</label>
-                <input type="number" id="report-collection" value="0" min="0" placeholder="0">
+                <input type="number" id="report-collection" value="0" min="0" placeholder="0" oninput="updateExpectedTotal()">
                 <small id="report-collection-details" style="color: #A0A0A0; margin-top: 5px; display: block;">
                     Якщо гроші забирали з каси — введіть суму тут.
                 </small>
@@ -1058,7 +1058,7 @@
 
             <div class="form-group">
                 <label>Нараховано у сенеті (грн)</label>
-                <input type="number" id="senet" placeholder="0" min="0">
+                <input type="number" id="senet" placeholder="0" min="0" oninput="updateExpectedTotal()">
                 <small id="expectedTotal" style="color: #A0A0A0; margin-top: 5px; display: block;"></small>
             </div>
 
@@ -1421,6 +1421,31 @@
             pendingAlert.innerHTML = '';
         }
 
+        // Жива підказка біля «Нараховано у сенеті»: скільки має заробити зміна.
+        // Сенет показує касу ЗА ЗМІНУ (без залишку зранку) — часта плутанина,
+        // коли касир вводить баланс разом із початковою касою і отримує «недостачу».
+        function updateExpectedTotal() {
+            const hint = document.getElementById('expectedTotal');
+            const open  = parseMoney(document.getElementById('open_cash').value);
+            const close = parseMoney(document.getElementById('close_cash').value);
+            if (open === null || close === null) {
+                hint.innerHTML = '';
+                return;
+            }
+            const expenses   = parseMoney(document.getElementById('expenses').value) ?? 0;
+            const collection = parseMoney(document.getElementById('report-collection').value) ?? 0;
+            const earned = close - open + expenses + collection;
+            const senet  = parseMoney(document.getElementById('senet').value);
+
+            let html = `ℹ️ Розраховане зароблено за зміну: <strong>${fmtMoney(earned)} грн</strong> — стільки має бути у сенеті.`;
+            // Недостача, рівна касі зранку, = ввели баланс каси разом із залишком
+            if (senet !== null && open > 0 && Math.abs((senet - earned) - open) < 0.005) {
+                html += `<br>⚠️ Схоже, введено касу сенету разом із залишком зранку (${fmtMoney(open)} грн). ` +
+                        `Відніми касу зранку — тоді надлишок/недостача порахуються правильно.`;
+            }
+            hint.innerHTML = html;
+        }
+
         async function generateReport() {
             // Гроші читаємо в гривнях (можна цілі або з копійками: 11142.50 чи 11142,50)
             const open_cash  = parseMoney(document.getElementById('open_cash').value) ?? 0;
@@ -1460,6 +1485,7 @@
                     document.getElementById('report-collection').value = '0';
                     document.getElementById('senet').value = '';
                     document.getElementById('report-note').value = '';
+                    updateExpectedTotal();
                     loadExpectedCash();
                 } else {
                     resultDiv.innerHTML = `<div class="alert alert-warning">Помилка: ${data.detail || 'невідома'}</div>`;
