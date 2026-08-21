@@ -128,15 +128,85 @@ export function applyCashTransaction(currentCounts, receivedCounts, changeBreakd
   return next;
 }
 
+export const CASH_HISTORY_STORAGE_KEY = 'cyberhelper.cashHistory.v1';
+export const MAX_CASH_HISTORY_ENTRIES = 100;
+
+export function createCashSnapshot(counts, note = '', timestamp = null) {
+  const normalized = normalizeInventory(counts);
+  const ts = timestamp || new Date().toISOString();
+  return {
+    id: `cash_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    timestamp: ts,
+    total: inventoryTotal(normalized),
+    counts: normalized,
+    note: typeof note === 'string' ? note.trim() : '',
+  };
+}
+
+export function getDenominationBreakdown(counts) {
+  const normalized = normalizeInventory(counts);
+  const items = [];
+  let totalItems = 0;
+  for (const denom of CASH_DENOMINATIONS) {
+    const qty = normalized[String(denom)] || 0;
+    if (qty > 0) {
+      const subtotal = denom * qty;
+      const label = denom >= 100 ? `${denom / 100}₴` : `${denom}к`;
+      items.push({
+        denom,
+        label,
+        count: qty,
+        subtotal,
+      });
+      totalItems += qty;
+    }
+  }
+  return {
+    items,
+    totalItems,
+    totalAmount: inventoryTotal(normalized),
+  };
+}
+
+export function formatMoneyUah(kopiykas) {
+  const isNegative = kopiykas < 0;
+  const abs = Math.abs(kopiykas);
+  const uah = abs / 100;
+  const parts = (uah % 1 === 0 ? String(uah) : uah.toFixed(2)).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const formatted = parts.join('.');
+  return `${isNegative ? '-' : ''}${formatted} грн`;
+}
+
+export function calculateDiff(currentTotal, previousTotal) {
+  if (typeof previousTotal !== 'number') {
+    return { diff: 0, sign: 'none', text: 'Перший запис' };
+  }
+  const diff = currentTotal - previousTotal;
+  if (diff > 0) {
+    return { diff, sign: 'plus', text: `+${formatMoneyUah(diff)}` };
+  } else if (diff < 0) {
+    return { diff, sign: 'minus', text: formatMoneyUah(diff) };
+  }
+  return { diff: 0, sign: 'zero', text: '0 грн' };
+}
+
 if (typeof window !== 'undefined') {
   window.CashRegister = {
     CASH_DENOMINATIONS,
     CASH_INVENTORY_VERSION,
+    CASH_HISTORY_STORAGE_KEY,
+    MAX_CASH_HISTORY_ENTRIES,
     emptyInventory,
     normalizeInventory,
     inventoryTotal,
     makeLimitedChange,
     addInventories,
     applyCashTransaction,
+    createCashSnapshot,
+    getDenominationBreakdown,
+    formatMoneyUah,
+    calculateDiff,
   };
 }
+

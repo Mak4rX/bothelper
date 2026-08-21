@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Literal
 
 DayType = Literal["weekday", "weekend"]
-PackageType = Literal["hour", "package3", "package5", "package10", "package2"]
+PackageType = Literal["hour", "package3", "package5", "package10", "package2", "package30"]
 
 MORNING_START_HOUR = 9
 MORNING_END_HOUR = 16
@@ -50,6 +50,10 @@ class Zone:
     # Для TV Zone є пакет 2 години замість 3
     weekday_package2: int = 0
     weekend_package2: int = 0
+
+    # Пакет 30 годин (однакова ціна у будні та вихідні)
+    weekday_package30: int = 0
+    weekend_package30: int = 0
 
     def get_options(self, day_type: DayType, current_hour: int | None = None) -> list[PriceOption]:
         """Повертає доступні варіанти; ранковий тариф діє з 09:00 до 16:00."""
@@ -98,6 +102,13 @@ class Zone:
                     price=self.weekday_package10,
                     price_per_hour=self.weekday_package10 // 10
                 ))
+            if self.weekday_package30:
+                options.append(PriceOption(
+                    name="Пакет 30 год (Пн-Чт)",
+                    hours=30,
+                    price=self.weekday_package30,
+                    price_per_hour=self.weekday_package30 // 30
+                ))
         else:  # weekend
             options.append(PriceOption(
                 name="1 година (Пт-Нд)",
@@ -133,6 +144,13 @@ class Zone:
                     price=self.weekend_package10,
                     price_per_hour=self.weekend_package10 // 10
                 ))
+            if self.weekend_package30:
+                options.append(PriceOption(
+                    name="Пакет 30 год (Пт-Нд)",
+                    hours=30,
+                    price=self.weekend_package30,
+                    price_per_hour=self.weekend_package30 // 30
+                ))
 
         return options
 
@@ -147,6 +165,8 @@ ZONES = {
         weekday_package3=180,
         weekday_package5=275,
         weekday_package10=350,
+        weekday_package30=1699,
+        weekend_package30=1699,
         weekend_hour=80,
         weekend_package3=210,
         weekend_package5=325,
@@ -160,6 +180,8 @@ ZONES = {
         weekday_package3=210,
         weekday_package5=325,
         weekday_package10=400,
+        weekday_package30=1899,
+        weekend_package30=1899,
         weekend_hour=90,
         weekend_package3=240,
         weekend_package5=375,
@@ -168,15 +190,17 @@ ZONES = {
     "bootcamp": Zone(
         id="bootcamp",
         name="🖥️ PC BOOTCAMP PRO (RTX 5070)",
-        morning_price=110,
-        weekday_hour=140,
-        weekday_package3=390,
-        weekday_package5=625,
-        weekday_package10=700,
-        weekend_hour=180,
-        weekend_package3=510,
-        weekend_package5=825,
-        weekend_package10=900,
+        morning_price=80,
+        weekday_hour=100,
+        weekday_package3=270,
+        weekday_package5=425,
+        weekday_package10=750,
+        weekday_package30=2499,
+        weekend_package30=2499,
+        weekend_hour=120,
+        weekend_package3=330,
+        weekend_package5=525,
+        weekend_package10=750,
     ),
     "tv": Zone(
         id="tv",
@@ -223,8 +247,18 @@ def is_school_package_active(day_type: DayType, current_hour: int | None = None)
     return hour < SCHOOL_PACKAGE[day_type]["end_hour"]
 
 
+def apply_discount(price: int, discount_percent: float) -> int:
+    """Знижка на ціну, округлення до цілої гривні."""
+    if not 0 <= discount_percent <= 100:
+        raise ValueError("discount_percent must be between 0 and 100")
+    if discount_percent == 0:
+        return price
+    return round(price * (100 - discount_percent) / 100)
+
+
 def calculate_hours(amount: int, zone_id: str, day_type: DayType,
-                    current_hour: int | None = None) -> list[dict]:
+                    current_hour: int | None = None,
+                    discount_percent: float = 0) -> list[dict]:
     """Рахує скільки годин можна отримати за дану суму."""
     if zone_id not in ZONES:
         return []
@@ -234,28 +268,30 @@ def calculate_hours(amount: int, zone_id: str, day_type: DayType,
 
     results = []
     for opt in options:
-        if opt.price <= amount:
-            full_packages = amount // opt.price
-            remaining = amount % opt.price
+        price = apply_discount(opt.price, discount_percent)
+        if price > 0 and price <= amount:
+            full_packages = amount // price
+            remaining = amount % price
             total_hours = full_packages * opt.hours
 
             results.append({
                 "package": opt.name,
                 "hours": total_hours,
-                "price": full_packages * opt.price,
+                "price": full_packages * price,
                 "remaining": remaining,
             })
 
     # Пакет ШКОЛЯР доступний лише в Gamer і тільки до граничного часу.
     if zone_id in SCHOOL_ZONES and is_school_package_active(day_type, current_hour):
         school = SCHOOL_PACKAGE[day_type]
-        if amount >= school["price"]:
-            packages = amount // school["price"]
-            remaining = amount % school["price"]
+        price = apply_discount(school["price"], discount_percent)
+        if price > 0 and amount >= price:
+            packages = amount // price
+            remaining = amount % price
             results.append({
                 "package": school["name"],
                 "hours": packages * school["hours"],
-                "price": packages * school["price"],
+                "price": packages * price,
                 "remaining": remaining,
             })
 
@@ -263,7 +299,8 @@ def calculate_hours(amount: int, zone_id: str, day_type: DayType,
 
 
 def calculate_price(hours: float, zone_id: str, day_type: DayType,
-                    current_hour: int | None = None) -> list[dict]:
+                    current_hour: int | None = None,
+                    discount_percent: float = 0) -> list[dict]:
     """Рахує скільки коштує задана кількість годин."""
     if zone_id not in ZONES:
         return []
@@ -274,9 +311,10 @@ def calculate_price(hours: float, zone_id: str, day_type: DayType,
     results = []
     for opt in options:
         if opt.hours <= hours:
+            price = apply_discount(opt.price, discount_percent)
             packages = int(hours / opt.hours)
             remaining_hours = hours - (packages * opt.hours)
-            total_price = packages * opt.price
+            total_price = packages * price
 
             results.append({
                 "package": opt.name,
@@ -290,13 +328,14 @@ def calculate_price(hours: float, zone_id: str, day_type: DayType,
     if zone_id in SCHOOL_ZONES and is_school_package_active(day_type, current_hour):
         school = SCHOOL_PACKAGE[day_type]
         if hours >= school["hours"]:
+            price = apply_discount(school["price"], discount_percent)
             packages = int(hours / school["hours"])
             remaining_hours = hours - (packages * school["hours"])
             results.append({
                 "package": school["name"],
                 "packages": packages,
                 "hours_used": packages * school["hours"],
-                "price": packages * school["price"],
+                "price": packages * price,
                 "remaining_hours": remaining_hours,
             })
 

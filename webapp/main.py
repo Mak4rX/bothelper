@@ -307,6 +307,7 @@ async def get_zones():
             "morning_hours": "09:00–16:00",
             "weekday_hour": zone.weekday_hour,
             "weekend_hour": zone.weekend_hour,
+            "package30": zone.weekday_package30,
         }
         for zone in ZONES.values()
     ]
@@ -318,16 +319,19 @@ async def money_to_hours(
     zone: str,
     day_type: str,
     current_hour: int | None = Query(default=None, ge=0, le=23),
+    discount: float = Query(default=0, ge=0, le=100),
 ):
     """Калькулятор: сумма → часы."""
     if day_type not in ["weekday", "weekend"]:
         raise HTTPException(400, "day_type must be 'weekday' or 'weekend'")
 
-    results = calculate_hours(amount, zone, day_type, current_hour=current_hour)
+    results = calculate_hours(amount, zone, day_type, current_hour=current_hour,
+                              discount_percent=discount)
     return {
         "amount": amount,
         "zone": zone,
         "day_type": day_type,
+        "discount": discount,
         "morning_active": is_morning_rate_active(current_hour),
         "options": results,
     }
@@ -339,16 +343,19 @@ async def hours_to_money(
     zone: str,
     day_type: str,
     current_hour: int | None = Query(default=None, ge=0, le=23),
+    discount: float = Query(default=0, ge=0, le=100),
 ):
     """Калькулятор: часы → сумма."""
     if day_type not in ["weekday", "weekend"]:
         raise HTTPException(400, "day_type must be 'weekday' or 'weekend'")
 
-    results = calculate_price(hours, zone, day_type, current_hour=current_hour)
+    results = calculate_price(hours, zone, day_type, current_hour=current_hour,
+                              discount_percent=discount)
     return {
         "hours": hours,
         "zone": zone,
         "day_type": day_type,
+        "discount": discount,
         "morning_active": is_morning_rate_active(current_hour),
         "options": results,
     }
