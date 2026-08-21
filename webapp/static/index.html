@@ -1592,8 +1592,8 @@
         </div>
     </div>
 
-    <script type="module" src="/static/change.js"></script>
-    <script type="module" src="/static/cash-register.js"></script>
+    <script type="module" src="/static/change.js?v=2"></script>
+    <script type="module" src="/static/cash-register.js?v=2"></script>
     <script>
         let selectedShift = 'day';
         let selectedMode = 'money';
@@ -2198,6 +2198,74 @@
 
         // ─── Cash Count History ──────────────────────────────────────────
 
+        function internalCreateCashSnapshot(counts, note = '') {
+            if (window.CashRegister && typeof window.CashRegister.createCashSnapshot === 'function') {
+                return window.CashRegister.createCashSnapshot(counts, note);
+            }
+            const normalized = (window.CashRegister && typeof window.CashRegister.normalizeInventory === 'function')
+                ? window.CashRegister.normalizeInventory(counts)
+                : Object.fromEntries(DENOMS.map(d => [String(denomToKopiykas(d)), Number(counts?.[String(denomToKopiykas(d))] || 0)]));
+            const total = (window.CashRegister && typeof window.CashRegister.inventoryTotal === 'function')
+                ? window.CashRegister.inventoryTotal(normalized)
+                : Object.entries(normalized).reduce((s, [k, v]) => s + Number(k) * Number(v), 0);
+            return {
+                id: `cash_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                timestamp: new Date().toISOString(),
+                total,
+                counts: normalized,
+                note: typeof note === 'string' ? note.trim() : '',
+            };
+        }
+
+        function internalGetDenominationBreakdown(counts) {
+            if (window.CashRegister && typeof window.CashRegister.getDenominationBreakdown === 'function') {
+                return window.CashRegister.getDenominationBreakdown(counts);
+            }
+            const items = [];
+            let totalItems = 0;
+            let totalAmount = 0;
+            DENOMS.forEach(d => {
+                const kopiykas = denomToKopiykas(d);
+                const qty = Math.max(0, parseInt(counts?.[String(kopiykas)]) || 0);
+                if (qty > 0) {
+                    const subtotal = kopiykas * qty;
+                    const label = d === 0.5 ? '50к' : `${d}₴`;
+                    items.push({ denom: kopiykas, label, count: qty, subtotal });
+                    totalItems += qty;
+                    totalAmount += subtotal;
+                }
+            });
+            return { items, totalItems, totalAmount };
+        }
+
+        function internalFormatMoney(kopiykas) {
+            if (window.CashRegister && typeof window.CashRegister.formatMoneyUah === 'function') {
+                return window.CashRegister.formatMoneyUah(kopiykas);
+            }
+            const isNegative = kopiykas < 0;
+            const abs = Math.abs(kopiykas);
+            const uah = abs / 100;
+            const parts = (uah % 1 === 0 ? String(uah) : uah.toFixed(2)).split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            return `${isNegative ? '-' : ''}${parts.join('.')} грн`;
+        }
+
+        function internalCalculateDiff(currentTotal, previousTotal) {
+            if (window.CashRegister && typeof window.CashRegister.calculateDiff === 'function') {
+                return window.CashRegister.calculateDiff(currentTotal, previousTotal);
+            }
+            if (typeof previousTotal !== 'number') {
+                return { diff: 0, sign: 'none', text: 'Перший запис' };
+            }
+            const diff = currentTotal - previousTotal;
+            if (diff > 0) {
+                return { diff, sign: 'plus', text: `+${internalFormatMoney(diff)}` };
+            } else if (diff < 0) {
+                return { diff, sign: 'minus', text: internalFormatMoney(diff) };
+            }
+            return { diff: 0, sign: 'zero', text: '0 грн' };
+        }
+
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str)
@@ -2210,7 +2278,7 @@
 
         function loadCashHistory() {
             try {
-                const key = CashRegister.CASH_HISTORY_STORAGE_KEY || 'cyberhelper.cashHistory.v1';
+                const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
                 const raw = localStorage.getItem(key);
                 if (!raw) return [];
                 const parsed = JSON.parse(raw);
@@ -2226,7 +2294,7 @@
                 calcCash(true);
                 const noteInput = document.getElementById('cash-snapshot-note');
                 const note = noteInput ? noteInput.value.trim() : '';
-                const snapshot = CashRegister.createCashSnapshot(cashInventory, note);
+                const snapshot = internalCreateCashSnapshot(cashInventory, note);
 
                 if (snapshot.total === 0 && !note) {
                     if (!confirm('Каса порожня (0 грн). Все одно зберегти цей зліпок в історію?')) {
@@ -2236,19 +2304,17 @@
 
                 let history = loadCashHistory();
                 history.unshift(snapshot);
-                const maxEntries = CashRegister.MAX_CASH_HISTORY_ENTRIES || 100;
+                const maxEntries = (window.CashRegister && window.CashRegister.MAX_CASH_HISTORY_ENTRIES) || 100;
                 if (history.length > maxEntries) {
                     history = history.slice(0, maxEntries);
                 }
-                const key = CashRegister.CASH_HISTORY_STORAGE_KEY || 'cyberhelper.cashHistory.v1';
+                const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
                 localStorage.setItem(key, JSON.stringify(history));
 
                 if (noteInput) noteInput.value = '';
                 renderCashHistory();
 
-                const formattedTotal = CashRegister.formatMoneyUah
-                    ? CashRegister.formatMoneyUah(snapshot.total)
-                    : ChangeCalc.formatUah(snapshot.total).replace('₴', 'грн');
+                const formattedTotal = internalFormatMoney(snapshot.total);
                 showToast(`💾 Стан каси збережено в історію (${formattedTotal})!`, 'success', 3500);
             } catch (e) {
                 console.error('Failed to save cash snapshot:', e);
@@ -2290,8 +2356,8 @@
             for (let i = 0; i < history.length; i++) {
                 const item = history[i];
                 const prevItem = history[i + 1];
-                const diff = CashRegister.calculateDiff(item.total, prevItem ? prevItem.total : undefined);
-                const breakdown = CashRegister.getDenominationBreakdown(item.counts);
+                const diff = internalCalculateDiff(item.total, prevItem ? prevItem.total : undefined);
+                const breakdown = internalGetDenominationBreakdown(item.counts);
 
                 const dateObj = new Date(item.timestamp);
                 const dateStr = !isNaN(dateObj.getTime())
@@ -2313,14 +2379,12 @@
                         <span class="cash-chip">
                             <span class="cash-chip-denom">${b.label}</span>
                             <span class="cash-chip-qty">× ${b.count}</span>
-                            <span class="cash-chip-sub">(= ${CashRegister.formatMoneyUah ? CashRegister.formatMoneyUah(b.subtotal) : fmt(b.subtotal / 100) + ' грн'})</span>
+                            <span class="cash-chip-sub">(= ${internalFormatMoney(b.subtotal)})</span>
                         </span>
                     `).join('');
                 }
 
-                const totalFormatted = CashRegister.formatMoneyUah
-                    ? CashRegister.formatMoneyUah(item.total)
-                    : ChangeCalc.formatUah(item.total).replace('₴', 'грн');
+                const totalFormatted = internalFormatMoney(item.total);
 
                 html += `
                     <div class="cash-history-item" data-id="${item.id}">
@@ -2374,7 +2438,9 @@
                 return;
             }
 
-            cashInventory = CashRegister.normalizeInventory(snapshot.counts);
+            cashInventory = (window.CashRegister && typeof window.CashRegister.normalizeInventory === 'function')
+                ? window.CashRegister.normalizeInventory(snapshot.counts)
+                : Object.fromEntries(DENOMS.map(d => [String(denomToKopiykas(d)), Number(snapshot.counts?.[String(denomToKopiykas(d))] || 0)]));
             renderCashInventory();
             try {
                 saveCashInventory(cashInventory);
@@ -2394,11 +2460,9 @@
             const snapshot = history.find(h => h.id === id);
             if (!snapshot) return;
 
-            const breakdown = CashRegister.getDenominationBreakdown(snapshot.counts);
+            const breakdown = internalGetDenominationBreakdown(snapshot.counts);
             const dateStr = new Date(snapshot.timestamp).toLocaleString('uk-UA');
-            const totalStr = CashRegister.formatMoneyUah
-                ? CashRegister.formatMoneyUah(snapshot.total)
-                : ChangeCalc.formatUah(snapshot.total).replace('₴', 'грн');
+            const totalStr = internalFormatMoney(snapshot.total);
 
             let lines = [
                 `💵 Перерахунок каси від ${dateStr}`,
@@ -2412,7 +2476,7 @@
                 lines.push('  • Порожня каса (0 купюр)');
             } else {
                 breakdown.items.forEach(b => {
-                    const subStr = CashRegister.formatMoneyUah ? CashRegister.formatMoneyUah(b.subtotal) : (b.subtotal / 100) + ' грн';
+                    const subStr = internalFormatMoney(b.subtotal);
                     lines.push(`  • ${b.label}: ${b.count} шт. (= ${subStr})`);
                 });
             }
@@ -2430,7 +2494,7 @@
             if (!confirm('Видалити цей запис перерахунку каси?')) return;
             let history = loadCashHistory();
             history = history.filter(h => h.id !== id);
-            const key = CashRegister.CASH_HISTORY_STORAGE_KEY || 'cyberhelper.cashHistory.v1';
+            const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
             localStorage.setItem(key, JSON.stringify(history));
             renderCashHistory();
             showToast('🗑 Запис видалено з історії', 'info', 2000);
@@ -2441,7 +2505,7 @@
             if (history.length === 0) return;
             if (!confirm(`Видалити ВСЮ історію перерахунків (${history.length} зап.)? Цю дію неможливо скасувати.`)) return;
 
-            const key = CashRegister.CASH_HISTORY_STORAGE_KEY || 'cyberhelper.cashHistory.v1';
+            const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
             localStorage.removeItem(key);
             renderCashHistory();
             showToast('🗑 Історію перерахунків каси повністю очищено', 'info', 2500);
@@ -2456,11 +2520,9 @@
 
             let text = '=== 📜 ІСТОРІЯ ПЕРЕРАХУНКІВ КАСИ ===\n\n';
             history.forEach((snapshot, idx) => {
-                const breakdown = CashRegister.getDenominationBreakdown(snapshot.counts);
+                const breakdown = internalGetDenominationBreakdown(snapshot.counts);
                 const dateStr = new Date(snapshot.timestamp).toLocaleString('uk-UA');
-                const totalStr = CashRegister.formatMoneyUah
-                    ? CashRegister.formatMoneyUah(snapshot.total)
-                    : ChangeCalc.formatUah(snapshot.total).replace('₴', 'грн');
+                const totalStr = internalFormatMoney(snapshot.total);
 
                 text += `[#${history.length - idx}] ${dateStr} — ${totalStr}\n`;
                 if (snapshot.note) text += `  Коментар: ${snapshot.note}\n`;
