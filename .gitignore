@@ -46,6 +46,10 @@ dmypy.json
 
 # Артефакти тестів
 tests/screenshot-*.png
+gui-test-screenshots/
+
+# Executables
+cloudflared.exe
 
 # Служебные данные WorkBuddy
 .workbuddy-ai/

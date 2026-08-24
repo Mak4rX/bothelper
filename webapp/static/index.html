@@ -988,6 +988,241 @@
             text-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
         }
 
+        .cash-note-input {
+            width: 100%;
+            background: #141416;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            color: #FFFFFF;
+            padding: 10px 14px;
+            font-size: 0.9em;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+        .cash-note-input:focus {
+            outline: none;
+            border-color: #FFEA00;
+            box-shadow: 0 0 10px rgba(255, 234, 0, 0.25);
+        }
+
+        .cash-actions-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cash-history-wrapper {
+            margin-top: 35px;
+            border-top: 1px dashed #333333;
+            padding-top: 25px;
+        }
+
+        .cash-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .cash-history-title {
+            font-size: 1.25em;
+            font-weight: 700;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cash-history-badge {
+            background: rgba(255, 234, 0, 0.15);
+            color: #FFEA00;
+            border: 1px solid rgba(255, 234, 0, 0.4);
+            font-size: 0.8em;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .cash-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .cash-history-empty {
+            background: #141416;
+            border: 1px dashed #333333;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            color: #777777;
+            font-size: 0.95em;
+        }
+
+        .cash-history-item {
+            background: #1A1A1C;
+            border: 1px solid #333333;
+            border-left: 4px solid #FFEA00;
+            border-radius: 12px;
+            padding: 16px 18px;
+            transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+            position: relative;
+        }
+        .cash-history-item:hover {
+            border-color: #444444;
+            border-left-color: #FFEA00;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .cash-history-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .cash-history-datetime {
+            color: #A0A0A0;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cash-history-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cash-history-total {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #FFEA00;
+            text-shadow: 0 0 10px rgba(255, 234, 0, 0.3);
+        }
+
+        .cash-diff-tag {
+            font-size: 0.85em;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .cash-diff-tag.plus {
+            background: rgba(0, 255, 102, 0.12);
+            border: 1px solid rgba(0, 255, 102, 0.35);
+            color: #00FF66;
+        }
+        .cash-diff-tag.minus {
+            background: rgba(255, 51, 102, 0.12);
+            border: 1px solid rgba(255, 51, 102, 0.35);
+            color: #FF3366;
+        }
+        .cash-diff-tag.zero, .cash-diff-tag.none {
+            background: rgba(160, 160, 160, 0.1);
+            border: 1px solid rgba(160, 160, 160, 0.25);
+            color: #A0A0A0;
+        }
+
+        .cash-history-note {
+            color: #00D9FF;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            background: rgba(0, 217, 255, 0.06);
+            border-left: 2px solid #00D9FF;
+            padding: 5px 10px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .cash-history-breakdown {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+            background: #111113;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #252528;
+        }
+
+        .cash-chip {
+            background: #1E1E22;
+            border: 1px solid #3A3A40;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.85em;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .cash-chip-denom {
+            color: #FFEA00;
+            font-weight: 700;
+        }
+        .cash-chip-qty {
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+        .cash-chip-sub {
+            color: #888888;
+            font-size: 0.85em;
+        }
+
+        .cash-history-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.82em;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            transition: background 0.15s, border-color 0.15s, transform 0.1s;
+            border: 1px solid transparent;
+        }
+        .btn-sm-primary {
+            background: rgba(255, 234, 0, 0.15);
+            border-color: rgba(255, 234, 0, 0.4);
+            color: #FFEA00;
+        }
+        .btn-sm-primary:hover {
+            background: #FFEA00;
+            color: #000000;
+        }
+        .btn-sm-secondary {
+            background: #252528;
+            border-color: #3A3A40;
+            color: #CCCCCC;
+        }
+        .btn-sm-secondary:hover {
+            background: #333338;
+            color: #FFFFFF;
+        }
+        .btn-sm-danger {
+            background: rgba(255, 51, 102, 0.1);
+            border-color: rgba(255, 51, 102, 0.3);
+            color: #FF3366;
+        }
+        .btn-sm-danger:hover {
+            background: #FF3366;
+            color: #FFFFFF;
+        }
+
         .change-exact {
             color: #28a745;
             font-weight: 600;
@@ -1103,22 +1338,22 @@
 
             <div class="form-group">
                 <label>Каса на початку зміни (грн)</label>
-                <input type="number" id="open_cash" placeholder="0" min="0" step="0.01" inputmode="decimal">
+                <input type="number" id="open_cash" placeholder="0" min="0" step="0.01" inputmode="decimal" oninput="updateExpectedTotal()">
             </div>
 
             <div class="form-group">
                 <label>Каса готівки в кінці зміни (грн)</label>
-                <input type="number" id="close_cash" placeholder="0" min="0" step="0.01" inputmode="decimal">
+                <input type="number" id="close_cash" placeholder="0" min="0" step="0.01" inputmode="decimal" oninput="updateExpectedTotal()">
             </div>
 
             <div class="form-group">
                 <label>Торгівельні витрати (грн)</label>
-                <input type="number" id="expenses" placeholder="0" min="0">
+                <input type="number" id="expenses" placeholder="0" min="0" oninput="updateExpectedTotal()">
             </div>
 
             <div class="form-group" id="report-collection-group">
                 <label>Інкасація (грн)</label>
-                <input type="number" id="report-collection" value="0" min="0" placeholder="0">
+                <input type="number" id="report-collection" value="0" min="0" placeholder="0" oninput="updateExpectedTotal()">
                 <small id="report-collection-details" style="color: #A0A0A0; margin-top: 5px; display: block;">
                     Якщо гроші забирали з каси — введіть суму тут.
                 </small>
@@ -1126,7 +1361,7 @@
 
             <div class="form-group">
                 <label>Нараховано у сенеті (грн)</label>
-                <input type="number" id="senet" placeholder="0" min="0">
+                <input type="number" id="senet" placeholder="0" min="0" oninput="updateExpectedTotal()">
                 <small id="expectedTotal" style="color: #A0A0A0; margin-top: 5px; display: block;"></small>
             </div>
 
@@ -1320,8 +1555,34 @@
                 </div>
             </div>
 
-            <div id="cash-storage-status" class="change-note"></div>
-            <button class="btn btn-secondary" onclick="clearCashCount()">🗑 Обнулити касу</button>
+            <div style="margin-top: 15px; margin-bottom: 12px;">
+                <input type="text" id="cash-snapshot-note" class="cash-note-input" placeholder="Коментар або ім'я касира (наприклад: Ранкова зміна, Перезмінка)">
+            </div>
+
+            <div class="cash-actions-bar">
+                <button class="btn" style="flex: 2; min-width: 200px;" onclick="saveCashSnapshot()">💾 Зберегти стан каси в історію</button>
+                <button class="btn btn-secondary" style="flex: 1; min-width: 120px;" onclick="clearCashCount()">🗑 Обнулити</button>
+            </div>
+
+            <div id="cash-storage-status" class="change-note" style="margin-bottom: 20px;"></div>
+
+            <!-- Cash History Section -->
+            <div class="cash-history-wrapper">
+                <div class="cash-history-header">
+                    <div class="cash-history-title">
+                        📜 Історія перерахунків каси
+                        <span id="cash-history-badge" class="cash-history-badge">0 записів</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn-sm btn-sm-secondary" onclick="exportCashHistory()" title="Скопіювати текстовий журнал всієї історії">📥 Експорт</button>
+                        <button class="btn-sm btn-sm-danger" onclick="clearCashHistory()" title="Очистити всю історію перерахунків">🗑 Очистити історію</button>
+                    </div>
+                </div>
+
+                <div id="cash-history-list" class="cash-history-list">
+                    <!-- History items will be dynamically rendered here -->
+                </div>
+            </div>
         </div>
 
         <!-- Change Panel -->
@@ -1446,6 +1707,9 @@
             } else {
                 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
                 document.getElementById(mainTabName).classList.add('active');
+                if (mainTabName === 'cashcount') {
+                    renderCashHistory();
+                }
             }
         }
 
@@ -1560,6 +1824,33 @@
             collectionInput.value = '0';
             collectionDetails.textContent = 'Якщо гроші забирали з каси — введіть суму тут.';
             pendingAlert.innerHTML = '';
+            updateExpectedTotal();
+        }
+
+        // Жива підказка біля «Нараховано у сенеті»: скільки має заробити зміна.
+        // Сенет показує касу ЗА ЗМІНУ (без залишку зранку) — часта плутанина,
+        // коли касир вводить баланс разом із початковою касою і отримує «недостачу».
+        function updateExpectedTotal() {
+            const hint = document.getElementById('expectedTotal');
+            if (!hint) return;
+            const open  = parseMoney(document.getElementById('open_cash').value);
+            const close = parseMoney(document.getElementById('close_cash').value);
+            if (open === null || close === null) {
+                hint.innerHTML = '';
+                return;
+            }
+            const expenses   = parseMoney(document.getElementById('expenses').value) ?? 0;
+            const collection = parseMoney(document.getElementById('report-collection').value) ?? 0;
+            const earned = close - open + expenses + collection;
+            const senet  = parseMoney(document.getElementById('senet').value);
+
+            let html = `ℹ️ Розраховане зароблено за зміну: <strong>${fmtMoney(earned)} грн</strong> — стільки має бути у сенеті.`;
+            // Недостача, рівна касі зранку, = ввели баланс каси разом із залишком
+            if (senet !== null && open > 0 && Math.abs((senet - earned) - open) < 0.005) {
+                html += `<br>⚠️ Схоже, введено касу сенету разом із залишком зранку (${fmtMoney(open)} грн). ` +
+                        `Відніми касу зранку — тоді надлишок/недостача порахуються правильно.`;
+            }
+            hint.innerHTML = html;
         }
 
         async function generateReport() {
@@ -1601,6 +1892,7 @@
                     document.getElementById('report-collection').value = '0';
                     document.getElementById('senet').value = '';
                     document.getElementById('report-note').value = '';
+                    updateExpectedTotal();
                     loadExpectedCash();
                 } else {
                     resultDiv.innerHTML = `<div class="alert alert-warning">Помилка: ${data.detail || 'невідома'}</div>`;
@@ -2110,6 +2402,351 @@
             } catch (e) {
                 alert('Не вдалося обнулити локальну касу.');
             }
+        }
+
+        // ─── Cash Count History ──────────────────────────────────────────
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function loadCashHistory() {
+            try {
+                const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
+                const raw = localStorage.getItem(key);
+                if (!raw) return [];
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                console.error('Error loading cash history:', e);
+                return [];
+            }
+        }
+
+        function internalCreateCashSnapshot(counts, note = '') {
+            if (window.CashRegister && typeof window.CashRegister.createCashSnapshot === 'function') {
+                return window.CashRegister.createCashSnapshot(counts, note);
+            }
+            const normalized = (window.CashRegister && typeof window.CashRegister.normalizeInventory === 'function')
+                ? window.CashRegister.normalizeInventory(counts)
+                : Object.fromEntries(DENOMS.map(d => [String(denomToKopiykas(d)), Number(counts?.[String(denomToKopiykas(d))] || 0)]));
+            const total = (window.CashRegister && typeof window.CashRegister.inventoryTotal === 'function')
+                ? window.CashRegister.inventoryTotal(normalized)
+                : Object.entries(normalized).reduce((s, [k, v]) => s + Number(k) * Number(v), 0);
+            return {
+                id: `cash_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                timestamp: new Date().toISOString(),
+                total,
+                counts: normalized,
+                note: typeof note === 'string' ? note.trim() : '',
+            };
+        }
+
+        function internalGetDenominationBreakdown(counts) {
+            if (window.CashRegister && typeof window.CashRegister.getDenominationBreakdown === 'function') {
+                return window.CashRegister.getDenominationBreakdown(counts);
+            }
+            const items = [];
+            let totalItems = 0;
+            let totalAmount = 0;
+            DENOMS.forEach(d => {
+                const kopiykas = denomToKopiykas(d);
+                const qty = Math.max(0, parseInt(counts?.[String(kopiykas)]) || 0);
+                if (qty > 0) {
+                    const subtotal = kopiykas * qty;
+                    const label = d === 0.5 ? '50к' : `${d}₴`;
+                    items.push({ denom: kopiykas, label, count: qty, subtotal });
+                    totalItems += qty;
+                    totalAmount += subtotal;
+                }
+            });
+            return { items, totalItems, totalAmount };
+        }
+
+        function internalFormatMoney(kopiykas) {
+            if (window.CashRegister && typeof window.CashRegister.formatMoneyUah === 'function') {
+                return window.CashRegister.formatMoneyUah(kopiykas);
+            }
+            const isNegative = kopiykas < 0;
+            const abs = Math.abs(kopiykas);
+            const uah = abs / 100;
+            const parts = (uah % 1 === 0 ? String(uah) : uah.toFixed(2)).split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            return `${isNegative ? '-' : ''}${parts.join('.')} грн`;
+        }
+
+        function internalCalculateDiff(currentTotal, previousTotal) {
+            if (window.CashRegister && typeof window.CashRegister.calculateDiff === 'function') {
+                return window.CashRegister.calculateDiff(currentTotal, previousTotal);
+            }
+            if (typeof previousTotal !== 'number') {
+                return { diff: 0, sign: 'none', text: 'Перший запис' };
+            }
+            const diff = currentTotal - previousTotal;
+            if (diff > 0) {
+                return { diff, sign: 'plus', text: `+${internalFormatMoney(diff)}` };
+            } else if (diff < 0) {
+                return { diff, sign: 'minus', text: internalFormatMoney(diff) };
+            }
+            return { diff: 0, sign: 'zero', text: '0 грн' };
+        }
+
+        function saveCashSnapshot() {
+            try {
+                calcCash(true);
+                const noteInput = document.getElementById('cash-snapshot-note');
+                const note = noteInput ? noteInput.value.trim() : '';
+                const snapshot = internalCreateCashSnapshot(cashInventory, note);
+
+                if (snapshot.total === 0 && !note) {
+                    if (!confirm('Каса порожня (0 грн). Все одно зберегти цей зліпок в історію?')) {
+                        return;
+                    }
+                }
+
+                let history = loadCashHistory();
+                history.unshift(snapshot);
+                const maxEntries = (window.CashRegister && window.CashRegister.MAX_CASH_HISTORY_ENTRIES) || 100;
+                if (history.length > maxEntries) {
+                    history = history.slice(0, maxEntries);
+                }
+                const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
+                localStorage.setItem(key, JSON.stringify(history));
+
+                if (noteInput) noteInput.value = '';
+                renderCashHistory();
+
+                const formattedTotal = internalFormatMoney(snapshot.total);
+                showToast(`💾 Стан каси збережено в історію (${formattedTotal})!`, 'success', 3500);
+            } catch (e) {
+                console.error('Failed to save cash snapshot:', e);
+                showToast('⚠️ Не вдалося зберегти зліпок каси.', 'warning', 3000);
+            }
+        }
+
+        function renderCashHistory() {
+            const listEl = document.getElementById('cash-history-list');
+            const badgeEl = document.getElementById('cash-history-badge');
+            if (!listEl) return;
+
+            const history = loadCashHistory();
+            if (badgeEl) {
+                const count = history.length;
+                let word = 'записів';
+                if (count % 10 === 1 && count % 100 !== 11) {
+                    word = 'запис';
+                } else if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) {
+                    word = 'записи';
+                }
+                badgeEl.textContent = `${count} ${word}`;
+            }
+
+            if (history.length === 0) {
+                listEl.innerHTML = `
+                    <div class="cash-history-empty">
+                        <div style="font-size: 1.8em; margin-bottom: 8px;">🪙</div>
+                        <div>Історія перерахунків поки що порожня.</div>
+                        <div style="color: #666; font-size: 0.85em; margin-top: 4px;">
+                            Введіть кількість купюр та натисніть «💾 Зберегти стан каси в історію», щоб зафіксувати дату, час та склад купюр.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i < history.length; i++) {
+                const item = history[i];
+                const prevItem = history[i + 1];
+                const diff = internalCalculateDiff(item.total, prevItem ? prevItem.total : undefined);
+                const breakdown = internalGetDenominationBreakdown(item.counts);
+
+                const dateObj = new Date(item.timestamp);
+                const dateStr = !isNaN(dateObj.getTime())
+                    ? dateObj.toLocaleString('uk-UA', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    })
+                    : item.timestamp;
+
+                let chipsHtml = '';
+                if (breakdown.items.length === 0) {
+                    chipsHtml = '<span style="color: #666; font-size: 0.85em;">Порожня каса (0 купюр)</span>';
+                } else {
+                    chipsHtml = breakdown.items.map(b => `
+                        <span class="cash-chip">
+                            <span class="cash-chip-denom">${b.label}</span>
+                            <span class="cash-chip-qty">× ${b.count}</span>
+                            <span class="cash-chip-sub">(= ${internalFormatMoney(b.subtotal)})</span>
+                        </span>
+                    `).join('');
+                }
+
+                const totalFormatted = internalFormatMoney(item.total);
+
+                html += `
+                    <div class="cash-history-item" data-id="${item.id}">
+                        <div class="cash-history-top">
+                            <div class="cash-history-datetime">
+                                <span>📅</span>
+                                <strong>${dateStr}</strong>
+                            </div>
+                            <div class="cash-history-meta">
+                                <span class="cash-diff-tag ${diff.sign}" title="Різниця з попереднім перерахунком">
+                                    ${diff.sign === 'plus' ? '▲' : (diff.sign === 'minus' ? '▼' : '•')} ${diff.text}
+                                </span>
+                                <div class="cash-history-total">${totalFormatted}</div>
+                            </div>
+                        </div>
+
+                        ${item.note ? `<div class="cash-history-note">💬 ${escapeHtml(item.note)}</div>` : ''}
+
+                        <div class="cash-history-breakdown">
+                            ${chipsHtml}
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div style="color: #777; font-size: 0.82em;">
+                                Всього в касі: <strong style="color: #aaa;">${breakdown.totalItems}</strong> од. купюр/монет
+                            </div>
+                            <div class="cash-history-actions">
+                                <button class="btn-sm btn-sm-primary" onclick="restoreCashSnapshot('${item.id}')" title="Завантажити цей стан в калькулятор">
+                                    🔄 Завантажити
+                                </button>
+                                <button class="btn-sm btn-sm-secondary" onclick="copyCashSnapshot('${item.id}')" title="Скопіювати склад купюр у буфер">
+                                    📋 Копіювати
+                                </button>
+                                <button class="btn-sm btn-sm-danger" onclick="deleteCashSnapshot('${item.id}')" title="Видалити цей запис">
+                                    🗑
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            listEl.innerHTML = html;
+        }
+
+        function restoreCashSnapshot(id) {
+            const history = loadCashHistory();
+            const snapshot = history.find(h => h.id === id);
+            if (!snapshot) {
+                showToast('⚠️ Запис не знайдено.', 'warning', 2500);
+                return;
+            }
+
+            cashInventory = (window.CashRegister && typeof window.CashRegister.normalizeInventory === 'function')
+                ? window.CashRegister.normalizeInventory(snapshot.counts)
+                : Object.fromEntries(DENOMS.map(d => [String(denomToKopiykas(d)), Number(snapshot.counts?.[String(denomToKopiykas(d))] || 0)]));
+            renderCashInventory();
+            try {
+                saveCashInventory(cashInventory);
+            } catch (e) {}
+
+            const el = document.getElementById('cashcount');
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            const timeStr = new Date(snapshot.timestamp).toLocaleTimeString('uk-UA');
+            showToast(`🔄 Номінали від ${timeStr} завантажено в калькулятор!`, 'info', 3000);
+        }
+
+        function copyCashSnapshot(id) {
+            const history = loadCashHistory();
+            const snapshot = history.find(h => h.id === id);
+            if (!snapshot) return;
+
+            const breakdown = internalGetDenominationBreakdown(snapshot.counts);
+            const dateStr = new Date(snapshot.timestamp).toLocaleString('uk-UA');
+            const totalStr = internalFormatMoney(snapshot.total);
+
+            let lines = [
+                `💵 Перерахунок каси від ${dateStr}`,
+                `💰 Разом у касі: ${totalStr}`,
+            ];
+            if (snapshot.note) {
+                lines.push(`💬 Коментар: ${snapshot.note}`);
+            }
+            lines.push('📦 Склад купюр та монет:');
+            if (breakdown.items.length === 0) {
+                lines.push('  • Порожня каса (0 купюр)');
+            } else {
+                breakdown.items.forEach(b => {
+                    const subStr = internalFormatMoney(b.subtotal);
+                    lines.push(`  • ${b.label}: ${b.count} шт. (= ${subStr})`);
+                });
+            }
+            lines.push(`Всього купюр/монет: ${breakdown.totalItems} шт.`);
+
+            const text = lines.join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 Склад каси скопійовано у буфер!', 'info', 2500);
+            }).catch(() => {
+                showToast('⚠️ Не вдалося скопіювати.', 'warning', 2500);
+            });
+        }
+
+        function deleteCashSnapshot(id) {
+            if (!confirm('Видалити цей запис перерахунку каси?')) return;
+            let history = loadCashHistory();
+            history = history.filter(h => h.id !== id);
+            const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
+            localStorage.setItem(key, JSON.stringify(history));
+            renderCashHistory();
+            showToast('🗑 Запис видалено з історії', 'info', 2000);
+        }
+
+        function clearCashHistory() {
+            const history = loadCashHistory();
+            if (history.length === 0) return;
+            if (!confirm(`Видалити ВСЮ історію перерахунків (${history.length} зап.)? Цю дію неможливо скасувати.`)) return;
+
+            const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
+            localStorage.removeItem(key);
+            renderCashHistory();
+            showToast('🗑 Історію перерахунків каси повністю очищено', 'info', 2500);
+        }
+
+        function exportCashHistory() {
+            const history = loadCashHistory();
+            if (history.length === 0) {
+                showToast('⚠️ Історія порожня.', 'warning', 2000);
+                return;
+            }
+
+            let text = '=== 📜 ІСТОРІЯ ПЕРЕРАХУНКІВ КАСИ ===\n\n';
+            history.forEach((snapshot, idx) => {
+                const breakdown = internalGetDenominationBreakdown(snapshot.counts);
+                const dateStr = new Date(snapshot.timestamp).toLocaleString('uk-UA');
+                const totalStr = internalFormatMoney(snapshot.total);
+
+                text += `[#${history.length - idx}] ${dateStr} — ${totalStr}\n`;
+                if (snapshot.note) text += `  Коментар: ${snapshot.note}\n`;
+                if (breakdown.items.length === 0) {
+                    text += `  Склад: 0 купюр\n`;
+                } else {
+                    const itemsStr = breakdown.items.map(b => `${b.label}×${b.count}`).join(', ');
+                    text += `  Склад: ${itemsStr} (всього ${breakdown.totalItems} шт.)\n`;
+                }
+                text += '\n';
+            });
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 Повний журнал історії каси скопійовано у буфер!', 'success', 3000);
+            }).catch(() => {
+                showToast('⚠️ Не вдалося скопіювати журнал.', 'warning', 2500);
+            });
         }
 
         // ─── Решта ──────────────────────────────────────────────────────
@@ -2657,6 +3294,7 @@
                 clearInterval(waitForModules);
                 cashInventory = readStoredCash();
                 renderCashInventory();
+                renderCashHistory();
                 renderReceivedInputs();
                 const stored = localStorage.getItem(CASH_STORAGE_KEY);
                 document.getElementById('cash-storage-status').textContent = stored

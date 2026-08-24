@@ -9,6 +9,9 @@ import {
   makeLimitedChange,
   addInventories,
   applyCashTransaction,
+  createCashSnapshot,
+  getDenominationBreakdown,
+  calculateDiff,
 } from '../webapp/static/cash-register.js';
 
 function inventory(entries = {}) {
@@ -91,4 +94,40 @@ test('не можна списати більше купюр, ніж є', () => 
     () => applyCashTransaction(inventory(), inventory(), [{ denom: 5000, count: 1 }]),
     /Недостатньо купюр/,
   );
+});
+
+test('створення зліпка каси коректно фіксує суму та номінали', () => {
+  const counts = { 100000: 2, 50000: 3, 50: 4 };
+  const snapshot = createCashSnapshot(counts, 'Зміна ранок');
+  assert.ok(snapshot.id.startsWith('cash_'));
+  assert.equal(snapshot.note, 'Зміна ранок');
+  assert.equal(snapshot.total, 350200);
+  assert.equal(snapshot.counts['100000'], 2);
+  assert.equal(snapshot.counts['50000'], 3);
+  assert.equal(snapshot.counts['50'], 4);
+});
+
+test('розбивка номіналів повертає тільки наявні купюри та загальну кількість', () => {
+  const counts = { 100000: 3, 20000: 5 };
+  const breakdown = getDenominationBreakdown(counts);
+  assert.equal(breakdown.totalItems, 8);
+  assert.equal(breakdown.totalAmount, 400000);
+  assert.equal(breakdown.items.length, 2);
+  assert.deepEqual(breakdown.items[0], { denom: 100000, label: '1000₴', count: 3, subtotal: 300000 });
+  assert.deepEqual(breakdown.items[1], { denom: 20000, label: '200₴', count: 5, subtotal: 100000 });
+});
+
+test('розрахунок різниці між перерахунками каси', () => {
+  assert.equal(calculateDiff(500000, undefined).sign, 'none');
+  const plus = calculateDiff(650000, 500000);
+  assert.equal(plus.sign, 'plus');
+  assert.ok(plus.text.includes('+1 500'));
+
+  const minus = calculateDiff(400000, 500000);
+  assert.equal(minus.sign, 'minus');
+  assert.ok(minus.text.includes('-1 000'));
+
+  const zero = calculateDiff(500000, 500000);
+  assert.equal(zero.sign, 'zero');
+  assert.equal(zero.text, '0 грн');
 });
