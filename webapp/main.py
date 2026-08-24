@@ -16,7 +16,13 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from shifts import SCHEMES, build_report, fmt
 import db_web as db
-from pricing import ZONES, calculate_hours, calculate_price, is_morning_rate_active
+from pricing import (
+    ZONES,
+    calculate_compensation,
+    calculate_hours,
+    calculate_price,
+    is_morning_rate_active,
+)
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -319,16 +325,19 @@ async def money_to_hours(
     zone: str,
     day_type: str,
     current_hour: int | None = Query(default=None, ge=0, le=23),
+    discount: float = Query(default=0, ge=0, le=100),
 ):
     """Калькулятор: сумма → часы."""
     if day_type not in ["weekday", "weekend"]:
         raise HTTPException(400, "day_type must be 'weekday' or 'weekend'")
 
-    results = calculate_hours(amount, zone, day_type, current_hour=current_hour)
+    results = calculate_hours(amount, zone, day_type, current_hour=current_hour,
+                              discount_percent=discount)
     return {
         "amount": amount,
         "zone": zone,
         "day_type": day_type,
+        "discount": discount,
         "morning_active": is_morning_rate_active(current_hour),
         "options": results,
     }
@@ -340,19 +349,34 @@ async def hours_to_money(
     zone: str,
     day_type: str,
     current_hour: int | None = Query(default=None, ge=0, le=23),
+    discount: float = Query(default=0, ge=0, le=100),
 ):
     """Калькулятор: часы → сумма."""
     if day_type not in ["weekday", "weekend"]:
         raise HTTPException(400, "day_type must be 'weekday' or 'weekend'")
 
-    results = calculate_price(hours, zone, day_type, current_hour=current_hour)
+    results = calculate_price(hours, zone, day_type, current_hour=current_hour,
+                              discount_percent=discount)
     return {
         "hours": hours,
         "zone": zone,
         "day_type": day_type,
+        "discount": discount,
         "morning_active": is_morning_rate_active(current_hour),
         "options": results,
     }
+
+
+@app.get("/api/calculator/compensation")
+async def get_compensation(
+    amount: float = Query(ge=0),
+    percent: float = Query(default=35, ge=0, le=100),
+):
+    """Калькулятор: компенсація / кешбек та знижка."""
+    try:
+        return calculate_compensation(amount, percent)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
 
 
 # Статические файлы последними

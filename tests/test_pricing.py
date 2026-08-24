@@ -2,6 +2,7 @@ import unittest
 
 from pricing import (
     ZONES,
+    calculate_compensation,
     calculate_hours,
     calculate_price,
     is_morning_rate_active,
@@ -103,6 +104,42 @@ class PricingTests(unittest.TestCase):
         bootcamp_opt = [r for r in bootcamp_price if "30" in r["package"]]
         self.assertTrue(bootcamp_opt)
         self.assertEqual(bootcamp_opt[0]["price"], 2499)
+
+    def test_calculate_compensation_standard(self):
+        # 100 грн + 35% кешбеку -> 35 грн бонус, 135 грн разом, 65 грн зі знижкою
+        res = calculate_compensation(100, 35)
+        self.assertEqual(res["amount"], 100)
+        self.assertEqual(res["percent"], 35)
+        self.assertEqual(res["compensation"], 35.0)
+        self.assertEqual(res["total_with_bonus"], 135.0)
+        self.assertEqual(res["discounted_price"], 65.0)
+
+    def test_calculate_compensation_edge_cases(self):
+        # 0% кешбеку
+        zero_pct = calculate_compensation(200, 0)
+        self.assertEqual(zero_pct["compensation"], 0.0)
+        self.assertEqual(zero_pct["total_with_bonus"], 200.0)
+        self.assertEqual(zero_pct["discounted_price"], 200.0)
+
+        # 100% кешбеку
+        full_pct = calculate_compensation(150, 100)
+        self.assertEqual(full_pct["compensation"], 150.0)
+        self.assertEqual(full_pct["total_with_bonus"], 300.0)
+        self.assertEqual(full_pct["discounted_price"], 0.0)
+
+        # Дробові відсотки та копійки
+        frac = calculate_compensation(100.50, 33.33)
+        self.assertEqual(frac["compensation"], 33.5)
+        self.assertEqual(frac["total_with_bonus"], 134.0)
+        self.assertEqual(frac["discounted_price"], 67.0)
+
+        # Валідація некоректних значень
+        with self.assertRaises(ValueError):
+            calculate_compensation(100, -5)
+        with self.assertRaises(ValueError):
+            calculate_compensation(100, 105)
+        with self.assertRaises(ValueError):
+            calculate_compensation(-10, 20)
 
 
 if __name__ == "__main__":

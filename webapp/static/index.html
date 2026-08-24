@@ -663,6 +663,69 @@
             letter-spacing: 1px;
         }
 
+        /* Discount & Cashback chips and layout */
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+
+        .chip-btn {
+            background: #141416;
+            border: 1px solid #333333;
+            color: #A0A0A0;
+            padding: 7px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .chip-btn:hover {
+            border-color: #FFEA00;
+            color: #FFFFFF;
+        }
+
+        .chip-btn.selected {
+            background: rgba(255, 234, 0, 0.15);
+            border-color: #FFEA00;
+            color: #FFEA00;
+            box-shadow: 0 0 10px rgba(255, 234, 0, 0.3);
+        }
+
+        .calc-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .breakdown-card {
+            background: #141416;
+            border: 1px solid #333333;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .breakdown-card-label {
+            color: #A0A0A0;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .breakdown-card-value {
+            font-size: 1.25em;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
         /* ── Mobile ─────────────────────────────────────────────── */
         @media (max-width: 768px) {
             body { padding: 10px 10px 80px; } /* bottom pad для sticky btn */
@@ -1015,6 +1078,11 @@
             <button class="sub-tab" onclick="showSubTab('history', this)">🕓 Історія</button>
         </div>
 
+        <div class="sub-tabs" id="calculator-subtabs">
+            <button class="sub-tab active" onclick="showSubTab('calculator', this)">🧮 Розрахунок</button>
+            <button class="sub-tab" onclick="showSubTab('discount', this)">💸 Знижка / Кешбек</button>
+        </div>
+
         <!-- Report Panel -->
         <div id="report" class="panel active">
             <h2>📋 Закриття зміни</h2>
@@ -1136,6 +1204,53 @@
             <button class="btn" onclick="calculate()">Розрахувати</button>
 
             <div id="calc-results" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Discount / Cashback Panel -->
+        <div id="discount" class="panel">
+            <h2>💸 Розрахунок кешбеку та знижки</h2>
+            <p style="color: #A0A0A0; margin-bottom: 20px;">Швидкий підрахунок компенсації/кешбеку при поповненні або знижки від суми</p>
+
+            <div class="calculator-mode">
+                <div class="mode-btn selected" onclick="selectDiscountMode('cashback')" id="disc-mode-cashback">
+                    🎁 Кешбек / Компенсація
+                </div>
+                <div class="mode-btn" onclick="selectDiscountMode('discount')" id="disc-mode-discount">
+                    🏷️ Знижка від суми
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="disc-amount-label">Сума поповнення (грн)</label>
+                <input type="number" id="disc-amount" placeholder="Введіть суму, напр. 100" min="0" step="0.01" inputmode="decimal" oninput="calcDiscount()">
+                <div class="chip-group" id="disc-amount-chips">
+                    <button type="button" class="chip-btn" onclick="setDiscountAmount(50)">50₴</button>
+                    <button type="button" class="chip-btn selected" onclick="setDiscountAmount(100)">100₴</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountAmount(200)">200₴</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountAmount(300)">300₴</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountAmount(500)">500₴</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountAmount(1000)">1000₴</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="disc-percent-label">Відсоток кешбеку / компенсації (%)</label>
+                <input type="number" id="disc-percent" value="35" min="0" max="100" step="0.5" inputmode="decimal" oninput="calcDiscount()">
+                <div class="chip-group" id="disc-percent-chips">
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(5)">5%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(10)">10%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(15)">15%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(20)">20%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(25)">25%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(30)">30%</button>
+                    <button type="button" class="chip-btn selected" onclick="setDiscountPercent(35)">35%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(50)">50%</button>
+                </div>
+            </div>
+
+            <button class="btn" onclick="calcDiscount()">Розрахувати</button>
+
+            <div id="disc-results" style="margin-top: 20px;"></div>
         </div>
 
         <!-- Cash Count Panel -->
@@ -1317,16 +1432,22 @@
 
             const subTabsContainer = document.getElementById('cash-management-subtabs');
 
+            const subTabsContainers = document.querySelectorAll('.sub-tabs');
+            subTabsContainers.forEach(c => c.classList.remove('active'));
+
             if (mainTabName === 'cash-management') {
                 subTabsContainer.classList.add('active');
                 // активуємо першу підвкладку
                 const firstSubTab = subTabsContainer.querySelector('.sub-tab');
                 showSubTabByName('report', firstSubTab);
+            } else if (mainTabName === 'calculator') {
+                const calcSubTabs = document.getElementById('calculator-subtabs');
+                calcSubTabs.classList.add('active');
+                const firstSubTab = calcSubTabs.querySelector('.sub-tab');
+                showSubTabByName('calculator', firstSubTab);
             } else {
-                subTabsContainer.classList.remove('active');
                 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
                 document.getElementById(mainTabName).classList.add('active');
-                if (mainTabName === 'calculator') loadZones();
             }
         }
 
@@ -1343,6 +1464,14 @@
 
             if (subTabName === 'report')  loadExpectedCash();
             if (subTabName === 'history') loadHistory();
+            if (subTabName === 'calculator') loadZones();
+            if (subTabName === 'discount') {
+                const amt = document.getElementById('disc-amount');
+                if (amt && !amt.value) {
+                    amt.value = 100;
+                }
+                calcDiscount();
+            }
         }
 
         // ─── Shift / Mode selectors ────────────────────────────────────
@@ -1601,6 +1730,135 @@
                 });
             } catch (e) {
                 document.getElementById('calc-zone').innerHTML = '<option value="">Помилка завантаження</option>';
+            }
+        }
+
+        let selectedDiscountMode = 'cashback';
+
+        function selectDiscountMode(mode) {
+            selectedDiscountMode = mode;
+            const cashbackBtn = document.getElementById('disc-mode-cashback');
+            const discountBtn = document.getElementById('disc-mode-discount');
+            if (cashbackBtn) cashbackBtn.classList.toggle('selected', mode === 'cashback');
+            if (discountBtn) discountBtn.classList.toggle('selected', mode === 'discount');
+
+            const amountLabel = document.getElementById('disc-amount-label');
+            const percentLabel = document.getElementById('disc-percent-label');
+            const amountInput = document.getElementById('disc-amount');
+
+            if (mode === 'cashback') {
+                if (amountLabel) amountLabel.textContent = 'Сума поповнення (грн)';
+                if (percentLabel) percentLabel.textContent = 'Відсоток кешбеку / компенсації (%)';
+                if (amountInput) amountInput.placeholder = 'Введіть суму, напр. 100';
+            } else {
+                if (amountLabel) amountLabel.textContent = 'Початкова сума / чек (грн)';
+                if (percentLabel) percentLabel.textContent = 'Відсоток знижки (%)';
+                if (amountInput) amountInput.placeholder = 'Введіть ціну, напр. 100';
+            }
+
+            calcDiscount();
+        }
+
+        function setDiscountAmount(val) {
+            const input = document.getElementById('disc-amount');
+            if (input) input.value = val;
+            document.querySelectorAll('#disc-amount-chips .chip-btn').forEach(btn => {
+                const btnVal = parseFloat(btn.textContent);
+                btn.classList.toggle('selected', btnVal === val);
+            });
+            calcDiscount();
+        }
+
+        function setDiscountPercent(val) {
+            const input = document.getElementById('disc-percent');
+            if (input) input.value = val;
+            document.querySelectorAll('#disc-percent-chips .chip-btn').forEach(btn => {
+                const btnVal = parseFloat(btn.textContent);
+                btn.classList.toggle('selected', btnVal === val);
+            });
+            calcDiscount();
+        }
+
+        function calcDiscount() {
+            const resDiv = document.getElementById('disc-results');
+            if (!resDiv) return;
+            const amountInput = document.getElementById('disc-amount');
+            const percentInputEl = document.getElementById('disc-percent');
+            if (!amountInput || !percentInputEl) return;
+
+            const amountVal = amountInput.value.trim();
+            const amount = parseFloat(amountVal);
+
+            // Sync chip selection states
+            document.querySelectorAll('#disc-amount-chips .chip-btn').forEach(btn => {
+                btn.classList.toggle('selected', parseFloat(btn.textContent) === amount);
+            });
+            const percentVal = parseFloat(percentInputEl.value);
+            document.querySelectorAll('#disc-percent-chips .chip-btn').forEach(btn => {
+                btn.classList.toggle('selected', parseFloat(btn.textContent) === percentVal);
+            });
+
+            if (isNaN(amount) || amount < 0) {
+                resDiv.innerHTML = '<div class="alert alert-warning">Введіть коректну суму (напр. 100)</div>';
+                return;
+            }
+
+            let percent = percentVal;
+            if (isNaN(percent) || percent < 0) percent = 0;
+            if (percent > 100) percent = 100;
+
+            const compensation = Math.round(amount * percent) / 100;
+            const totalWithBonus = Math.round((amount + compensation) * 100) / 100;
+            const discountedPrice = Math.round((amount - compensation) * 100) / 100;
+
+            if (selectedDiscountMode === 'cashback') {
+                resDiv.innerHTML = `
+                    <div class="calc-banner">
+                        <div class="calc-banner-label">Поповнення ${fmtMoney(amount)} грн · ${percent}% кешбеку / компенсації</div>
+                        <div class="calc-banner-hours" style="color: #00E5FF; text-shadow: 0 0 20px rgba(0, 229, 255, 0.6);">+${fmtMoney(compensation)} грн</div>
+                        <div class="calc-banner-rate" style="color: #FFEA00; font-size: 1.15em; font-weight: 600; margin-top: 10px;">
+                            💳 Разом на баланс клієнту: ${fmtMoney(totalWithBonus)} грн
+                        </div>
+                    </div>
+                    <div class="calc-breakdown">
+                        <div class="breakdown-card">
+                            <div class="breakdown-card-label">Внесено клієнтом</div>
+                            <div class="breakdown-card-value">${fmtMoney(amount)} грн</div>
+                        </div>
+                        <div class="breakdown-card" style="border-color: #00E5FF; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);">
+                            <div class="breakdown-card-label" style="color: #00E5FF;">Компенсація (${percent}%)</div>
+                            <div class="breakdown-card-value" style="color: #00E5FF;">+${fmtMoney(compensation)} грн</div>
+                        </div>
+                        <div class="breakdown-card" style="border-color: #FFEA00; box-shadow: 0 0 10px rgba(255, 234, 0, 0.2);">
+                            <div class="breakdown-card-label" style="color: #FFEA00;">Всього на баланс</div>
+                            <div class="breakdown-card-value" style="color: #FFEA00;">${fmtMoney(totalWithBonus)} грн</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resDiv.innerHTML = `
+                    <div class="calc-banner">
+                        <div class="calc-banner-label">Сума ${fmtMoney(amount)} грн − ${percent}% знижки</div>
+                        <div class="calc-banner-hours">${fmtMoney(discountedPrice)} грн</div>
+                        <div class="calc-banner-rate" style="color: #00E5FF; font-size: 1.15em; font-weight: 600; margin-top: 10px;">
+                            💸 Економія / Знижка: ${fmtMoney(compensation)} грн
+                        </div>
+                    </div>
+                    <div class="calc-breakdown">
+                        <div class="breakdown-card">
+                            <div class="breakdown-card-label">Початкова сума</div>
+                            <div class="breakdown-card-value">${fmtMoney(amount)} грн</div>
+                        </div>
+                        <div class="breakdown-card" style="border-color: #00E5FF; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);">
+                            <div class="breakdown-card-label" style="color: #00E5FF;">Знижка (-${percent}%)</div>
+                            <div class="breakdown-card-value" style="color: #00E5FF;">-${fmtMoney(compensation)} грн</div>
+                        </div>
+                        <div class="breakdown-card" style="border-color: #FFEA00; box-shadow: 0 0 10px rgba(255, 234, 0, 0.2);">
+                            <div class="breakdown-card-label" style="color: #FFEA00;">До сплати</div>
+                            <div class="breakdown-card-value" style="color: #FFEA00;">${fmtMoney(discountedPrice)} грн</div>
+                        </div>
+                    </div>
+                `;
             }
         }
 
@@ -2260,20 +2518,16 @@
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
 
-            let width, height;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            let width = 0, height = 0;
             let particles = [];
             const mouse = { x: null, y: null, radius: 160 };
-
-            function resize() {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-                initParticles();
-            }
+            const LINK_DIST = 110;
+            const colors = ['#FFEA00', '#00D9FF', '#FFFFFF', '#FFEA00'];
 
             function initParticles() {
                 particles = [];
                 const count = Math.floor((width * height) / 15000);
-                const colors = ['#FFEA00', '#00D9FF', '#FFFFFF', '#FFEA00'];
 
                 for (let i = 0; i < Math.min(Math.max(count, 35), 90); i++) {
                     particles.push({
@@ -2287,17 +2541,46 @@
                 }
             }
 
-            window.addEventListener('resize', resize);
-            window.addEventListener('mousemove', (e) => {
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
-            });
-            window.addEventListener('mouseleave', () => {
+            let resizeTimer;
+            function resize() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    const w = window.innerWidth;
+                    const h = window.innerHeight;
+                    if (w === width && h === height) return;
+                    width = w;
+                    height = h;
+                    canvas.width = width * dpr;
+                    canvas.height = height * dpr;
+                    canvas.style.width = width + 'px';
+                    canvas.style.height = height + 'px';
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    initParticles();
+                }, 150);
+            }
+
+            function pointerMove(x, y) {
+                mouse.x = x;
+                mouse.y = y;
+            }
+            function pointerLeave() {
                 mouse.x = null;
                 mouse.y = null;
-            });
+            }
 
-            function animate() {
+            window.addEventListener('resize', resize);
+            window.addEventListener('mousemove', (e) => pointerMove(e.clientX, e.clientY), { passive: true });
+            document.addEventListener('mouseleave', pointerLeave);
+            window.addEventListener('blur', pointerLeave);
+            window.addEventListener('touchstart', (e) => pointerMove(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+            window.addEventListener('touchmove', (e) => pointerMove(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+            window.addEventListener('touchend', pointerLeave, { passive: true });
+
+            let lastFrame = performance.now();
+
+            function animate(now) {
+                const dt = Math.min((now - lastFrame) / 16.67, 3);
+                lastFrame = now;
                 ctx.clearRect(0, 0, width, height);
 
                 // Draw inter-particle lines
@@ -2307,8 +2590,8 @@
                         const dy = particles[i].y - particles[j].y;
                         const dist = Math.sqrt(dx * dx + dy * dy);
 
-                        if (dist < 110) {
-                            const alpha = (1 - dist / 110) * 0.16;
+                        if (dist < LINK_DIST) {
+                            const alpha = (1 - dist / LINK_DIST) * 0.16;
                             ctx.beginPath();
                             ctx.moveTo(particles[i].x, particles[i].y);
                             ctx.lineTo(particles[j].x, particles[j].y);
@@ -2319,37 +2602,28 @@
                     }
                 }
 
-                // Update & draw particles + mouse interaction
-                particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
+                // Update & draw particles + pointer interaction
+                for (const p of particles) {
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
 
                     if (p.x < 0) p.x = width;
                     if (p.x > width) p.x = 0;
                     if (p.y < 0) p.y = height;
                     if (p.y > height) p.y = 0;
 
-                    // Mouse interaction
                     if (mouse.x !== null && mouse.y !== null) {
-                        const mdx = mouse.x - p.x;
-                        const mdy = mouse.y - p.y;
+                        const mdx = p.x - mouse.x;
+                        const mdy = p.y - mouse.y;
                         const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
 
-                        if (mdist < mouse.radius) {
-                            const force = (1 - mdist / mouse.radius);
-                            p.x += (mdx / mdist) * force * 0.6;
-                            p.y += (mdy / mdist) * force * 0.6;
-
-                            ctx.beginPath();
-                            ctx.moveTo(p.x, p.y);
-                            ctx.lineTo(mouse.x, mouse.y);
-                            ctx.strokeStyle = `rgba(0, 217, 255, ${force * 0.35})`;
-                            ctx.lineWidth = 1;
-                            ctx.stroke();
+                        if (mdist < mouse.radius && mdist > 0.001) {
+                            const force = 1 - mdist / mouse.radius;
+                            p.x += (mdx / mdist) * force * 2.2;
+                            p.y += (mdy / mdist) * force * 2.2;
                         }
                     }
 
-                    // Draw particle
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
                     ctx.fillStyle = p.color;
@@ -2357,13 +2631,21 @@
                     ctx.shadowColor = p.color;
                     ctx.fill();
                     ctx.shadowBlur = 0;
-                });
+                }
 
                 requestAnimationFrame(animate);
             }
 
-            resize();
-            animate();
+            // initial sizing without debounce
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            initParticles();
+            requestAnimationFrame((t) => { lastFrame = t; animate(t); });
         }
 
         // ─── Init ───────────────────────────────────────────────────────
