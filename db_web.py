@@ -4,9 +4,13 @@ import aiosqlite
 from pathlib import Path
 
 # На хостингу: DB_PATH=/data/bothelper.db (Railway volume)
+# На Vercel: DB_PATH=/tmp/bothelper.db (оскільки коренева ФС read-only)
 # Локально: поряд з файлом
 import os
-_default = Path(__file__).resolve().parent / "bothelper.db"
+if os.environ.get("VERCEL"):
+    _default = Path("/tmp/bothelper.db")
+else:
+    _default = Path(__file__).resolve().parent / "bothelper.db"
 DB_PATH = Path(os.environ.get("DB_PATH", str(_default)))
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)  # створюємо директорію якщо немає
 
