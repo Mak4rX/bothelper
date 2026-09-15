@@ -1,0 +1,3307 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberHelper — Управління касою</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 20px;
+            color: #FFFFFF;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: #FFEA00;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(255, 234, 0, 0.6),
+                         0 0 40px rgba(255, 234, 0, 0.4);
+        }
+
+        header p {
+            font-size: 1.2em;
+            color: #CCCCCC;
+            letter-spacing: 2px;
+        }
+
+        .main-tabs {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .main-tab {
+            background: #0E0E10;
+            border: 1px solid #222222;
+            padding: 14px 10px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 0.98em;
+            font-weight: 700;
+            transition: all 0.25s ease;
+            color: #A0A0A0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .main-tab:hover {
+            border-color: #FFEA00;
+            color: #FFFFFF;
+            box-shadow: 0 0 15px rgba(255, 234, 0, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .main-tab.active {
+            background: #1A1A1C;
+            color: #FFEA00;
+            border-color: #FFEA00;
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.35);
+        }
+
+        .sub-tabs {
+            display: none;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: flex-start;
+        }
+
+        .sub-tabs.active {
+            display: flex;
+        }
+
+        .sub-tab {
+            background: #0E0E10;
+            border: 1px solid #1A1A1A;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.88em;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            color: #A0A0A0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .sub-tab:hover {
+            border-color: #00D9FF;
+            color: #FFFFFF;
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+        }
+
+        .sub-tab.active {
+            background: rgba(0, 217, 255, 0.12);
+            color: #00D9FF;
+            border-color: #00D9FF;
+            box-shadow: 0 0 12px rgba(0, 217, 255, 0.3);
+        }
+
+        .panel {
+            display: none;
+            background: #0E0E10;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            border: 1px solid #222222;
+            position: relative;
+        }
+
+        .panel::before {
+            content: '⬤ ⬤ ⬤';
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            font-size: 0.7em;
+            color: #333333;
+            letter-spacing: 4px;
+        }
+
+        .panel.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .panel h2 {
+            color: #FFEA00;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            text-shadow: 0 0 15px rgba(255, 234, 0, 0.4);
+        }
+
+        .panel > p {
+            color: #A0A0A0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #FFEA00;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+            background: #1A1A1C;
+            color: #FFFFFF;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #FFEA00;
+            box-shadow: 0 0 15px rgba(255, 234, 0, 0.3);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: #777777;
+        }
+
+        .btn {
+            background: #FFEA00;
+            color: #000000;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(255, 234, 0, 0.25);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            background: #FFEE00;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(255, 234, 0, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #222226;
+            color: #FFFFFF;
+            border: 1px solid #333338;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #2D2D33;
+            border-color: #44444D;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+        }
+
+        .report-preview {
+            background: #141416;
+            padding: 22px;
+            border-radius: 12px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 1.1em;
+            font-weight: 600;
+            line-height: 1.7;
+            border: 1px solid #2D2D32;
+            border-left: 4px solid #FFEA00;
+            color: #FFFFFF;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .alert {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border: 1px solid;
+            font-size: 0.98em;
+            font-weight: 600;
+        }
+
+        .alert-info {
+            background: rgba(0, 217, 255, 0.1);
+            color: #00D9FF;
+            border-color: #00D9FF;
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.12);
+            color: #FFC107;
+            border-color: #FFC107;
+        }
+
+        .alert-success {
+            background: rgba(0, 230, 118, 0.12);
+            color: #00E676;
+            border-color: #00E676;
+        }
+
+        /* ── Toast Notifications ───────────────────────────────────────── */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            max-width: calc(100vw - 40px);
+        }
+
+        .toast {
+            pointer-events: auto;
+            background: #141416;
+            color: #FFFFFF;
+            border: 1px solid #333338;
+            border-left: 4px solid #00E676;
+            padding: 14px 22px;
+            border-radius: 12px;
+            font-size: 0.98em;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            border-left-color: #00E676;
+            color: #00E676;
+        }
+
+        .toast-warning {
+            border-left-color: #FFC107;
+            color: #FFC107;
+        }
+
+        .toast-info {
+            border-left-color: #00D9FF;
+            color: #00D9FF;
+        }
+
+        .shift-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .shift-btn {
+            flex: 1;
+            padding: 20px;
+            border: 2px solid #333333;
+            background: #1A1A1C;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            color: #A0A0A0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shift-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 234, 0, 0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .shift-btn:hover {
+            border-color: #FFEA00;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.3);
+            color: #FFFFFF;
+        }
+
+        .shift-btn:hover::before {
+            opacity: 1;
+        }
+
+        .shift-btn.selected {
+            border-color: #FFEA00;
+            background: #1A1A1C;
+            color: #FFEA00;
+            box-shadow: 0 0 25px rgba(255, 234, 0, 0.4);
+        }
+
+        .shift-btn.selected::before {
+            opacity: 1;
+        }
+
+        .report-preview {
+            background: #1A1A1C;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            white-space: pre-line;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            border: 1px solid #333333;
+            color: #CCCCCC;
+        }
+
+        .report-item {
+            background: #1A1A1C;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #FFEA00;
+            border: 1px solid #333333;
+            border-left: 4px solid #FFEA00;
+        }
+
+        .report-item .date {
+            color: #FFEA00;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .report-item .content {
+            white-space: pre-line;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            color: #CCCCCC;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #1A1A1C;
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.2);
+            border: 1px solid #333333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #FFEA00 0%, transparent 50%);
+            opacity: 0.1;
+            border-radius: 16px;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            color: #A0A0A0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #FFEA00;
+            text-shadow: 0 0 15px rgba(255, 234, 0, 0.5);
+            position: relative;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid;
+        }
+
+        .alert-info {
+            background: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+            border-color: #17a2b8;
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border-color: #ffc107;
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border-color: #28a745;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #A0A0A0;
+        }
+
+        .collection-item {
+            background: #1A1A1C;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #333333;
+            position: relative;
+        }
+
+        .collection-item.pending {
+            border-left: 4px solid #ffc107;
+        }
+
+        .collection-item.pending::after {
+            content: 'АКЦІЯ!';
+            position: absolute;
+            top: 10px;
+            right: -25px;
+            background: #E50914;
+            color: #FFFFFF;
+            padding: 4px 30px;
+            font-size: 0.7em;
+            font-weight: bold;
+            transform: rotate(35deg);
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+            letter-spacing: 1px;
+        }
+
+        .collection-item.completed {
+            border-left: 4px solid #28a745;
+        }
+
+        /* Calculator styles */
+        .calculator-mode {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #333333;
+            background: #1A1A1C;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            color: #A0A0A0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mode-btn:hover {
+            border-color: #FFEA00;
+            color: #FFFFFF;
+            box-shadow: 0 0 15px rgba(255, 234, 0, 0.3);
+        }
+
+        .mode-btn.selected {
+            border-color: #FFEA00;
+            background: #1A1A1C;
+            color: #FFEA00;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.4);
+        }
+
+        .result-card {
+            background: #1A1A1C;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #FFEA00;
+            border: 1px solid #333333;
+            border-left: 4px solid #FFEA00;
+        }
+
+        .result-card h4 {
+            margin-bottom: 8px;
+            color: #FFEA00;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-card .highlight {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #FFFFFF;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(255, 234, 0, 0.3);
+        }
+
+        .result-card .detail {
+            color: #A0A0A0;
+            font-size: 0.95em;
+        }
+
+            .btn-delete {
+            background: transparent;
+            color: #E50914;
+            border: 1px solid #E50914;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-family: 'Rajdhani', sans-serif;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-delete:hover {
+            background: rgba(229, 9, 20, 0.15);
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
+        }
+
+        /* Calculator banner */
+        .calc-banner {
+            background: #1A1A1C;
+            border: 2px solid #FFEA00;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 10px;
+            box-shadow: 0 0 30px rgba(255, 234, 0, 0.2);
+        }
+
+        .calc-banner-label {
+            color: #A0A0A0;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .calc-banner-hours {
+            font-size: 3em;
+            font-weight: 700;
+            color: #FFEA00;
+            text-shadow: 0 0 20px rgba(255, 234, 0, 0.6);
+            line-height: 1.1;
+        }
+
+        .calc-banner-rate {
+            color: #A0A0A0;
+            font-size: 0.9em;
+            margin-top: 6px;
+            letter-spacing: 1px;
+        }
+
+        /* Discount & Cashback chips and layout */
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+
+        .chip-btn {
+            background: #141416;
+            border: 1px solid #333333;
+            color: #A0A0A0;
+            padding: 7px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .chip-btn:hover {
+            border-color: #FFEA00;
+            color: #FFFFFF;
+        }
+
+        .chip-btn.selected {
+            background: rgba(255, 234, 0, 0.15);
+            border-color: #FFEA00;
+            color: #FFEA00;
+            box-shadow: 0 0 10px rgba(255, 234, 0, 0.3);
+        }
+
+        .calc-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .breakdown-card {
+            background: #141416;
+            border: 1px solid #333333;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .breakdown-card-label {
+            color: #A0A0A0;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .breakdown-card-value {
+            font-size: 1.25em;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        /* ── Mobile ─────────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            body { padding: 10px 10px 80px; } /* bottom pad для sticky btn */
+
+            header { margin-bottom: 16px; }
+            header h1 { font-size: 1.5em; letter-spacing: 2px; }
+            header p  { font-size: 0.9em; }
+
+            /* ── Головні вкладки ── */
+            .main-tabs {
+                display: flex;
+                overflow-x: auto;
+                gap: 8px;
+                margin-bottom: 14px;
+                padding-bottom: 4px;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .main-tabs::-webkit-scrollbar {
+                display: none;
+            }
+            .main-tab {
+                flex: 0 0 auto;
+                padding: 12px 16px;
+                font-size: 0.88em;
+                min-height: 44px;
+                border-radius: 12px;
+            }
+
+            /* ── Під-вкладки ── */
+            .sub-tabs.active {
+                display: flex;
+                gap: 8px;
+            }
+            .sub-tab {
+                padding: 8px 14px;
+                font-size: 0.82em;
+                min-height: 38px;
+            }
+
+            /* ── Панель ── */
+            .panel { padding: 14px; border-radius: 14px; }
+            .panel::before { display: none; }
+            .panel h2 { font-size: 1.2em; margin-bottom: 14px; }
+
+            /* ── Вибір зміни ── */
+            .shift-selector { flex-direction: row; gap: 10px; }
+            .shift-btn {
+                padding: 18px 10px;
+                font-size: 1em;
+                min-height: 64px;
+                flex: 1;
+            }
+
+            /* ── Калькулятор режим ── */
+            .calculator-mode { flex-direction: row; gap: 8px; }
+            .mode-btn { padding: 14px 8px; min-height: 50px; font-size: 0.9em; }
+
+            /* ── Статистика ── */
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-card { padding: 14px 10px; }
+            .stat-card .value { font-size: 1.6em; }
+
+            /* ── Калькулятор баннер ── */
+            .calc-banner-hours { font-size: 2em; }
+            .result-card .highlight { font-size: 1.3em; }
+
+            /* ── Інпути (iOS zoom fix) ── */
+            input, select, textarea { font-size: 16px !important; }
+
+            /* ── Кнопки ── */
+            .btn {
+                width: 100%;
+                min-height: 54px;
+                padding: 16px;
+                font-size: 1.15em;
+                border-radius: 12px;
+                margin-top: 4px;
+            }
+
+            /* ── Кнопка видалення ── */
+            .btn-delete {
+                min-height: 40px;
+                padding: 8px 14px;
+                font-size: 0.85em;
+                border-radius: 8px;
+            }
+
+            /* ── Активний стан (tap feedback) ── */
+            .btn:active { transform: scale(0.97); opacity: 0.9; }
+            .shift-btn:active { transform: scale(0.97); }
+            .mode-btn:active { transform: scale(0.97); }
+            .main-tab:active { transform: scale(0.97); }
+            .sub-tab:active { opacity: 0.8; }
+
+            .collection-item { flex-wrap: wrap; gap: 8px; }
+            .report-item .date { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .form-group { margin-bottom: 14px; }
+            .form-group label { font-size: 0.9em; }
+        }
+
+        @media (max-width: 420px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .sub-tabs { grid-template-columns: repeat(2, 1fr); }
+            .sub-tab { font-size: 0.82em; }
+        }
+
+        /* ── Рахунок каси ──────────────────────────────────────────── */
+        .cashcount-total-box {
+            background: #1A1A1C;
+            border: 2px solid #FFEA00;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            box-shadow: 0 0 25px rgba(255, 234, 0, 0.2);
+        }
+
+        .cashcount-total-label {
+            color: #A0A0A0;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .cashcount-total-amount {
+            font-size: 3em;
+            font-weight: 700;
+            color: #FFEA00;
+            text-shadow: 0 0 20px rgba(255, 234, 0, 0.6);
+            line-height: 1.1;
+        }
+
+        .denom-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .denom-row {
+            display: grid;
+            grid-template-columns: 90px 1fr 120px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .denom-badge {
+            background: #1A1A1C;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 6px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.95em;
+            color: #FFEA00;
+            letter-spacing: 0.5px;
+        }
+
+        #received-denominations {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .received-denom-tile {
+            min-height: 76px;
+            cursor: pointer;
+            font-family: inherit;
+            color: #FFEA00;
+            background: #1A1A1C;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 10px 8px;
+            transition: border-color 0.15s, background 0.15s, transform 0.1s, box-shadow 0.15s;
+        }
+
+        .received-denom-tile:hover,
+        .received-denom-tile:focus-visible {
+            background: #29290F;
+            border-color: #FFEA00;
+            outline: none;
+        }
+
+        .received-denom-tile:active {
+            transform: scale(0.96);
+        }
+
+        .received-denom-tile.is-selected {
+            background: #29290F;
+            border-color: #FFEA00;
+            box-shadow: 0 0 14px rgba(255, 234, 0, 0.22);
+        }
+
+        .received-denom-label {
+            display: block;
+            font-size: 1.1em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .received-denom-count {
+            display: block;
+            min-height: 1.1em;
+            margin-top: 5px;
+            color: #777;
+            font-family: 'Courier New', monospace;
+            font-size: 0.86em;
+        }
+
+        .received-denom-tile.is-selected .received-denom-count {
+            color: #FFFFFF;
+        }
+
+        .received-denom-input {
+            display: none;
+        }
+
+        .denom-input {
+            text-align: center;
+        }
+
+        .denom-subtotal {
+            text-align: right;
+            color: #555;
+            font-size: 0.95em;
+            font-family: 'Courier New', monospace;
+            transition: color 0.2s;
+        }
+
+        .denom-subtotal.has-value {
+            color: #FFFFFF;
+        }
+
+        /* ── Решта ───────────────────────────────────────────────────── */
+        .expr-preview {
+            margin-top: 6px;
+            min-height: 1.2em;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #A0A0A0;
+        }
+
+        .expr-preview.is-error {
+            color: #E50914;
+        }
+
+        input.input-error {
+            border-color: #E50914;
+        }
+
+        .change-box-short {
+            border-color: #E50914;
+            box-shadow: 0 0 25px rgba(229, 9, 20, 0.2);
+        }
+
+        .change-box-short .cashcount-total-amount {
+            color: #E50914;
+            text-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+        }
+
+        .cash-note-input {
+            width: 100%;
+            background: #141416;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            color: #FFFFFF;
+            padding: 10px 14px;
+            font-size: 0.9em;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+        .cash-note-input:focus {
+            outline: none;
+            border-color: #FFEA00;
+            box-shadow: 0 0 10px rgba(255, 234, 0, 0.25);
+        }
+
+        .cash-actions-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cash-history-wrapper {
+            margin-top: 35px;
+            border-top: 1px dashed #333333;
+            padding-top: 25px;
+        }
+
+        .cash-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .cash-history-title {
+            font-size: 1.25em;
+            font-weight: 700;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cash-history-badge {
+            background: rgba(255, 234, 0, 0.15);
+            color: #FFEA00;
+            border: 1px solid rgba(255, 234, 0, 0.4);
+            font-size: 0.8em;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .cash-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .cash-history-empty {
+            background: #141416;
+            border: 1px dashed #333333;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            color: #777777;
+            font-size: 0.95em;
+        }
+
+        .cash-history-item {
+            background: #1A1A1C;
+            border: 1px solid #333333;
+            border-left: 4px solid #FFEA00;
+            border-radius: 12px;
+            padding: 16px 18px;
+            transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+            position: relative;
+        }
+        .cash-history-item:hover {
+            border-color: #444444;
+            border-left-color: #FFEA00;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .cash-history-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .cash-history-datetime {
+            color: #A0A0A0;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cash-history-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cash-history-total {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #FFEA00;
+            text-shadow: 0 0 10px rgba(255, 234, 0, 0.3);
+        }
+
+        .cash-diff-tag {
+            font-size: 0.85em;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .cash-diff-tag.plus {
+            background: rgba(0, 255, 102, 0.12);
+            border: 1px solid rgba(0, 255, 102, 0.35);
+            color: #00FF66;
+        }
+        .cash-diff-tag.minus {
+            background: rgba(255, 51, 102, 0.12);
+            border: 1px solid rgba(255, 51, 102, 0.35);
+            color: #FF3366;
+        }
+        .cash-diff-tag.zero, .cash-diff-tag.none {
+            background: rgba(160, 160, 160, 0.1);
+            border: 1px solid rgba(160, 160, 160, 0.25);
+            color: #A0A0A0;
+        }
+
+        .cash-history-note {
+            color: #00D9FF;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            background: rgba(0, 217, 255, 0.06);
+            border-left: 2px solid #00D9FF;
+            padding: 5px 10px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .cash-history-breakdown {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+            background: #111113;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #252528;
+        }
+
+        .cash-chip {
+            background: #1E1E22;
+            border: 1px solid #3A3A40;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.85em;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .cash-chip-denom {
+            color: #FFEA00;
+            font-weight: 700;
+        }
+        .cash-chip-qty {
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+        .cash-chip-sub {
+            color: #888888;
+            font-size: 0.85em;
+        }
+
+        .cash-history-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.82em;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            transition: background 0.15s, border-color 0.15s, transform 0.1s;
+            border: 1px solid transparent;
+        }
+        .btn-sm-primary {
+            background: rgba(255, 234, 0, 0.15);
+            border-color: rgba(255, 234, 0, 0.4);
+            color: #FFEA00;
+        }
+        .btn-sm-primary:hover {
+            background: #FFEA00;
+            color: #000000;
+        }
+        .btn-sm-secondary {
+            background: #252528;
+            border-color: #3A3A40;
+            color: #CCCCCC;
+        }
+        .btn-sm-secondary:hover {
+            background: #333338;
+            color: #FFFFFF;
+        }
+        .btn-sm-danger {
+            background: rgba(255, 51, 102, 0.1);
+            border-color: rgba(255, 51, 102, 0.3);
+            color: #FF3366;
+        }
+        .btn-sm-danger:hover {
+            background: #FF3366;
+            color: #FFFFFF;
+        }
+
+        .change-exact {
+            color: #28a745;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .change-breakdown {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .change-denom {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .change-denom-count {
+            color: #FFFFFF;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .change-note {
+            color: #A0A0A0;
+            font-size: 0.85em;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .denom-row {
+                grid-template-columns: 75px 1fr 90px;
+                gap: 8px;
+            }
+            #received-denominations { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+            .received-denom-tile { min-height: 68px; }
+            .denom-badge { font-size: 0.88em; padding: 7px 4px; }
+            .denom-subtotal { font-size: 0.85em; }
+            .cashcount-total-amount { font-size: 2.2em; }
+        }
+
+        /* ── 3 головних вкладки ──────────────────────────────────────── */
+        h3 {
+            color: #FFEA00;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1.2em;
+        }
+
+        strong {
+            color: #FFEA00;
+        }
+
+        /* ── Animated Canvas Background ───────────────────────────────── */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+    <div id="toast-container"></div>
+    <div class="container">
+        <header>
+            <h1>⚡ CyberHelper</h1>
+            <p>Управління касою кіберклубу</p>
+        </header>
+
+        <div class="main-tabs">
+            <button class="main-tab active" onclick="showMainTab('cash-management', this)">💼 Управління касою</button>
+            <button class="main-tab" onclick="showMainTab('calculator', this)">🧮 Калькулятор</button>
+            <button class="main-tab" onclick="showMainTab('cashcount', this)">💵 Рахунок каси</button>
+            <button class="main-tab" onclick="showMainTab('change', this)">💱 Решта</button>
+            <button class="main-tab" onclick="showMainTab('shift-gen', this)">📝 Генерація звіту</button>
+        </div>
+
+        <div class="sub-tabs active" id="cash-management-subtabs">
+            <button class="sub-tab active" onclick="showSubTab('report', this)">📋 Закриття зміни</button>
+            <button class="sub-tab" onclick="showSubTab('history', this)">🕓 Історія</button>
+        </div>
+
+        <div class="sub-tabs" id="calculator-subtabs">
+            <button class="sub-tab active" onclick="showSubTab('calculator', this)">⏱️ Тарифи</button>
+            <button class="sub-tab" onclick="showSubTab('discount', this)">💸 Знижка / Кешбек</button>
+        </div>
+
+        <!-- Report Panel -->
+        <div id="report" class="panel active">
+            <h2>📋 Закриття зміни</h2>
+
+            <div id="expectedCashAlert"></div>
+            <div id="pendingCollectionAlert"></div>
+
+            <div class="shift-selector">
+                <div class="shift-btn selected" onclick="selectShift('day')" id="shift-day">
+                    <div>☀️ Денна зміна</div>
+                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">9:00 — 21:00</div>
+                </div>
+                <div class="shift-btn" onclick="selectShift('night')" id="shift-night">
+                    <div>🌙 Нічна зміна</div>
+                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">21:00 — 9:00</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Каса на початку зміни (грн)</label>
+                <input type="number" id="open_cash" placeholder="0" min="0" step="0.01" inputmode="decimal" oninput="updateExpectedTotal()">
+            </div>
+
+            <div class="form-group">
+                <label>Каса готівки в кінці зміни (грн)</label>
+                <input type="number" id="close_cash" placeholder="0" min="0" step="0.01" inputmode="decimal" oninput="updateExpectedTotal()">
+            </div>
+
+            <div class="form-group">
+                <label>Торгівельні витрати (грн)</label>
+                <input type="number" id="expenses" placeholder="0" min="0" oninput="updateExpectedTotal()">
+            </div>
+
+            <div class="form-group" id="report-collection-group">
+                <label>Інкасація (грн)</label>
+                <input type="number" id="report-collection" value="0" min="0" placeholder="0" oninput="updateExpectedTotal()">
+                <small id="report-collection-details" style="color: #A0A0A0; margin-top: 5px; display: block;">
+                    Якщо гроші забирали з каси — введіть суму тут.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label>Нараховано у сенеті (грн)</label>
+                <input type="number" id="senet" placeholder="0" min="0" oninput="updateExpectedTotal()">
+                <small id="expectedTotal" style="color: #A0A0A0; margin-top: 5px; display: block;"></small>
+            </div>
+
+            <div class="form-group">
+                <label>Нотатка (необов'язково)</label>
+                <input type="text" id="report-note" placeholder="напр. клієнт відмовився від решти">
+                <small style="color: #A0A0A0; margin-top: 5px; display: block;">Додається до рядка результату через кому</small>
+            </div>
+
+            <button class="btn" onclick="generateReport()">Створити звіт</button>
+
+            <div id="report-result" style="margin-top: 24px;"></div>
+        </div>
+
+        <!-- History Panel -->
+        <div id="history" class="panel">
+            <h2>🕓 Історія звітів</h2>
+            <p style="color: #666; margin-bottom: 20px;">Перегляд попередніх звітів</p>
+
+            <div class="form-group">
+                <label>Період</label>
+                <select id="history-period" onchange="loadHistory()">
+                    <option value="7">Останні 7 днів</option>
+                    <option value="14">Останні 14 днів</option>
+                    <option value="30">Останній місяць</option>
+                </select>
+            </div>
+
+            <div id="history-list" class="loading">Завантаження...</div>
+        </div>
+
+        <!-- Calculator Panel -->
+        <div id="calculator" class="panel">
+            <h2>🧮 Калькулятор годин</h2>
+            <p style="color: #666; margin-bottom: 8px;">Розрахунок часу для пакетів</p>
+            <p style="color: #A0A0A0; margin-bottom: 20px;">🌅 Ранковий тариф автоматично діє з 09:00 до 16:00.</p>
+
+            <div class="calculator-mode">
+                <div class="mode-btn selected" onclick="selectMode('money')" id="mode-money">
+                    💰 Сума → Години
+                </div>
+                <div class="mode-btn" onclick="selectMode('hours')" id="mode-hours">
+                    ⏱️ Години → Сума
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Зона</label>
+                <select id="calc-zone">
+                    <option value="">Завантаження зон...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Тип дня</label>
+                <select id="calc-day-type">
+                    <option value="weekday" id="opt-weekday">Понеділок-Четвер</option>
+                    <option value="weekend" id="opt-weekend">П'ятниця-Неділя / свята</option>
+                </select>
+                <small id="calc-day-type-hint" style="color:#4FC3F7; margin-top:5px; display:block;"></small>
+                <small style="color:#A0A0A0; margin-top:5px; display:block;">Пакет «Школяр»: до 16 років включно, 3 години; тільки PC GAMER.</small>
+            </div>
+
+            <div class="form-group" id="money-input-group">
+                <label>Сума (грн)</label>
+                <input type="number" id="calc-money" placeholder="Введіть суму">
+            </div>
+
+            <div class="form-group" id="hours-input-group" style="display: none;">
+                <label>Години</label>
+                <input type="text" id="calc-hours" placeholder="напр. 3.20 = 3 год 20 хв" inputmode="decimal">
+                <small style="color:#A0A0A0; margin-top:5px; display:block;">Формат: 3 = 3 год · 3.30 = 3 год 30 хв · 0.45 = 45 хв</small>
+            </div>
+
+            <button class="btn" onclick="calculate()">Розрахувати</button>
+
+            <div id="calc-results" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Discount / Cashback Panel -->
+        <div id="discount" class="panel">
+            <h2>💸 Розрахунок кешбеку та знижки</h2>
+            <p style="color: #A0A0A0; margin-bottom: 20px;">Швидкий підрахунок компенсації/кешбеку при поповненні або знижки від суми</p>
+
+            <div class="calculator-mode">
+                <div class="mode-btn selected" onclick="selectDiscountMode('cashback')" id="disc-mode-cashback">
+                    🎁 Кешбек / Компенсація
+                </div>
+                <div class="mode-btn" onclick="selectDiscountMode('discount')" id="disc-mode-discount">
+                    🏷️ Знижка від суми
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="disc-amount-label">Сума поповнення (грн)</label>
+                <input type="number" id="disc-amount" placeholder="Введіть суму, напр. 100" min="0" step="0.01" inputmode="decimal" oninput="calcDiscount()">
+                <div class="chip-group" id="disc-amount-chips">
+                    <button type="button" class="chip-btn" onclick="setDiscountAmount(50)">50₴</button>
+                    <button type="button" class="chip-btn selected" onclick="setDiscountAmount(100)">100₴</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountAmount(200)">200₴</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountAmount(300)">300₴</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountAmount(500)">500₴</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountAmount(1000)">1000₴</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="disc-percent-label">Відсоток кешбеку / компенсації (%)</label>
+                <input type="number" id="disc-percent" value="35" min="0" max="100" step="0.5" inputmode="decimal" oninput="calcDiscount()">
+                <div class="chip-group" id="disc-percent-chips">
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(5)">5%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(10)">10%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(15)">15%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(20)">20%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(25)">25%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(30)">30%</button>
+                    <button type="button" class="chip-btn selected" onclick="setDiscountPercent(35)">35%</button>
+                    <button type="button" class="chip-btn" onclick="setDiscountPercent(50)">50%</button>
+                </div>
+            </div>
+
+            <div id="disc-results" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Cash Count Panel -->
+        <div id="cashcount" class="panel">
+            <h2>💵 Рахунок каси</h2>
+            <p style="color: #666; margin-bottom: 8px;">Введіть кількість купюр та монет</p>
+            <p style="color: #A0A0A0; margin-bottom: 20px;">Зберігається тільки в цьому браузері та використовується для видачі решти.</p>
+
+            <div class="cashcount-total-box">
+                <div class="cashcount-total-label">Разом у касі</div>
+                <div class="cashcount-total-amount" id="cashcount-total">0 грн</div>
+            </div>
+
+            <div class="denom-grid">
+                <div class="denom-row">
+                    <div class="denom-badge">1000₴</div>
+                    <input type="number" class="denom-input" data-value="1000" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-1000"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">500₴</div>
+                    <input type="number" class="denom-input" data-value="500" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-500"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">200₴</div>
+                    <input type="number" class="denom-input" data-value="200" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-200"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">100₴</div>
+                    <input type="number" class="denom-input" data-value="100" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-100"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">50₴</div>
+                    <input type="number" class="denom-input" data-value="50" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-50"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">20₴</div>
+                    <input type="number" class="denom-input" data-value="20" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-20"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">10₴</div>
+                    <input type="number" class="denom-input" data-value="10" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-10"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">5₴</div>
+                    <input type="number" class="denom-input" data-value="5" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-5"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">2₴</div>
+                    <input type="number" class="denom-input" data-value="2" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-2"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">1₴</div>
+                    <input type="number" class="denom-input" data-value="1" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-1"></div>
+                </div>
+                <div class="denom-row">
+                    <div class="denom-badge">50к</div>
+                    <input type="number" class="denom-input" data-value="0.5" min="0" placeholder="0" oninput="calcCash()">
+                    <div class="denom-subtotal" id="sub-0.5"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 15px; margin-bottom: 12px;">
+                <input type="text" id="cash-snapshot-note" class="cash-note-input" placeholder="Коментар або ім'я касира (наприклад: Ранкова зміна, Перезмінка)">
+            </div>
+
+            <div class="cash-actions-bar">
+                <button class="btn" style="flex: 2; min-width: 200px;" onclick="saveCashSnapshot()">💾 Зберегти стан каси в історію</button>
+                <button class="btn btn-secondary" style="flex: 1; min-width: 120px;" onclick="clearCashCount()">🗑 Обнулити</button>
+            </div>
+
+            <div id="cash-storage-status" class="change-note" style="margin-bottom: 20px;"></div>
+
+            <!-- Cash History Section -->
+            <div class="cash-history-wrapper">
+                <div class="cash-history-header">
+                    <div class="cash-history-title">
+                        📜 Історія перерахунків каси
+                        <span id="cash-history-badge" class="cash-history-badge">0 записів</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn-sm btn-sm-secondary" onclick="exportCashHistory()" title="Скопіювати текстовий журнал всієї історії">📥 Експорт</button>
+                        <button class="btn-sm btn-sm-danger" onclick="clearCashHistory()" title="Очистити всю історію перерахунків">🗑 Очистити історію</button>
+                    </div>
+                </div>
+
+                <div id="cash-history-list" class="cash-history-list">
+                    <!-- History items will be dynamically rendered here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Panel -->
+        <div id="change" class="panel">
+            <h2>💱 Решта</h2>
+            <p style="color: #666; margin-bottom: 20px;">
+                Суму можна писати виразом: 50+100 · 3*70 · 2*80+50 · (50+100)*2
+            </p>
+
+            <div class="form-group">
+                <label>До сплати</label>
+                <input type="text" id="change-due" placeholder="напр. 50+100 або 3*70"
+                       autocomplete="off" spellcheck="false" oninput="calcChange()">
+                <div class="expr-preview" id="change-due-preview"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Дали готівкою — кількість купюр</label>
+                <div id="received-denominations" class="denom-grid"></div>
+                <div class="expr-preview" id="change-paid-preview">= 0 ₴</div>
+            </div>
+
+            <div id="change-result"></div>
+            <button class="btn" id="confirm-sale" onclick="confirmCashSale()" style="display:none; margin-bottom:12px;">✅ Підтвердити продаж</button>
+            <button class="btn btn-secondary" onclick="clearChange()">🗑 Очистити</button>
+        </div>
+
+        <!-- Shift Report Generator Panel -->
+        <div id="shift-gen" class="panel">
+            <h2>📝 Генерація звіту зміни</h2>
+            <p style="color: #A0A0A0; margin-bottom: 20px;">Генератор текстового опису проблем, відвідуваності та відгуків для чату</p>
+
+            <div class="shift-selector">
+                <div class="shift-btn selected" onclick="selectGenShift('day')" id="gen-shift-day">
+                    <div>☀️ Денна зміна</div>
+                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">9:00, 13:00, 14:00, 17:00, 21:00</div>
+                </div>
+                <div class="shift-btn" onclick="selectGenShift('night')" id="gen-shift-night">
+                    <div>🌙 Нічна зміна</div>
+                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">21:00, 23:00, 09:00</div>
+                </div>
+                <div class="shift-btn" onclick="selectGenShift('doors')" id="gen-shift-doors">
+                    <div>🚪 23:00</div>
+                    <div style="font-size: 0.9em; color: #A0A0A0; margin-top: 5px;">Закриття дверей</div>
+                </div>
+            </div>
+
+            <div id="gen-main-fields">
+            <div class="form-group">
+                <label>Технічні проблеми</label>
+                <input type="text" id="gen-tech" placeholder="відсутні">
+                <small style="color: #555555; margin-top: 4px; display: block;">Якщо залишити порожнім — буде «відсутні»</small>
+            </div>
+
+            <div class="form-group">
+                <label>Інші проблеми</label>
+                <input type="text" id="gen-other" placeholder="відсутні">
+                <small style="color: #555555; margin-top: 4px; display: block;">Якщо залишити порожнім — буде «відсутні»</small>
+            </div>
+
+            <div class="form-group">
+                <label>Динаміка гостей по годинах</label>
+                <small style="color: #A0A0A0; margin-bottom: 12px; display: block;">
+                    Вкажіть приблизну кількість людей у кожну годину. Скрипт сам сформує опис (гостей не було / прийшли перші / мало / помірно / багато).
+                </small>
+                <div id="gen-timeline-container"></div>
+                <button type="button" class="btn btn-secondary" onclick="addTimelineSlot()" style="margin-top: 8px; font-size: 0.85em; padding: 8px 16px;">➕ Додати часову точку</button>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Відгуки та побажання</label>
+                <input type="text" id="gen-feedback" placeholder="немає">
+                <small style="color: #555555; margin-top: 4px; display: block;">Якщо залишити порожнім — буде «немає»</small>
+            </div>
+            </div>
+
+            <div id="gen-doors-fields" style="display: none;">
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Кількість нічників</label>
+                <input type="number" id="gen-nightstay" placeholder="0" min="0" step="1" inputmode="numeric">
+                <small style="color: #555555; margin-top: 4px; display: block;">Скільки гостей залишилися на ніч (після 23:00)</small>
+            </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 25px; flex-wrap: wrap;">
+                <button type="button" class="btn" onclick="generateTextReport()">✨ Згенерувати звіт</button>
+                <button type="button" class="btn btn-secondary" onclick="resetGenForm()">🗑 Скинути</button>
+            </div>
+
+            <div id="gen-result-container" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <script type="module" src="/static/change.js"></script>
+    <script type="module" src="/static/cash-register.js"></script>
+    <script>
+        let selectedShift = 'day';
+        let selectedMode = 'money';
+        let lastReportText = '';
+
+        // ─── Navigation ───────────────────────────────────────────────
+
+        function showMainTab(mainTabName, btn) {
+            document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+
+            const subTabsContainer = document.getElementById('cash-management-subtabs');
+
+            const subTabsContainers = document.querySelectorAll('.sub-tabs');
+            subTabsContainers.forEach(c => c.classList.remove('active'));
+
+            if (mainTabName === 'cash-management') {
+                subTabsContainer.classList.add('active');
+                // активуємо першу підвкладку
+                const firstSubTab = subTabsContainer.querySelector('.sub-tab');
+                showSubTabByName('report', firstSubTab);
+            } else if (mainTabName === 'calculator') {
+                const calcSubTabs = document.getElementById('calculator-subtabs');
+                calcSubTabs.classList.add('active');
+                const firstSubTab = calcSubTabs.querySelector('.sub-tab');
+                showSubTabByName('calculator', firstSubTab);
+            } else {
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(mainTabName).classList.add('active');
+                if (mainTabName === 'cashcount') {
+                    renderCashHistory();
+                }
+            }
+        }
+
+        function showSubTab(subTabName, btn) {
+            showSubTabByName(subTabName, btn);
+        }
+
+        function showSubTabByName(subTabName, tabEl) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+
+            document.getElementById(subTabName).classList.add('active');
+            if (tabEl) tabEl.classList.add('active');
+
+            if (subTabName === 'report')  loadExpectedCash();
+            if (subTabName === 'history') loadHistory();
+            if (subTabName === 'calculator') loadZones();
+            if (subTabName === 'discount') {
+                const amt = document.getElementById('disc-amount');
+                if (amt && !amt.value) {
+                    amt.value = 100;
+                }
+                calcDiscount();
+            }
+        }
+
+        // ─── Shift / Mode selectors ────────────────────────────────────
+
+        function selectShift(shift) {
+            selectedShift = shift;
+            document.querySelectorAll('.shift-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('shift-' + shift).classList.add('selected');
+        }
+
+        function selectMode(mode) {
+            selectedMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('mode-' + mode).classList.add('selected');
+            document.getElementById('money-input-group').style.display = mode === 'money' ? 'block' : 'none';
+            document.getElementById('hours-input-group').style.display = mode === 'hours' ? 'block' : 'none';
+        }
+
+        // ─── Report ────────────────────────────────────────────────────
+
+        function showToast(message, type = 'success', duration = 3500) {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = message;
+
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 400);
+            }, duration);
+        }
+
+        async function copyReport(btn) {
+            if (!lastReportText) return;
+            try {
+                await navigator.clipboard.writeText(lastReportText);
+                showToast('📋 Звіт скопійовано у буфер!', 'info', 2500);
+                btn.textContent = '✅ Скопійовано!';
+                setTimeout(() => { btn.innerHTML = '📋 Скопіювати звіт'; }, 2000);
+            } catch (e) {
+                // fallback для старих браузерів
+                const ta = document.createElement('textarea');
+                ta.value = lastReportText;
+                ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('📋 Звіт скопійовано у буфер!', 'info', 2500);
+                btn.textContent = '✅ Скопійовано!';
+                setTimeout(() => { btn.innerHTML = '📋 Скопіювати звіт'; }, 2000);
+            }
+        }
+
+        async function loadExpectedCash() {
+            const cashRes = await fetch('/api/expected-cash').then(r => r.json()).catch(() => null);
+
+            const cashAlert = document.getElementById('expectedCashAlert');
+            const pendingAlert = document.getElementById('pendingCollectionAlert');
+
+            if (cashRes && cashRes.expected_cash !== null) {
+                const val = cashRes.expected_cash;
+                document.getElementById('open_cash').value = val;
+                cashAlert.innerHTML = `<div class="alert alert-info">💡 За попереднім звітом у касі має бути <strong>${fmtMoney(val)} грн</strong></div>`;
+            } else {
+                cashAlert.innerHTML = '';
+            }
+
+            // Інкасацію не підставляємо автоматично — касир вводить її сам, коли треба
+            const collectionInput = document.getElementById('report-collection');
+            const collectionDetails = document.getElementById('report-collection-details');
+            collectionInput.value = '0';
+            collectionDetails.textContent = 'Якщо гроші забирали з каси — введіть суму тут.';
+            pendingAlert.innerHTML = '';
+            updateExpectedTotal();
+        }
+
+        // Жива підказка біля «Нараховано у сенеті»: скільки має заробити зміна.
+        // Сенет показує касу ЗА ЗМІНУ (без залишку зранку) — часта плутанина,
+        // коли касир вводить баланс разом із початковою касою і отримує «недостачу».
+        function updateExpectedTotal() {
+            const hint = document.getElementById('expectedTotal');
+            if (!hint) return;
+            const open  = parseMoney(document.getElementById('open_cash').value);
+            const close = parseMoney(document.getElementById('close_cash').value);
+            if (open === null || close === null) {
+                hint.innerHTML = '';
+                return;
+            }
+            const expenses   = parseMoney(document.getElementById('expenses').value) ?? 0;
+            const collection = parseMoney(document.getElementById('report-collection').value) ?? 0;
+            const earned = close - open + expenses + collection;
+            const senet  = parseMoney(document.getElementById('senet').value);
+
+            let html = `ℹ️ Розраховане зароблено за зміну: <strong>${fmtMoney(earned)} грн</strong> — стільки має бути у сенеті.`;
+            // Недостача, рівна касі зранку, = ввели баланс каси разом із залишком
+            if (senet !== null && open > 0 && Math.abs((senet - earned) - open) < 0.005) {
+                html += `<br>⚠️ Схоже, введено касу сенету разом із залишком зранку (${fmtMoney(open)} грн). ` +
+                        `Відніми касу зранку — тоді надлишок/недостача порахуються правильно.`;
+            }
+            hint.innerHTML = html;
+        }
+
+        async function generateReport() {
+            // Гроші читаємо в гривнях (можна цілі або з копійками: 11142.50 чи 11142,50)
+            const open_cash  = parseMoney(document.getElementById('open_cash').value) ?? 0;
+            const close_cash = parseMoney(document.getElementById('close_cash').value);
+            const expenses   = parseMoney(document.getElementById('expenses').value) ?? 0;
+            const collection = parseMoney(document.getElementById('report-collection').value) ?? 0;
+            const senet      = parseMoney(document.getElementById('senet').value);
+            const note       = document.getElementById('report-note').value.trim();
+            const resultDiv  = document.getElementById('report-result');
+
+            if (close_cash === null || senet === null) {
+                showToast('⚠️ Заповніть всі необхідні поля', 'warning', 3000);
+                resultDiv.innerHTML = '<div class="alert alert-warning">Заповніть всі поля</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/reports', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ shift: selectedShift, open_cash, close_cash, expenses, collection, senet, note })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    lastReportText = data.report_text;
+                    showToast('✅ Звіт успішно створено!', 'success', 3500);
+                    resultDiv.innerHTML = `
+                        <div class="report-preview">${data.report_text}</div>
+                        <button class="btn btn-copy" onclick="copyReport(this)" style="margin-top: 15px; width: 100%;">
+                            📋 Скопіювати звіт
+                        </button>
+                    `;
+                    // очищаємо поля після успіху
+                    document.getElementById('close_cash').value = '';
+                    document.getElementById('expenses').value = '0';
+                    document.getElementById('report-collection').value = '0';
+                    document.getElementById('senet').value = '';
+                    document.getElementById('report-note').value = '';
+                    updateExpectedTotal();
+                    loadExpectedCash();
+                } else {
+                    resultDiv.innerHTML = `<div class="alert alert-warning">Помилка: ${data.detail || 'невідома'}</div>`;
+                }
+            } catch (e) {
+                resultDiv.innerHTML = '<div class="alert alert-warning">Помилка з\'єднання з сервером</div>';
+            }
+        }
+
+        // ─── History ────────────────────────────────────────────────────
+
+        async function loadHistory() {
+            const period  = document.getElementById('history-period').value;
+            const listDiv = document.getElementById('history-list');
+            listDiv.innerHTML = '<div class="loading">Завантаження...</div>';
+
+            try {
+                const rows = await fetch(`/api/reports?limit=${period}`).then(r => r.json());
+
+                if (rows.length > 0) {
+                    listDiv.innerHTML = rows.map(r => `
+                        <div class="report-item">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <div class="date">${r.shift === 'day' ? '☀️ Денна' : '🌙 Нічна'} — ${r.created_at}</div>
+                                <button class="btn-delete" onclick="deleteReport(${r.id})" title="Видалити звіт">🗑 Видалити</button>
+                            </div>
+                            <div class="content">${r.report_text}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    listDiv.innerHTML = '<div class="alert alert-info">Звітів ще немає</div>';
+                }
+            } catch (e) {
+                listDiv.innerHTML = '<div class="alert alert-warning">Помилка завантаження</div>';
+            }
+        }
+
+        async function deleteReport(id) {
+            if (!confirm('Видалити цей звіт? Пов\'язана інкасація стане неврахованою.')) return;
+            try {
+                const res = await fetch(`/api/reports/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadHistory();
+                    loadExpectedCash(); // оновити підказку каси
+                } else {
+                    const data = await res.json();
+                    alert('Помилка: ' + (data.detail || 'невідома'));
+                }
+            } catch (e) {
+                alert('Помилка з\'єднання');
+            }
+        }
+
+        // ─── Stats ──────────────────────────────────────────────────────
+
+        async function loadStats() {
+            const days       = document.getElementById('stats-period').value;
+            const contentDiv = document.getElementById('stats-content');
+            contentDiv.innerHTML = '<div class="loading">Завантаження...</div>';
+
+            try {
+                const data = await fetch(`/api/stats?days=${days}`).then(r => r.json());
+
+                if (data.cnt > 0) {
+                    contentDiv.innerHTML = `
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3>Звітів</h3>
+                                <div class="value">${data.cnt}</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Зароблено готівки</h3>
+                                <div class="value">${fmtMoney(data.earned)} <span style="font-size:0.5em">грн</span></div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Витрати</h3>
+                                <div class="value">${fmtMoney(data.expenses)} <span style="font-size:0.5em">грн</span></div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Надлишок / Недостача</h3>
+                                <div class="value" style="color:${data.surplus >= 0 ? '#FFEA00' : '#E50914'}">
+                                    ${data.surplus >= 0 ? '+' : ''}${fmtMoney(data.surplus)} <span style="font-size:0.5em">грн</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    contentDiv.innerHTML = '<div class="alert alert-info">Немає даних за обраний період</div>';
+                }
+            } catch (e) {
+                contentDiv.innerHTML = '<div class="alert alert-warning">Помилка завантаження</div>';
+            }
+        }
+
+        // ─── Calculator ─────────────────────────────────────────────────
+
+        function autoSelectDayType() {
+            // Пн(1)-Чт(4) → weekday, Пт(5)-Нд(0) → weekend
+            const day = new Date().getDay();
+            const type = (day >= 1 && day <= 4) ? 'weekday' : 'weekend';
+            const sel = document.getElementById('calc-day-type');
+            sel.value = type;
+            const hint = document.getElementById('calc-day-type-hint');
+            if (hint) {
+                const label = type === 'weekday' ? 'Понеділок-Четвер' : "П'ятниця-Неділя / свята";
+                hint.textContent = `Сьогодні — визначено автоматично: ${label} (можна змінити вручну)`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', autoSelectDayType);
+
+        let zonesData = {};
+
+        async function loadZones() {
+            try {
+                const zones  = await fetch('/api/zones').then(r => r.json());
+                const select = document.getElementById('calc-zone');
+                select.innerHTML = '<option value="">Оберіть зону</option>';
+                zones.forEach(z => {
+                    zonesData[z.id] = z;
+                    const opt = document.createElement('option');
+                    opt.value = z.id;
+                    opt.textContent = z.name;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                document.getElementById('calc-zone').innerHTML = '<option value="">Помилка завантаження</option>';
+            }
+        }
+
+        let selectedDiscountMode = 'cashback';
+
+        function selectDiscountMode(mode) {
+            selectedDiscountMode = mode;
+            const cashbackBtn = document.getElementById('disc-mode-cashback');
+            const discountBtn = document.getElementById('disc-mode-discount');
+            if (cashbackBtn) cashbackBtn.classList.toggle('selected', mode === 'cashback');
+            if (discountBtn) discountBtn.classList.toggle('selected', mode === 'discount');
+
+            const amountLabel = document.getElementById('disc-amount-label');
+            const percentLabel = document.getElementById('disc-percent-label');
+            const amountInput = document.getElementById('disc-amount');
+
+            if (mode === 'cashback') {
+                if (amountLabel) amountLabel.textContent = 'Сума поповнення (грн)';
+                if (percentLabel) percentLabel.textContent = 'Відсоток кешбеку / компенсації (%)';
+                if (amountInput) amountInput.placeholder = 'Введіть суму, напр. 100';
+            } else {
+                if (amountLabel) amountLabel.textContent = 'Початкова сума / чек (грн)';
+                if (percentLabel) percentLabel.textContent = 'Відсоток знижки (%)';
+                if (amountInput) amountInput.placeholder = 'Введіть ціну, напр. 100';
+            }
+
+            calcDiscount();
+        }
+
+        function setDiscountAmount(val) {
+            const input = document.getElementById('disc-amount');
+            if (input) input.value = val;
+            document.querySelectorAll('#disc-amount-chips .chip-btn').forEach(btn => {
+                const btnVal = parseFloat(btn.textContent);
+                btn.classList.toggle('selected', btnVal === val);
+            });
+            calcDiscount();
+        }
+
+        function setDiscountPercent(val) {
+            const input = document.getElementById('disc-percent');
+            if (input) input.value = val;
+            document.querySelectorAll('#disc-percent-chips .chip-btn').forEach(btn => {
+                const btnVal = parseFloat(btn.textContent);
+                btn.classList.toggle('selected', btnVal === val);
+            });
+            calcDiscount();
+        }
+
+        function calcDiscount() {
+            const resDiv = document.getElementById('disc-results');
+            if (!resDiv) return;
+            const amountInput = document.getElementById('disc-amount');
+            const percentInputEl = document.getElementById('disc-percent');
+            if (!amountInput || !percentInputEl) return;
+
+            const amountVal = amountInput.value.trim();
+            const amount = parseFloat(amountVal);
+
+            // Sync chip selection states
+            document.querySelectorAll('#disc-amount-chips .chip-btn').forEach(btn => {
+                btn.classList.toggle('selected', parseFloat(btn.textContent) === amount);
+            });
+            const percentVal = parseFloat(percentInputEl.value);
+            document.querySelectorAll('#disc-percent-chips .chip-btn').forEach(btn => {
+                btn.classList.toggle('selected', parseFloat(btn.textContent) === percentVal);
+            });
+
+            if (isNaN(amount) || amount < 0) {
+                resDiv.innerHTML = '<div class="alert alert-warning">Введіть коректну суму (напр. 100)</div>';
+                return;
+            }
+
+            let percent = percentVal;
+            if (isNaN(percent) || percent < 0) percent = 0;
+            if (percent > 100) percent = 100;
+
+            const compensation = Math.round(amount * percent) / 100;
+            const totalWithBonus = Math.round((amount + compensation) * 100) / 100;
+            const discountedPrice = Math.round((amount - compensation) * 100) / 100;
+
+            if (selectedDiscountMode === 'cashback') {
+                resDiv.innerHTML = `
+                    <div class="calc-banner">
+                        <div class="calc-banner-label">Поповнення ${fmtMoney(amount)} грн · ${percent}% кешбеку / компенсації</div>
+                        <div class="calc-banner-hours" style="color: #00E5FF; text-shadow: 0 0 20px rgba(0, 229, 255, 0.6);">+${fmtMoney(compensation)} грн</div>
+                        <div class="calc-banner-rate" style="color: #FFEA00; font-size: 1.15em; font-weight: 600; margin-top: 10px;">
+                            💳 Разом на баланс клієнту: ${fmtMoney(totalWithBonus)} грн
+                        </div>
+                    </div>
+                    <div class="calc-breakdown">
+                        <div class="breakdown-card">
+                            <div class="breakdown-card-label">Внесено клієнтом</div>
+                            <div class="breakdown-card-value">${fmtMoney(amount)} грн</div>
+                        </div>
+                        <div class="breakdown-card" style="border-color: #00E5FF; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);">
+                            <div class="breakdown-card-label" style="color: #00E5FF;">Компенсація (${percent}%)</div>
+                            <div class="breakdown-card-value" style="color: #00E5FF;">+${fmtMoney(compensation)} грн</div>
+                        </div>
+                        <div class="breakdown-card" style="border-color: #FFEA00; box-shadow: 0 0 10px rgba(255, 234, 0, 0.2);">
+                            <div class="breakdown-card-label" style="color: #FFEA00;">Всього на баланс</div>
+                            <div class="breakdown-card-value" style="color: #FFEA00;">${fmtMoney(totalWithBonus)} грн</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resDiv.innerHTML = `
+                    <div class="calc-banner">
+                        <div class="calc-banner-label">Сума ${fmtMoney(amount)} грн − ${percent}% знижки</div>
+                        <div class="calc-banner-hours">${fmtMoney(discountedPrice)} грн</div>
+                        <div class="calc-banner-rate" style="color: #00E5FF; font-size: 1.15em; font-weight: 600; margin-top: 10px;">
+                            💸 Економія / Знижка: ${fmtMoney(compensation)} грн
+                        </div>
+                    </div>
+                    <div class="calc-breakdown">
+                        <div class="breakdown-card">
+                            <div class="breakdown-card-label">Початкова сума</div>
+                            <div class="breakdown-card-value">${fmtMoney(amount)} грн</div>
+                        </div>
+                        <div class="breakdown-card" style="border-color: #00E5FF; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);">
+                            <div class="breakdown-card-label" style="color: #00E5FF;">Знижка (-${percent}%)</div>
+                            <div class="breakdown-card-value" style="color: #00E5FF;">-${fmtMoney(compensation)} грн</div>
+                        </div>
+                        <div class="breakdown-card" style="border-color: #FFEA00; box-shadow: 0 0 10px rgba(255, 234, 0, 0.2);">
+                            <div class="breakdown-card-label" style="color: #FFEA00;">До сплати</div>
+                            <div class="breakdown-card-value" style="color: #FFEA00;">${fmtMoney(discountedPrice)} грн</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function calculate() {
+            const zone    = document.getElementById('calc-zone').value;
+            const dayType = document.getElementById('calc-day-type').value;
+            const resDiv  = document.getElementById('calc-results');
+
+            if (!zone) {
+                resDiv.innerHTML = '<div class="alert alert-warning">Оберіть зону</div>';
+                return;
+            }
+
+            const zInfo = zonesData[zone] || {};
+            const currentHour = new Date().getHours();
+            const morningActive = currentHour >= 9 && currentHour < 16;
+            const hourRate = morningActive
+                ? zInfo.morning_price
+                : (dayType === 'weekday' ? zInfo.weekday_hour : zInfo.weekend_hour);
+            const rateLabel = morningActive ? 'ранковому тарифу 09:00–16:00' : 'погодинному тарифу';
+
+            try {
+                let data;
+
+                if (selectedMode === 'money') {
+                    const amount = parseInt(document.getElementById('calc-money').value);
+                    if (!amount || amount <= 0) {
+                        resDiv.innerHTML = '<div class="alert alert-warning">Введіть суму</div>';
+                        return;
+                    }
+                    data = await fetch(`/api/calculator/money-to-hours?amount=${amount}&zone=${zone}&day_type=${dayType}&current_hour=${currentHour}`).then(r => r.json());
+
+                    const options = data.options || [];
+
+                    // Головний банер — безперервний час
+                    let bannerHtml = '';
+                    if (hourRate) {
+                        const totalMins = Math.floor((amount / hourRate) * 60);
+                        bannerHtml = `
+                            <div class="calc-banner">
+                                <div class="calc-banner-label">За ${fmt(amount)} грн по тарифу ${fmt(hourRate)} грн/год</div>
+                                <div class="calc-banner-hours">${fmtHours(totalMins)}</div>
+                                <div class="calc-banner-rate">безперервної гри · по ${rateLabel}</div>
+                            </div>`;
+                    }
+
+                    if (!options.length) {
+                        resDiv.innerHTML = bannerHtml + '<div class="alert alert-info" style="margin-top:15px;">Суми недостатньо для жодного пакету</div>';
+                        return;
+                    }
+
+                    resDiv.innerHTML = bannerHtml +
+                        '<h3 style="margin:18px 0 12px;">Або вигідніші пакети:</h3>' +
+                        options.map(o => `
+                            <div class="result-card">
+                                <h4>${o.package}</h4>
+                                <div class="highlight">${o.hours}<span style="font-size:0.5em;color:#A0A0A0"> год</span> &nbsp;за&nbsp; ${fmt(o.price)}<span style="font-size:0.5em;color:#A0A0A0"> грн</span></div>
+                                ${o.remaining > 0
+                                    ? `<div class="detail">💰 Залишок: ${fmt(o.remaining)} грн</div>`
+                                    : '<div class="detail" style="color:#28a745;">✅ Без залишку</div>'}
+                            </div>`).join('');
+
+                } else {
+                    const hours = parseHoursInput(document.getElementById('calc-hours').value);
+                    if (!hours || hours <= 0) {
+                        resDiv.innerHTML = '<div class="alert alert-warning">Введіть кількість годин (напр. 3.20 = 3 год 20 хв)</div>';
+                        return;
+                    }
+                    data = await fetch(`/api/calculator/hours-to-money?hours=${hours}&zone=${zone}&day_type=${dayType}&current_hour=${currentHour}`).then(r => r.json());
+
+                    const options = data.options || [];
+
+                    // Головний банер — безперервна ціна
+                    let bannerHtml = '';
+                    if (hourRate) {
+                        const totalPrice = Math.ceil(hours * hourRate);
+                        const hoursLabel = fmtHours(Math.round(hours * 60));
+                        bannerHtml = `
+                            <div class="calc-banner">
+                                <div class="calc-banner-label">За ${hoursLabel} по тарифу ${fmt(hourRate)} грн/год</div>
+                                <div class="calc-banner-hours">${fmt(totalPrice)} грн</div>
+                                <div class="calc-banner-rate">по ${rateLabel}</div>
+                            </div>`;
+                    }
+
+                    if (!options.length) {
+                        resDiv.innerHTML = bannerHtml + '<div class="alert alert-info" style="margin-top:15px;">Немає відповідних пакетів</div>';
+                        return;
+                    }
+
+                    resDiv.innerHTML = bannerHtml +
+                        '<h3 style="margin:18px 0 12px;">Або вигідніші пакети:</h3>' +
+                        options.map(o => `
+                            <div class="result-card">
+                                <h4>${o.package}</h4>
+                                <div class="highlight">${fmt(o.price)}<span style="font-size:0.5em;color:#A0A0A0"> грн</span> &nbsp;за&nbsp; ${o.hours_used}<span style="font-size:0.5em;color:#A0A0A0"> год</span></div>
+                                ${o.remaining_hours > 0
+                                    ? `<div class="detail">⏱ Залишок: ${o.remaining_hours} год</div>`
+                                    : '<div class="detail" style="color:#28a745;">✅ Рівно</div>'}
+                            </div>`).join('');
+                }
+            } catch (e) {
+                resDiv.innerHTML = '<div class="alert alert-warning">Помилка розрахунку</div>';
+            }
+        }
+
+        // ─── Helpers ────────────────────────────────────────────────────
+
+        function fmt(n) {
+            return Number(n).toLocaleString('uk-UA');
+        }
+
+        // ┌─ Грошові поля: копійки рахуємо цілими ────────────────────────
+
+        // «11142», «11142.50», «11142,50», «1 234,56» → гривні (number), або null
+        function parseMoney(str) {
+            if (str == null || str === '') return null;
+            const norm = String(str).trim().replace(/\s+/g, '').replace(',', '.');
+            if (!/^\d+(\.\d{1,2})?$/.test(norm)) return null;
+            return Math.round(parseFloat(norm) * 100) / 100;
+        }
+
+        // Гроші у відповідях API — гривні. Формат: 11142 → «11 142», 11142.5 → «11 142,50»
+        function fmtMoney(grivnas) {
+            if (grivnas == null) return '';
+            const n = Number(grivnas);
+            const kopecks = Math.round(n * 100);
+            const hasKop = kopecks % 100 !== 0;
+            return n.toLocaleString('uk-UA', {
+                minimumFractionDigits: hasKop ? 2 : 0,
+                maximumFractionDigits: hasKop ? 2 : 0,
+            });
+        }
+
+        function fmtHours(totalMinutes) {
+            const h = Math.floor(totalMinutes / 60);
+            const m = totalMinutes % 60;
+            if (m === 0) return `${h} год`;
+            return `${h} год ${m} хв`;
+        }
+
+        /**
+         * Парсить введення годин у форматі "ГГ.ХХ" як години.хвилини:
+         *   3     → 3 год 0 хв  (= 3.0 decimal)
+         *   3.2   → 3 год 20 хв (= 3.333...)
+         *   3.20  → 3 год 20 хв
+         *   3.30  → 3 год 30 хв
+         *   0.45  → 0 год 45 хв (= 0.75)
+         */
+        function parseHoursInput(raw) {
+            if (!raw || !String(raw).trim()) return null;
+            const str = String(raw).trim().replace(',', '.');
+            if (!str.includes('.')) {
+                const v = parseFloat(str);
+                return isNaN(v) || v <= 0 ? null : v;
+            }
+            const [hPart, mPart] = str.split('.');
+            const h = parseInt(hPart) || 0;
+            // "3.2" → mPart="2" → padEnd(2,"0") = "20" → 20 хв
+            // "3.20"→ mPart="20"→ substring(0,2) = "20" → 20 хв
+            const mStr = mPart.padEnd(2, '0').substring(0, 2);
+            const m = parseInt(mStr);
+            if (isNaN(m) || m >= 60) return null;
+            const decimal = h + m / 60;
+            return decimal <= 0 ? null : decimal;
+        }
+
+        // ─── Cash Count ─────────────────────────────────────────────────
+
+        const CASH_STORAGE_KEY = 'cyberhelper.cashInventory.v1';
+        const DENOMS = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1, 0.5];
+        let cashInventory = null;
+        let pendingSale = null;
+        let saleRevision = 0;
+
+        function denomToKopiykas(denom) {
+            return Math.round(Number(denom) * 100);
+        }
+
+        function readStoredCash() {
+            try {
+                const raw = localStorage.getItem(CASH_STORAGE_KEY);
+                if (!raw) return CashRegister.emptyInventory();
+                const parsed = JSON.parse(raw);
+                if (parsed.version !== CashRegister.CASH_INVENTORY_VERSION) {
+                    return CashRegister.emptyInventory();
+                }
+                return CashRegister.normalizeInventory(parsed.counts);
+            } catch (e) {
+                return CashRegister.emptyInventory();
+            }
+        }
+
+        function saveCashInventory(counts) {
+            const normalized = CashRegister.normalizeInventory(counts);
+            const updatedAt = new Date().toISOString();
+            localStorage.setItem(CASH_STORAGE_KEY, JSON.stringify({
+                version: CashRegister.CASH_INVENTORY_VERSION,
+                updatedAt,
+                counts: normalized,
+            }));
+            cashInventory = normalized;
+            document.getElementById('cash-storage-status').textContent =
+                `Збережено локально: ${new Date(updatedAt).toLocaleString('uk-UA')}`;
+        }
+
+        function renderCashInventory() {
+            DENOMS.forEach(d => {
+                const kopiykas = denomToKopiykas(d);
+                const input = document.querySelector(`#cashcount .denom-input[data-value="${d}"]`);
+                if (input) input.value = cashInventory[String(kopiykas)] || '';
+            });
+            calcCash(false);
+        }
+
+        function calcCash(shouldSave = true) {
+            const next = CashRegister.emptyInventory();
+            DENOMS.forEach(d => {
+                const input = document.querySelector(`#cashcount .denom-input[data-value="${d}"]`);
+                const qty = Math.max(0, parseInt(input.value) || 0);
+                const kopiykas = denomToKopiykas(d);
+                next[String(kopiykas)] = qty;
+                const sub = qty * Number(d);
+                const subEl = document.getElementById(`sub-${d}`);
+                if (sub > 0) {
+                    subEl.textContent = `= ${fmt(sub)} грн`;
+                    subEl.classList.add('has-value');
+                } else {
+                    subEl.textContent = '';
+                    subEl.classList.remove('has-value');
+                }
+            });
+            cashInventory = next;
+            document.getElementById('cashcount-total').textContent =
+                ChangeCalc.formatUah(CashRegister.inventoryTotal(next)).replace('₴', 'грн');
+            if (shouldSave) {
+                try {
+                    saveCashInventory(next);
+                } catch (e) {
+                    document.getElementById('cash-storage-status').textContent = 'Не вдалося зберегти касу локально.';
+                }
+            }
+            invalidatePendingSale();
+        }
+
+        function clearCashCount() {
+            if (!confirm('Обнулити всі збережені купюри та монети в касі?')) return;
+            try {
+                saveCashInventory(CashRegister.emptyInventory());
+                renderCashInventory();
+            } catch (e) {
+                alert('Не вдалося обнулити локальну касу.');
+            }
+        }
+
+        // ─── Cash Count History ──────────────────────────────────────────
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function loadCashHistory() {
+            try {
+                const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
+                const raw = localStorage.getItem(key);
+                if (!raw) return [];
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                console.error('Error loading cash history:', e);
+                return [];
+            }
+        }
+
+        function internalCreateCashSnapshot(counts, note = '') {
+            if (window.CashRegister && typeof window.CashRegister.createCashSnapshot === 'function') {
+                return window.CashRegister.createCashSnapshot(counts, note);
+            }
+            const normalized = (window.CashRegister && typeof window.CashRegister.normalizeInventory === 'function')
+                ? window.CashRegister.normalizeInventory(counts)
+                : Object.fromEntries(DENOMS.map(d => [String(denomToKopiykas(d)), Number(counts?.[String(denomToKopiykas(d))] || 0)]));
+            const total = (window.CashRegister && typeof window.CashRegister.inventoryTotal === 'function')
+                ? window.CashRegister.inventoryTotal(normalized)
+                : Object.entries(normalized).reduce((s, [k, v]) => s + Number(k) * Number(v), 0);
+            return {
+                id: `cash_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                timestamp: new Date().toISOString(),
+                total,
+                counts: normalized,
+                note: typeof note === 'string' ? note.trim() : '',
+            };
+        }
+
+        function internalGetDenominationBreakdown(counts) {
+            if (window.CashRegister && typeof window.CashRegister.getDenominationBreakdown === 'function') {
+                return window.CashRegister.getDenominationBreakdown(counts);
+            }
+            const items = [];
+            let totalItems = 0;
+            let totalAmount = 0;
+            DENOMS.forEach(d => {
+                const kopiykas = denomToKopiykas(d);
+                const qty = Math.max(0, parseInt(counts?.[String(kopiykas)]) || 0);
+                if (qty > 0) {
+                    const subtotal = kopiykas * qty;
+                    const label = d === 0.5 ? '50к' : `${d}₴`;
+                    items.push({ denom: kopiykas, label, count: qty, subtotal });
+                    totalItems += qty;
+                    totalAmount += subtotal;
+                }
+            });
+            return { items, totalItems, totalAmount };
+        }
+
+        function internalFormatMoney(kopiykas) {
+            if (window.CashRegister && typeof window.CashRegister.formatMoneyUah === 'function') {
+                return window.CashRegister.formatMoneyUah(kopiykas);
+            }
+            const isNegative = kopiykas < 0;
+            const abs = Math.abs(kopiykas);
+            const uah = abs / 100;
+            const parts = (uah % 1 === 0 ? String(uah) : uah.toFixed(2)).split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            return `${isNegative ? '-' : ''}${parts.join('.')} грн`;
+        }
+
+        function internalCalculateDiff(currentTotal, previousTotal) {
+            if (window.CashRegister && typeof window.CashRegister.calculateDiff === 'function') {
+                return window.CashRegister.calculateDiff(currentTotal, previousTotal);
+            }
+            if (typeof previousTotal !== 'number') {
+                return { diff: 0, sign: 'none', text: 'Перший запис' };
+            }
+            const diff = currentTotal - previousTotal;
+            if (diff > 0) {
+                return { diff, sign: 'plus', text: `+${internalFormatMoney(diff)}` };
+            } else if (diff < 0) {
+                return { diff, sign: 'minus', text: internalFormatMoney(diff) };
+            }
+            return { diff: 0, sign: 'zero', text: '0 грн' };
+        }
+
+        function saveCashSnapshot() {
+            try {
+                calcCash(true);
+                const noteInput = document.getElementById('cash-snapshot-note');
+                const note = noteInput ? noteInput.value.trim() : '';
+                const snapshot = internalCreateCashSnapshot(cashInventory, note);
+
+                if (snapshot.total === 0 && !note) {
+                    if (!confirm('Каса порожня (0 грн). Все одно зберегти цей зліпок в історію?')) {
+                        return;
+                    }
+                }
+
+                let history = loadCashHistory();
+                history.unshift(snapshot);
+                const maxEntries = (window.CashRegister && window.CashRegister.MAX_CASH_HISTORY_ENTRIES) || 100;
+                if (history.length > maxEntries) {
+                    history = history.slice(0, maxEntries);
+                }
+                const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
+                localStorage.setItem(key, JSON.stringify(history));
+
+                if (noteInput) noteInput.value = '';
+                renderCashHistory();
+
+                const formattedTotal = internalFormatMoney(snapshot.total);
+                showToast(`💾 Стан каси збережено в історію (${formattedTotal})!`, 'success', 3500);
+            } catch (e) {
+                console.error('Failed to save cash snapshot:', e);
+                showToast('⚠️ Не вдалося зберегти зліпок каси.', 'warning', 3000);
+            }
+        }
+
+        function renderCashHistory() {
+            const listEl = document.getElementById('cash-history-list');
+            const badgeEl = document.getElementById('cash-history-badge');
+            if (!listEl) return;
+
+            const history = loadCashHistory();
+            if (badgeEl) {
+                const count = history.length;
+                let word = 'записів';
+                if (count % 10 === 1 && count % 100 !== 11) {
+                    word = 'запис';
+                } else if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) {
+                    word = 'записи';
+                }
+                badgeEl.textContent = `${count} ${word}`;
+            }
+
+            if (history.length === 0) {
+                listEl.innerHTML = `
+                    <div class="cash-history-empty">
+                        <div style="font-size: 1.8em; margin-bottom: 8px;">🪙</div>
+                        <div>Історія перерахунків поки що порожня.</div>
+                        <div style="color: #666; font-size: 0.85em; margin-top: 4px;">
+                            Введіть кількість купюр та натисніть «💾 Зберегти стан каси в історію», щоб зафіксувати дату, час та склад купюр.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i < history.length; i++) {
+                const item = history[i];
+                const prevItem = history[i + 1];
+                const diff = internalCalculateDiff(item.total, prevItem ? prevItem.total : undefined);
+                const breakdown = internalGetDenominationBreakdown(item.counts);
+
+                const dateObj = new Date(item.timestamp);
+                const dateStr = !isNaN(dateObj.getTime())
+                    ? dateObj.toLocaleString('uk-UA', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    })
+                    : item.timestamp;
+
+                let chipsHtml = '';
+                if (breakdown.items.length === 0) {
+                    chipsHtml = '<span style="color: #666; font-size: 0.85em;">Порожня каса (0 купюр)</span>';
+                } else {
+                    chipsHtml = breakdown.items.map(b => `
+                        <span class="cash-chip">
+                            <span class="cash-chip-denom">${b.label}</span>
+                            <span class="cash-chip-qty">× ${b.count}</span>
+                            <span class="cash-chip-sub">(= ${internalFormatMoney(b.subtotal)})</span>
+                        </span>
+                    `).join('');
+                }
+
+                const totalFormatted = internalFormatMoney(item.total);
+
+                html += `
+                    <div class="cash-history-item" data-id="${item.id}">
+                        <div class="cash-history-top">
+                            <div class="cash-history-datetime">
+                                <span>📅</span>
+                                <strong>${dateStr}</strong>
+                            </div>
+                            <div class="cash-history-meta">
+                                <span class="cash-diff-tag ${diff.sign}" title="Різниця з попереднім перерахунком">
+                                    ${diff.sign === 'plus' ? '▲' : (diff.sign === 'minus' ? '▼' : '•')} ${diff.text}
+                                </span>
+                                <div class="cash-history-total">${totalFormatted}</div>
+                            </div>
+                        </div>
+
+                        ${item.note ? `<div class="cash-history-note">💬 ${escapeHtml(item.note)}</div>` : ''}
+
+                        <div class="cash-history-breakdown">
+                            ${chipsHtml}
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div style="color: #777; font-size: 0.82em;">
+                                Всього в касі: <strong style="color: #aaa;">${breakdown.totalItems}</strong> од. купюр/монет
+                            </div>
+                            <div class="cash-history-actions">
+                                <button class="btn-sm btn-sm-primary" onclick="restoreCashSnapshot('${item.id}')" title="Завантажити цей стан в калькулятор">
+                                    🔄 Завантажити
+                                </button>
+                                <button class="btn-sm btn-sm-secondary" onclick="copyCashSnapshot('${item.id}')" title="Скопіювати склад купюр у буфер">
+                                    📋 Копіювати
+                                </button>
+                                <button class="btn-sm btn-sm-danger" onclick="deleteCashSnapshot('${item.id}')" title="Видалити цей запис">
+                                    🗑
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            listEl.innerHTML = html;
+        }
+
+        function restoreCashSnapshot(id) {
+            const history = loadCashHistory();
+            const snapshot = history.find(h => h.id === id);
+            if (!snapshot) {
+                showToast('⚠️ Запис не знайдено.', 'warning', 2500);
+                return;
+            }
+
+            cashInventory = (window.CashRegister && typeof window.CashRegister.normalizeInventory === 'function')
+                ? window.CashRegister.normalizeInventory(snapshot.counts)
+                : Object.fromEntries(DENOMS.map(d => [String(denomToKopiykas(d)), Number(snapshot.counts?.[String(denomToKopiykas(d))] || 0)]));
+            renderCashInventory();
+            try {
+                saveCashInventory(cashInventory);
+            } catch (e) {}
+
+            const el = document.getElementById('cashcount');
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            const timeStr = new Date(snapshot.timestamp).toLocaleTimeString('uk-UA');
+            showToast(`🔄 Номінали від ${timeStr} завантажено в калькулятор!`, 'info', 3000);
+        }
+
+        function copyCashSnapshot(id) {
+            const history = loadCashHistory();
+            const snapshot = history.find(h => h.id === id);
+            if (!snapshot) return;
+
+            const breakdown = internalGetDenominationBreakdown(snapshot.counts);
+            const dateStr = new Date(snapshot.timestamp).toLocaleString('uk-UA');
+            const totalStr = internalFormatMoney(snapshot.total);
+
+            let lines = [
+                `💵 Перерахунок каси від ${dateStr}`,
+                `💰 Разом у касі: ${totalStr}`,
+            ];
+            if (snapshot.note) {
+                lines.push(`💬 Коментар: ${snapshot.note}`);
+            }
+            lines.push('📦 Склад купюр та монет:');
+            if (breakdown.items.length === 0) {
+                lines.push('  • Порожня каса (0 купюр)');
+            } else {
+                breakdown.items.forEach(b => {
+                    const subStr = internalFormatMoney(b.subtotal);
+                    lines.push(`  • ${b.label}: ${b.count} шт. (= ${subStr})`);
+                });
+            }
+            lines.push(`Всього купюр/монет: ${breakdown.totalItems} шт.`);
+
+            const text = lines.join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 Склад каси скопійовано у буфер!', 'info', 2500);
+            }).catch(() => {
+                showToast('⚠️ Не вдалося скопіювати.', 'warning', 2500);
+            });
+        }
+
+        function deleteCashSnapshot(id) {
+            if (!confirm('Видалити цей запис перерахунку каси?')) return;
+            let history = loadCashHistory();
+            history = history.filter(h => h.id !== id);
+            const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
+            localStorage.setItem(key, JSON.stringify(history));
+            renderCashHistory();
+            showToast('🗑 Запис видалено з історії', 'info', 2000);
+        }
+
+        function clearCashHistory() {
+            const history = loadCashHistory();
+            if (history.length === 0) return;
+            if (!confirm(`Видалити ВСЮ історію перерахунків (${history.length} зап.)? Цю дію неможливо скасувати.`)) return;
+
+            const key = (window.CashRegister && window.CashRegister.CASH_HISTORY_STORAGE_KEY) || 'cyberhelper.cashHistory.v1';
+            localStorage.removeItem(key);
+            renderCashHistory();
+            showToast('🗑 Історію перерахунків каси повністю очищено', 'info', 2500);
+        }
+
+        function exportCashHistory() {
+            const history = loadCashHistory();
+            if (history.length === 0) {
+                showToast('⚠️ Історія порожня.', 'warning', 2000);
+                return;
+            }
+
+            let text = '=== 📜 ІСТОРІЯ ПЕРЕРАХУНКІВ КАСИ ===\n\n';
+            history.forEach((snapshot, idx) => {
+                const breakdown = internalGetDenominationBreakdown(snapshot.counts);
+                const dateStr = new Date(snapshot.timestamp).toLocaleString('uk-UA');
+                const totalStr = internalFormatMoney(snapshot.total);
+
+                text += `[#${history.length - idx}] ${dateStr} — ${totalStr}\n`;
+                if (snapshot.note) text += `  Коментар: ${snapshot.note}\n`;
+                if (breakdown.items.length === 0) {
+                    text += `  Склад: 0 купюр\n`;
+                } else {
+                    const itemsStr = breakdown.items.map(b => `${b.label}×${b.count}`).join(', ');
+                    text += `  Склад: ${itemsStr} (всього ${breakdown.totalItems} шт.)\n`;
+                }
+                text += '\n';
+            });
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 Повний журнал історії каси скопійовано у буфер!', 'success', 3000);
+            }).catch(() => {
+                showToast('⚠️ Не вдалося скопіювати журнал.', 'warning', 2500);
+            });
+        }
+
+        // ─── Решта ──────────────────────────────────────────────────────
+
+        /** Читає поле з виразом, малює підсумок під ним і повертає копійки. */
+        function readExpr(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+
+            let value = null;
+            let error = null;
+            try {
+                value = ChangeCalc.parseExpression(input.value);
+            } catch (e) {
+                error = e.message;
+            }
+
+            input.classList.toggle('input-error', error !== null);
+            preview.classList.toggle('is-error', error !== null);
+            preview.textContent = error
+                ? error
+                : (value === null ? '' : `= ${ChangeCalc.formatUah(value)}`);
+
+            return { value, error };
+        }
+
+        function denomLabel(denom) {
+            return denom >= 100 ? `${denom / 100}₴` : `${denom}к`;
+        }
+
+        function renderReceivedInputs() {
+            const container = document.getElementById('received-denominations');
+            container.innerHTML = DENOMS.map(d => `
+                <button type="button" class="received-denom-tile" data-value="${d}"
+                        onclick="addReceivedDenomination(${d})"
+                        aria-label="Додати купюру ${d === 0.5 ? '50 копійок' : `${d} гривень`}">
+                    <span class="received-denom-label">${d === 0.5 ? '50к' : `${d}₴`}</span>
+                    <span class="received-denom-count" data-count-for="${d}"></span>
+                </button>
+                <input type="number" class="received-denom-input" data-value="${d}" min="0">
+            `).join('');
+        }
+
+        function updateReceivedTiles() {
+            DENOMS.forEach(d => {
+                const input = document.querySelector(`.received-denom-input[data-value="${d}"]`);
+                const tile = document.querySelector(`.received-denom-tile[data-value="${d}"]`);
+                const count = Math.max(0, parseInt(input?.value) || 0);
+                if (!tile) return;
+                tile.classList.toggle('is-selected', count > 0);
+                tile.querySelector(`[data-count-for="${d}"]`).textContent = count > 0 ? `× ${count}` : '';
+            });
+        }
+
+        function addReceivedDenomination(denom) {
+            const input = document.querySelector(`.received-denom-input[data-value="${denom}"]`);
+            if (!input) return;
+            input.value = String(Math.max(0, parseInt(input.value) || 0) + 1);
+            calcChange();
+        }
+
+        function readReceivedInventory() {
+            const received = CashRegister.emptyInventory();
+            updateReceivedTiles();
+            DENOMS.forEach(d => {
+                const input = document.querySelector(`.received-denom-input[data-value="${d}"]`);
+                const qty = Math.max(0, parseInt(input.value) || 0);
+                received[String(denomToKopiykas(d))] = qty;
+            });
+            return received;
+        }
+
+        function invalidatePendingSale() {
+            saleRevision += 1;
+            pendingSale = null;
+            const button = document.getElementById('confirm-sale');
+            if (button) {
+                button.style.display = 'none';
+                button.disabled = false;
+            }
+        }
+
+        function calcChange() {
+            const due = readExpr('change-due', 'change-due-preview');
+            const received = readReceivedInventory();
+            const paid = CashRegister.inventoryTotal(received);
+            const box = document.getElementById('change-result');
+            document.getElementById('change-paid-preview').textContent = `= ${ChangeCalc.formatUah(paid)}`;
+            invalidatePendingSale();
+
+            if (due.error || due.value === null || paid === 0) {
+                box.innerHTML = '';
+                return;
+            }
+
+            const rawChange = paid - due.value;
+            if (rawChange < 0) {
+                box.innerHTML = `
+                    <div class="cashcount-total-box change-box-short">
+                        <div class="cashcount-total-label">Не вистачає</div>
+                        <div class="cashcount-total-amount">${ChangeCalc.formatUah(-rawChange)}</div>
+                    </div>`;
+                return;
+            }
+
+            // Продаж проводиться лише за точною сумою: найменша доступна монета — 50 к.
+            const rounded = rawChange;
+            const available = CashRegister.addInventories(cashInventory, received);
+            const plan = CashRegister.makeLimitedChange(rounded, available);
+
+            if (!plan.possible) {
+                const reason = plan.reason === 'unsupported_fraction'
+                    ? 'У касі враховується найменша монета 50 коп. Таку суму точно видати неможливо.'
+                    : 'Неможливо видати точну решту наявними купюрами та монетами.';
+                box.innerHTML = `<div class="alert alert-warning">⚠️ ${reason}</div>`;
+                return;
+            }
+
+            const rows = plan.breakdown.map(r => `
+                <div class="change-denom">
+                    <span class="denom-badge">${denomLabel(r.denom)}</span>
+                    <span class="change-denom-count">× ${r.count}</span>
+                </div>`).join('');
+
+            const revision = saleRevision;
+            pendingSale = { revision, due: due.value, paid, rounded, received, breakdown: plan.breakdown };
+            const button = document.getElementById('confirm-sale');
+            button.style.display = 'block';
+
+            box.innerHTML = `
+                <div class="cashcount-total-box">
+                    <div class="cashcount-total-label">Решта</div>
+                    <div class="cashcount-total-amount">${ChangeCalc.formatUah(rounded)}</div>
+                </div>
+                ${rounded === 0 ? '<div class="change-exact">Без решти ✅</div>' : ''}
+                ${rows ? `<div class="change-breakdown">${rows}</div>` : ''}
+                `;
+        }
+
+        function confirmCashSale() {
+            const button = document.getElementById('confirm-sale');
+            if (!pendingSale || button.disabled) return;
+            button.disabled = true;
+
+            try {
+                const current = readStoredCash();
+                const available = CashRegister.addInventories(current, pendingSale.received);
+                const freshPlan = CashRegister.makeLimitedChange(pendingSale.rounded, available);
+                if (!freshPlan.possible) {
+                    throw new Error('Склад каси змінився, точну решту вже неможливо видати.');
+                }
+                const next = CashRegister.applyCashTransaction(current, pendingSale.received, freshPlan.breakdown);
+                saveCashInventory(next);
+                renderCashInventory();
+                clearChange(false);
+                document.getElementById('change-result').innerHTML =
+                    '<div class="alert alert-success">✅ Продаж підтверджено. Купюри в касі оновлено.</div>';
+            } catch (e) {
+                button.disabled = false;
+                document.getElementById('change-result').innerHTML =
+                    `<div class="alert alert-warning">⚠️ ${e.message || 'Не вдалося зберегти операцію.'}</div>`;
+            }
+        }
+
+        function clearChange(clearResult = true) {
+            const due = document.getElementById('change-due');
+            due.value = '';
+            due.classList.remove('input-error');
+            document.getElementById('change-due-preview').textContent = '';
+            document.getElementById('change-due-preview').classList.remove('is-error');
+            document.querySelectorAll('.received-denom-input').forEach(el => { el.value = ''; });
+            updateReceivedTiles();
+            document.getElementById('change-paid-preview').textContent = '= 0 ₴';
+            if (clearResult) document.getElementById('change-result').innerHTML = '';
+            invalidatePendingSale();
+        }
+
+        // ─── Shift Text Report Generator ───────────────────────────────
+
+        let selectedGenShift = 'day';
+        let lastGenReportText = '';
+
+        const DEFAULT_DAY_SLOTS = [
+            { prep: 'о', time: '9:00', count: 0 },
+            { prep: 'з', time: '13:00', count: 3 },
+            { prep: 'о', time: '14:00', count: 5 },
+            { prep: 'з', time: '17:00', count: 12 },
+            { prep: 'до', time: '21:00', count: 4 }
+        ];
+
+        const DEFAULT_NIGHT_SLOTS = [
+            { prep: 'о', time: '21:00', count: 0 },
+            { prep: 'з', time: '23:00', count: 8 },
+            { prep: 'до', time: '09:00', count: 3 }
+        ];
+
+        let timelineSlots = JSON.parse(JSON.stringify(DEFAULT_DAY_SLOTS));
+
+        function formatPrep(prep) {
+            if (!prep) return 'О';
+            const p = prep.trim();
+            if (p.toLowerCase() === 'о') return 'О';
+            if (p.toLowerCase() === 'з') return 'З';
+            if (p.toLowerCase() === 'до') return 'До';
+            return p.charAt(0).toUpperCase() + p.slice(1);
+        }
+
+        function selectGenShift(shift) {
+            selectedGenShift = shift;
+            document.querySelectorAll('#shift-gen .shift-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('gen-shift-' + shift).classList.add('selected');
+            var mainFields = document.getElementById('gen-main-fields');
+            var doorsFields = document.getElementById('gen-doors-fields');
+            if (shift === 'doors') {
+                mainFields.style.display = 'none';
+                doorsFields.style.display = 'block';
+            } else {
+                mainFields.style.display = 'block';
+                doorsFields.style.display = 'none';
+                timelineSlots = JSON.parse(JSON.stringify(shift === 'day' ? DEFAULT_DAY_SLOTS : DEFAULT_NIGHT_SLOTS));
+                renderTimelineSlots();
+            }
+         }
+
+        function computeGuestPhrase(count, index, prevCount, isNight, timeStr) {
+            const num = parseInt(count);
+            const time = (timeStr || '').trim();
+
+            if (isNight) {
+                if (index === 0 || time === '21:00') {
+                    if (isNaN(num) || num === 0) return "гостей не було";
+                    if (num >= 20) return "гостей було багато";
+                    if (num >= 8) return "гостей було помірно";
+                    return "було гостей мало";
+                }
+                if (time === '23:00' || (index === 1 && time !== '09:00')) {
+                    if (isNaN(num) || num === 0) return "гостей не було";
+                    return "залишилися люди, які на ніч";
+                }
+                if (time === '09:00' || index === 2) {
+                    if (isNaN(num) || num === 0) return "всі гості залишили приміщення";
+                    return "деякі гості залишили приміщення";
+                }
+            }
+
+            // Денна зміна
+            if (isNaN(num) || num === 0) {
+                return "гостей не було";
+            }
+            if (num >= 20) {
+                return "гостей було багато";
+            }
+            if (num >= 8) {
+                return "гостей було помірно";
+            }
+            if (num <= 3 && (index === 0 || prevCount === 0 || prevCount === undefined)) {
+                return "прийшли перші гості";
+            }
+            if (prevCount !== undefined && prevCount > num) {
+                return "гостей стало мало";
+            }
+            return "було гостей мало";
+        }
+
+        function renderTimelineSlots() {
+            const container = document.getElementById('gen-timeline-container');
+            if (!container) return;
+
+            let html = '';
+            let prevCount = undefined;
+            const isNight = selectedGenShift === 'night';
+
+            timelineSlots.forEach((slot, idx) => {
+                const autoPhrase = computeGuestPhrase(slot.count, idx, prevCount, isNight, slot.time);
+                prevCount = parseInt(slot.count) || 0;
+                const fmtP = formatPrep(slot.prep);
+
+                html += `
+                    <div class="gen-timeline-row" style="display: grid; grid-template-columns: 75px 95px 95px 1fr 36px; gap: 8px; align-items: center; background: #1A1A1C; padding: 10px; border-radius: 12px; border: 1px solid #333333; margin-bottom: 8px;">
+                        <select onchange="updateTimelineSlot(${idx}, 'prep', this.value)" style="padding: 8px; font-size: 0.9em; background: #0E0E10; color: #FFF; border: 1px solid #333; border-radius: 6px;">
+                            <option value="о" ${slot.prep.toLowerCase() === 'о' ? 'selected' : ''}>О</option>
+                            <option value="з" ${slot.prep.toLowerCase() === 'з' ? 'selected' : ''}>З</option>
+                            <option value="до" ${slot.prep.toLowerCase() === 'до' ? 'selected' : ''}>До</option>
+                        </select>
+
+                        <input type="text" value="${slot.time}" onchange="updateTimelineSlot(${idx}, 'time', this.value)" placeholder="9:00" style="padding: 8px; font-size: 0.9em; text-align: center;">
+
+                        <input type="number" value="${slot.count !== undefined && slot.count !== null ? slot.count : ''}" min="0" oninput="updateTimelineSlot(${idx}, 'count', this.value)" placeholder="людей" style="padding: 8px; font-size: 0.9em; text-align: center;">
+
+                        <div style="font-size: 0.95em; color: #FFEA00; padding: 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            ${fmtP} ${slot.time} ${autoPhrase}
+                        </div>
+
+                        <button type="button" class="btn-delete" onclick="removeTimelineSlot(${idx})" title="Видалити точку" style="padding: 6px; text-align: center;">✕</button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function updateTimelineSlot(idx, key, val) {
+            if (!timelineSlots[idx]) return;
+            if (key === 'count') {
+                timelineSlots[idx].count = val === '' ? '' : Math.max(0, parseInt(val) || 0);
+            } else {
+                timelineSlots[idx][key] = val;
+            }
+            renderTimelineSlots();
+        }
+
+        function addTimelineSlot() {
+            const lastSlot = timelineSlots[timelineSlots.length - 1];
+            const newPrep = lastSlot ? 'з' : 'о';
+            const newTime = '12:00';
+            timelineSlots.push({ prep: newPrep, time: newTime, count: 0 });
+            renderTimelineSlots();
+        }
+
+        function removeTimelineSlot(idx) {
+            if (timelineSlots.length <= 1) return;
+            timelineSlots.splice(idx, 1);
+            renderTimelineSlots();
+        }
+
+        function resetGenForm() {
+            document.getElementById('gen-tech').value = '';
+            document.getElementById('gen-other').value = '';
+            document.getElementById('gen-feedback').value = '';
+            var nsi = document.getElementById('gen-nightstay');
+            if (nsi) nsi.value = '';
+            timelineSlots = JSON.parse(JSON.stringify(selectedGenShift === 'day' ? DEFAULT_DAY_SLOTS : DEFAULT_NIGHT_SLOTS));
+            renderTimelineSlots();
+            document.getElementById('gen-result-container').innerHTML = '';
+            lastGenReportText = '';
+        }
+
+        function generateTextReport() {
+            const lines = [];
+
+            if (selectedGenShift === 'doors') {
+                var nightstayCount = parseInt(document.getElementById('gen-nightstay').value) || 0;
+                lines.push('23:00');
+                lines.push('Двері зачинені.\nКількість нічників: ' + nightstayCount);
+            } else {
+                const tech = document.getElementById('gen-tech').value.trim() || 'відсутні';
+                const other = document.getElementById('gen-other').value.trim() || 'відсутні';
+                const feedback = document.getElementById('gen-feedback').value.trim() || 'немає';
+                const isNight = selectedGenShift === 'night';
+
+                lines.push(`Технічні проблеми: ${tech}`);
+                lines.push(`Інші проблеми: ${other}`);
+
+                let prevCount = undefined;
+                timelineSlots.forEach((slot, idx) => {
+                    const fmtP = formatPrep(slot.prep || 'о');
+                    const time = slot.time || '00:00';
+                    const phrase = computeGuestPhrase(slot.count, idx, prevCount, isNight, slot.time);
+                    prevCount = parseInt(slot.count) || 0;
+                    lines.push(`${fmtP} ${time} ${phrase}`);
+                });
+
+                lines.push(`Відгуки та побажання: ${feedback}`);
+            }
+
+            lastGenReportText = lines.join('\n\n');
+
+            showToast('✅ Звіт згенеровано!', 'success', 3000);
+
+            const resultDiv = document.getElementById('gen-result-container');
+            resultDiv.innerHTML = `
+                <div style="background: #141416; border: 1px solid #333333; border-left: 4px solid #FFEA00; border-radius: 12px; padding: 20px; font-family: monospace, 'Courier New'; white-space: pre-wrap; font-size: 1.05em; line-height: 1.6; color: #FFFFFF;">${lastGenReportText}</div>
+                <button type="button" class="btn" onclick="copyGenReport(this)" style="margin-top: 15px; width: 100%;">
+                    📋 Скопіювати результат
+                </button>
+            `;
+        }
+
+        async function copyGenReport(btn) {
+            if (!lastGenReportText) return;
+            try {
+                await navigator.clipboard.writeText(lastGenReportText);
+                showToast('📋 Скопійовано у буфер!', 'info', 2500);
+                btn.textContent = '✅ Скопійовано!';
+                setTimeout(() => { btn.textContent = '📋 Скопіювати результат'; }, 2000);
+            } catch (e) {
+                const ta = document.createElement('textarea');
+                ta.value = lastGenReportText;
+                ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('📋 Скопійовано у буфер!', 'info', 2500);
+                btn.textContent = '✅ Скопійовано!';
+                setTimeout(() => { btn.textContent = '📋 Скопіювати результат'; }, 2000);
+            }
+        }
+
+        // ─── Interactive Background ────────────────────────────────────
+
+        function initInteractiveBackground() {
+            const canvas = document.getElementById('bg-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            let width = 0, height = 0;
+            let particles = [];
+            const mouse = { x: null, y: null, radius: 160 };
+            const LINK_DIST = 110;
+            const colors = ['#FFEA00', '#00D9FF', '#FFFFFF', '#FFEA00'];
+
+            function initParticles() {
+                particles = [];
+                const count = Math.floor((width * height) / 15000);
+
+                for (let i = 0; i < Math.min(Math.max(count, 35), 90); i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 0.7,
+                        vy: (Math.random() - 0.5) * 0.7,
+                        radius: Math.random() * 1.8 + 1,
+                        color: colors[Math.floor(Math.random() * colors.length)]
+                    });
+                }
+            }
+
+            let resizeTimer;
+            function resize() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    const w = window.innerWidth;
+                    const h = window.innerHeight;
+                    if (w === width && h === height) return;
+                    width = w;
+                    height = h;
+                    canvas.width = width * dpr;
+                    canvas.height = height * dpr;
+                    canvas.style.width = width + 'px';
+                    canvas.style.height = height + 'px';
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    initParticles();
+                }, 150);
+            }
+
+            function pointerMove(x, y) {
+                mouse.x = x;
+                mouse.y = y;
+            }
+            function pointerLeave() {
+                mouse.x = null;
+                mouse.y = null;
+            }
+
+            window.addEventListener('resize', resize);
+            window.addEventListener('mousemove', (e) => pointerMove(e.clientX, e.clientY), { passive: true });
+            document.addEventListener('mouseleave', pointerLeave);
+            window.addEventListener('blur', pointerLeave);
+            window.addEventListener('touchstart', (e) => pointerMove(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+            window.addEventListener('touchmove', (e) => pointerMove(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+            window.addEventListener('touchend', pointerLeave, { passive: true });
+
+            let lastFrame = performance.now();
+
+            function animate(now) {
+                const dt = Math.min((now - lastFrame) / 16.67, 3);
+                lastFrame = now;
+                ctx.clearRect(0, 0, width, height);
+
+                // Draw inter-particle lines
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < LINK_DIST) {
+                            const alpha = (1 - dist / LINK_DIST) * 0.16;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(255, 234, 0, ${alpha})`;
+                            ctx.lineWidth = 0.6;
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                // Update & draw particles + pointer interaction
+                for (const p of particles) {
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+
+                    if (p.x < 0) p.x = width;
+                    if (p.x > width) p.x = 0;
+                    if (p.y < 0) p.y = height;
+                    if (p.y > height) p.y = 0;
+
+                    if (mouse.x !== null && mouse.y !== null) {
+                        const mdx = p.x - mouse.x;
+                        const mdy = p.y - mouse.y;
+                        const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+
+                        if (mdist < mouse.radius && mdist > 0.001) {
+                            const force = 1 - mdist / mouse.radius;
+                            p.x += (mdx / mdist) * force * 2.2;
+                            p.y += (mdy / mdist) * force * 2.2;
+                        }
+                    }
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = p.color;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            // initial sizing without debounce
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            initParticles();
+            requestAnimationFrame((t) => { lastFrame = t; animate(t); });
+        }
+
+        // ─── Init ───────────────────────────────────────────────────────
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initInteractiveBackground();
+            loadExpectedCash();
+            renderTimelineSlots();
+            const waitForModules = setInterval(() => {
+                if (!window.ChangeCalc || !window.CashRegister) return;
+                clearInterval(waitForModules);
+                cashInventory = readStoredCash();
+                renderCashInventory();
+                renderCashHistory();
+                renderReceivedInputs();
+                const stored = localStorage.getItem(CASH_STORAGE_KEY);
+                document.getElementById('cash-storage-status').textContent = stored
+                    ? 'Каса відновлена з локальної пам\'яті цього браузера.'
+                    : 'Каса ще не збережена в цьому браузері.';
+            }, 10);
+        });
+    </script>
+</body>
+</html>
