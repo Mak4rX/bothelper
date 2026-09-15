@@ -1813,7 +1813,15 @@
 
         function getStoredReports() {
             try {
-                return JSON.parse(localStorage.getItem(REPORTS_BACKUP_KEY) || '[]');
+                let list = JSON.parse(localStorage.getItem(REPORTS_BACKUP_KEY) || '[]');
+                const filtered = list.filter(r => 
+                    !r.report_text?.includes("Зміна без пригод") && 
+                    r.note !== "Зміна без пригод"
+                );
+                if (filtered.length !== list.length) {
+                    localStorage.setItem(REPORTS_BACKUP_KEY, JSON.stringify(filtered));
+                }
+                return filtered;
             } catch (e) {
                 return [];
             }
@@ -1856,6 +1864,7 @@
 
         function saveReportDraft() {
             try {
+                const noteVal = document.getElementById('report-note')?.value || '';
                 const draft = {
                     shift: selectedShift,
                     open_cash: document.getElementById('open_cash')?.value || '',
@@ -1863,7 +1872,7 @@
                     expenses: document.getElementById('expenses')?.value || '',
                     collection: document.getElementById('report-collection')?.value || '',
                     senet: document.getElementById('senet')?.value || '',
-                    note: document.getElementById('report-note')?.value || '',
+                    note: noteVal.includes("Зміна без пригод") ? "" : noteVal,
                 };
                 localStorage.setItem(REPORT_DRAFT_KEY, JSON.stringify(draft));
             } catch (e) {}
@@ -1874,6 +1883,10 @@
                 const raw = localStorage.getItem(REPORT_DRAFT_KEY);
                 if (!raw) return false;
                 const draft = JSON.parse(raw);
+                if (draft.note && draft.note.includes("Зміна без пригод")) {
+                    draft.note = "";
+                    localStorage.setItem(REPORT_DRAFT_KEY, JSON.stringify(draft));
+                }
                 if (draft.shift && ['day', 'night'].includes(draft.shift)) {
                     selectedShift = draft.shift;
                     document.querySelectorAll('.shift-btn').forEach(b => b.classList.remove('selected'));
