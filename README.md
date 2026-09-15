@@ -1,93 +1,235 @@
-# bothelper
+# 🤖 BotHelper — бот-помічник для киберклубу
 
+Telegram-бот на **aiogram 3** + веб-інтерфейс на **FastAPI**, який генерує звіт «Закриття зміни», рахує
+кінцеву касу та надлишок/недостачу, зберігає історію звітів і показує
+статистику.
 
+## Функції
 
-## Getting started
+Бот керується **кнопками внизу екрана** (slash-команди теж працюють):
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+| Кнопка | Команда | Що робить |
+|---|---|---|
+| 📋 Закриття зміни | `/report` | Покрокове створення звіту |
+| 💰 Інкасація | `/collect` | Записати забрані з каси гроші |
+| 🕓 Історія | `/history` | Останні 5 звітів |
+| 📊 Статистика | `/stats` | Заробіток, витрати, надлишок за 7 і 30 днів |
+| ❌ Скасувати | `/cancel` | Скасувати поточне введення |
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### Як працює «📋 Закриття зміни»
 
-## Add your files
-
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+1. Обираєш зміну кнопкою: ☀️ Денна або 🌙 Нічна.
+2. **Автопідстановка каси**: якщо вже був звіт, бот пропонує початкову
+   касу з кінцевої каси минулої зміни — підтверджуєш кнопкою ✅ або
+   вводиш вручну. Якщо сума відрізняється — бот покаже розбіжність:
+   *«⚠️ Розбіжність з минулою зміною: −66 грн»*.
+3. Вводиш зароблено за зміну.
+4. Вводиш торгівельні витрати (або 0).
+5. Якщо є неврахована **інкасація** — бот сам додасть її рядком у звіт
+   і відніме з кінцевої каси.
+6. Бот показує, скільки **має бути** у касі, і питає, скільки ти нарахував у сенеті.
+7. Бот сам рахує кінцеву касу та надлишок/недостачу і видає готовий звіт:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/akkp4777/bothelper.git
-git branch -M main
-git push -uf origin main
+Закриття зміни.
+Каса готівки вечері: 7 791
+Зароблено за ніч готівки: 886
+Торгівельні витрати: 0
+Каса готівки зранку: 8 677
+3 грн надлишку.
 ```
 
-## Integrate with your tools
+Формули:
+- **Кінцева каса** = початкова + зароблено − витрати − інкасація
+- **Надлишок** = сенет − кінцева каса (плюс = надлишок, мінус = недостача)
 
-* [Set up project integrations](https://gitlab.com/akkp4777/bothelper/-/settings/integrations)
+### 💰 Інкасація
 
-## Collaborate with your team
+1. Натискаєш «💰 Інкасація», вводиш суму і необов'ковий коментар
+   (наприклад «забрав власник»).
+2. Запис чекає наступного звіту — у «Закритті зміни» вона з'явиться
+   окремим рядком і відніметься з кінцевої каси.
+3. Після звіту інкасація вважається врахованою і повторно не підтягується.
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+## Веб-інтерфейс: вкладки
 
-## Test and Deploy
+| Вкладка | Що робить |
+|---|---|
+| 💼 Управління касою | Закриття зміни, інкасація, історія, статистика |
+| 🧮 Калькулятор годин | Сума ↔ години за тарифами зон (`pricing.py`) |
+| 💵 Рахунок каси | Підрахунок готівки по номіналах |
+| 💱 Решта | Скільки здачі дати клієнту і якими купюрами |
 
-Use the built-in continuous integration in GitLab.
+### 💱 Решта
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+Два поля, обидва приймають арифметичний вираз:
 
-***
+- **До сплати** — `50+100`, `3*70` (три години по 70), `2*80+50`, дужки.
+- **Дали готівкою** — теж вираз, якщо клієнт дав кілька купюр: `200+50`.
 
-# Editing this README
+Під кожним полем одразу видно підсумок, результат перераховується на кожен
+символ — кнопки «порахувати» немає.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+| Ситуація | Що показує |
+|---|---|
+| Дали більше | `Решта: 290 ₴` і розбивку `200₴ × 1 · 50₴ × 1 · 20₴ × 2` |
+| Дали менше | `Не вистачає 10 ₴` |
+| Рівно | `Без решти ✅` |
+| Хибний вираз | Підсвічує поле і показує, що не так |
 
-## Suggestions for a good README
+Особливості:
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+- Рахує **цілими копійками**, не у float — `0.1 + 0.2` у float дає
+  `0.30000000000000004`, а це каса.
+- Розбивка дає **мінімальну кількість купюр** (перевірено перебором у тестах).
+- Продаж підтверджується лише тоді, коли решту можна видати **точно**.
+  Найменша монета, що відстежується в локальній касі, — 50 копійок.
+- Вираз розбирає власний парсер, **без `eval()`**.
 
-## Name
-Choose a self-explaining name for your project.
+Уся логіка — у `webapp/static/change.js` та `webapp/static/cash-register.js`,
+бекенд не задіяний: розрахунок миттєвий і працює навіть при поганому звʼязку.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### Локальна памʼять каси
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+У вкладці «💵 Рахунок каси» кількість купюр і монет автоматично зберігається
+в `localStorage` поточного браузера. Дані не синхронізуються між різними
+телефонами чи компʼютерами.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+У вкладці «💱 Решта» касир вказує, якими купюрами заплатив клієнт. Система
+рахує точну решту лише з реально наявних у касі номіналів. Після натискання
+«Підтвердити продаж» отримані купюри додаються до каси, а видана решта
+списується. Якщо точну решту видати неможливо, каса не змінюється.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Встановлення
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### 1. Telegram-бот
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+1. Створи бота у [@BotFather](https://t.me/BotFather) і скопіюй токен.
+2. Дізнайся свій Telegram ID через [@userinfobot](https://t.me/userinfobot).
+3. Скопіюй `.env.example` у `.env` і заповни:
+   ```
+   BOT_TOKEN=твій_токен
+   ALLOWED_IDS=твій_id   # можна кілька через кому
+   ```
+4. Встанови залежності:
+   ```bash
+   py -3 -m pip install -r requirements.txt
+   ```
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### 2. Веб-інтерфейс (опціонально)
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+1. Встанови додаткові залежності:
+   ```bash
+   py -3 -m pip install -r requirements-web.txt
+   ```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## Запуск
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Telegram-бот
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```bash
+py -3 bot.py
+```
 
-## License
-For open source projects, say how it is licensed.
+Бот працює на long polling — достатньо запущеного Python на будь-якому ПК.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### Веб-інтерфейс
+
+```bash
+py -3 webapp/main.py
+```
+
+Або через uvicorn:
+```bash
+uvicorn webapp.main:app --host 0.0.0.0 --port 8000
+```
+
+Веб-інтерфейс буде доступний за адресою: http://localhost:8000
+
+**Важливо:** Бот і веб-інтерфейс використовують одну базу даних, але розділені по `user_id`:
+- Telegram-бот: використовує реальний Telegram ID користувача
+- Веб-інтерфейс: використовує фіксований `user_id = 0`
+
+Це означає, що дані з бота і веб-інтерфейсу **не перетинаються**. Якщо потрібна синхронізація, використовуй або тільки бота, або тільки веб.
+
+## Структура
+
+| Файл | Призначення |
+|---|---|
+| `bot.py` | Telegram-бот: хендлери, FSM-діалог, запуск |
+| `webapp/main.py` | FastAPI веб-додаток: REST API, веб-інтерфейс |
+| `webapp/static/index.html` | Веб-інтерфейс (HTML + CSS + JavaScript) |
+| `webapp/static/change.js` | Калькулятор решти: парсер виразу і розмін на купюри |
+| `tests/change.test.mjs` | Тести калькулятора решти (`node --test`) |
+| `tests/e2e_change.py` | E2E-перевірка вкладки «Решта» у браузері (Playwright) |
+| `shifts.py` | Схеми змін (денна/нічна), формули, формат звіту |
+| `db.py` | SQLite для Telegram-бота (з user_id) |
+| `db_web.py` | SQLite для веб-додатку (фіксований user_id=0) |
+| `config.py` | Токен і whitelist з `.env` |
+| `bothelper.db` | База даних SQLite (створюється автоматично) |
+| `requirements.txt` | Залежності для Telegram-бота |
+| `requirements-web.txt` | Додаткові залежності для веб-інтерфейсу |
+
+## API ендпоінти
+
+### Звіти
+- `GET /api/expected-cash` — очікувана сума в касі
+- `GET /api/pending-collection` — неврахована інкасація
+- `POST /api/reports` — створити звіт про закриття зміни
+- `GET /api/reports?limit=20` — отримати останні звіти
+
+### Інкасації
+- `POST /api/collections` — записати інкасацію
+- `GET /api/collections?limit=10` — останні інкасації
+
+### Статистика
+- `GET /api/stats?days=7` — статистика за N днів
+
+### Документація API
+Swagger UI доступний за адресою: http://localhost:8000/docs
+
+## Тести
+
+Юніт-тести калькулятора решти (потрібен лише Node, без залежностей):
+
+```bash
+node --test "tests/*.test.mjs"
+```
+
+E2E-перевірка вкладки в справжньому браузері — спершу підніми веб-інтерфейс,
+потім:
+
+```bash
+py -3 -m pip install playwright && playwright install chromium
+py -3 tests/e2e_change.py http://127.0.0.1:8000
+```
+
+## Безпека
+
+**Для продакшн-середовища рекомендується:**
+
+1. **Обмежити CORS:** у `webapp/main.py` замінити `allow_origins=["*"]` на конкретні домени
+2. **Додати аутентифікацію:** JWT tokens або API keys для веб-інтерфейсу
+3. **Використати HTTPS:** через reverse proxy (nginx, caddy)
+4. **Rate limiting:** обмежити кількість запитів
+5. **Backup бази даних:** регулярне резервне копіювання `bothelper.db`
+
+## Troubleshooting
+
+### Бот не відповідає
+- Перевір токен у `.env`
+- Перевір `ALLOWED_IDS` — твій ID має бути в списку
+- Подивись логи в консолі
+
+### Веб-інтерфейс не завантажується
+- Перевір, чи встановлені залежності з `requirements-web.txt`
+- Перевір, чи порт 8000 не зайнятий іншою програмою
+- Подивись логи uvicorn
+
+### База даних не створюється
+- Перевір права доступу до папки
+- Перевір, чи не відкрита база в іншій програмі
+
+## Ліцензія
+
+MIT — вільне використання, модифікація та поширення.

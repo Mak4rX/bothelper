@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: bothelper-web
+    env: python
+    buildCommand: pip install -r requirements-deploy.txt
+    startCommand: uvicorn webapp.main:app --host 0.0.0.0 --port $PORT
+    plan: free
