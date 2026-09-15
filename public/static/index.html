@@ -1742,6 +1742,7 @@
             selectedShift = shift;
             document.querySelectorAll('.shift-btn').forEach(b => b.classList.remove('selected'));
             document.getElementById('shift-' + shift).classList.add('selected');
+            if (typeof saveReportDraft === 'function') saveReportDraft();
         }
 
         function selectMode(mode) {
@@ -1804,32 +1805,147 @@
             }
         }
 
+        // ─── Local Storage Backup System (Кеш для підстраховки) ─────────
+        const REPORTS_BACKUP_KEY  = 'cyberhelper.reportsBackup.v1';
+        const LAST_CLOSE_CASH_KEY = 'cyberhelper.lastCloseCash.v1';
+        const REPORT_DRAFT_KEY    = 'cyberhelper.reportDraft.v1';
+        const ZONES_CACHE_KEY     = 'cyberhelper.zonesCache.v1';
+
+        function getStoredReports() {
+            try {
+                return JSON.parse(localStorage.getItem(REPORTS_BACKUP_KEY) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveReportToStorage(report) {
+            try {
+                if (!report) return;
+                const list = getStoredReports();
+                const existsIndex = list.findIndex(r => 
+                    (report.id && r.id === report.id) || 
+                    (r.created_at === report.created_at && r.report_text === report.report_text)
+                );
+                if (existsIndex >= 0) {
+                    list[existsIndex] = { ...list[existsIndex], ...report };
+                } else {
+                    list.unshift(report);
+                }
+                localStorage.setItem(REPORTS_BACKUP_KEY, JSON.stringify(list.slice(0, 100)));
+                if (report.close_cash !== undefined && report.close_cash !== null) {
+                    localStorage.setItem(LAST_CLOSE_CASH_KEY, String(report.close_cash));
+                }
+            } catch (e) {
+                console.warn('Помилка запису звіту у кеш:', e);
+            }
+        }
+
+        function removeReportFromStorage(id) {
+            try {
+                let list = getStoredReports();
+                list = list.filter(r => r.id !== id);
+                localStorage.setItem(REPORTS_BACKUP_KEY, JSON.stringify(list));
+                if (list.length > 0 && list[0].close_cash !== undefined) {
+                    localStorage.setItem(LAST_CLOSE_CASH_KEY, String(list[0].close_cash));
+                } else {
+                    localStorage.removeItem(LAST_CLOSE_CASH_KEY);
+                }
+            } catch (e) {}
+        }
+
+        function saveReportDraft() {
+            try {
+                const draft = {
+                    shift: selectedShift,
+                    open_cash: document.getElementById('open_cash')?.value || '',
+                    close_cash: document.getElementById('close_cash')?.value || '',
+                    expenses: document.getElementById('expenses')?.value || '',
+                    collection: document.getElementById('report-collection')?.value || '',
+                    senet: document.getElementById('senet')?.value || '',
+                    note: document.getElementById('report-note')?.value || '',
+                };
+                localStorage.setItem(REPORT_DRAFT_KEY, JSON.stringify(draft));
+            } catch (e) {}
+        }
+
+        function restoreReportDraft() {
+            try {
+                const raw = localStorage.getItem(REPORT_DRAFT_KEY);
+                if (!raw) return false;
+                const draft = JSON.parse(raw);
+                if (draft.shift && ['day', 'night'].includes(draft.shift)) {
+                    selectedShift = draft.shift;
+                    document.querySelectorAll('.shift-btn').forEach(b => b.classList.remove('selected'));
+                    document.getElementById('shift-' + draft.shift)?.classList.add('selected');
+                }
+                if (draft.open_cash) document.getElementById('open_cash').value = draft.open_cash;
+                if (draft.close_cash) document.getElementById('close_cash').value = draft.close_cash;
+                if (draft.expenses) document.getElementById('expenses').value = draft.expenses;
+                if (draft.collection) document.getElementById('report-collection').value = draft.collection;
+                if (draft.senet) document.getElementById('senet').value = draft.senet;
+                if (draft.note) document.getElementById('report-note').value = draft.note;
+                updateExpectedTotal();
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function clearReportDraft() {
+            try {
+                localStorage.removeItem(REPORT_DRAFT_KEY);
+            } catch (e) {}
+        }
+
         async function loadExpectedCash() {
-            const cashRes = await fetch('/api/expected-cash').then(r => r.json()).catch(() => null);
+            let val = null;
+            let fromCache = false;
+
+            try {
+                const cashRes = await fetch('/api/expected-cash').then(r => r.json()).catch(() => null);
+                if (cashRes && cashRes.expected_cash !== null && cashRes.expected_cash !== undefined) {
+                    val = cashRes.expected_cash;
+                    localStorage.setItem(LAST_CLOSE_CASH_KEY, String(val));
+                }
+            } catch (e) {}
+
+            // Підстраховка: якщо сервер повернув null або офлайн, беремо останню касу з кешу
+            if (val === null) {
+                const cached = localStorage.getItem(LAST_CLOSE_CASH_KEY);
+                if (cached !== null && cached !== '') {
+                    val = parseFloat(cached);
+                    fromCache = true;
+                } else {
+                    const reports = getStoredReports();
+                    if (reports.length > 0 && reports[0].close_cash !== undefined) {
+                        val = reports[0].close_cash;
+                        fromCache = true;
+                    }
+                }
+            }
 
             const cashAlert = document.getElementById('expectedCashAlert');
             const pendingAlert = document.getElementById('pendingCollectionAlert');
 
-            if (cashRes && cashRes.expected_cash !== null) {
-                const val = cashRes.expected_cash;
-                document.getElementById('open_cash').value = val;
-                cashAlert.innerHTML = `<div class="alert alert-info">💡 За попереднім звітом у касі має бути <strong>${fmtMoney(val)} грн</strong></div>`;
+            if (val !== null && !isNaN(val)) {
+                if (!document.getElementById('open_cash').value) {
+                    document.getElementById('open_cash').value = val;
+                }
+                cashAlert.innerHTML = `<div class="alert alert-info">💡 За попереднім звітом у касі має бути <strong>${fmtMoney(val)} грн</strong> ${fromCache ? '<span style="font-size:0.85em; opacity:0.85; margin-left:6px;">(збережено в локальній пам\'яті)</span>' : ''}</div>`;
             } else {
                 cashAlert.innerHTML = '';
             }
 
-            // Інкасацію не підставляємо автоматично — касир вводить її сам, коли треба
             const collectionInput = document.getElementById('report-collection');
             const collectionDetails = document.getElementById('report-collection-details');
-            collectionInput.value = '0';
+            if (!collectionInput.value) collectionInput.value = '0';
             collectionDetails.textContent = 'Якщо гроші забирали з каси — введіть суму тут.';
             pendingAlert.innerHTML = '';
             updateExpectedTotal();
         }
 
         // Жива підказка біля «Нараховано у сенеті»: скільки має заробити зміна.
-        // Сенет показує касу ЗА ЗМІНУ (без залишку зранку) — часта плутанина,
-        // коли касир вводить баланс разом із початковою касою і отримує «недостачу».
         function updateExpectedTotal() {
             const hint = document.getElementById('expectedTotal');
             if (!hint) return;
@@ -1845,7 +1961,6 @@
             const senet  = parseMoney(document.getElementById('senet').value);
 
             let html = `ℹ️ Розраховане зароблено за зміну: <strong>${fmtMoney(earned)} грн</strong> — стільки має бути у сенеті.`;
-            // Недостача, рівна касі зранку, = ввели баланс каси разом із залишком
             if (senet !== null && open > 0 && Math.abs((senet - earned) - open) < 0.005) {
                 html += `<br>⚠️ Схоже, введено касу сенету разом із залишком зранку (${fmtMoney(open)} грн). ` +
                         `Відніми касу зранку — тоді надлишок/недостача порахуються правильно.`;
@@ -1854,7 +1969,6 @@
         }
 
         async function generateReport() {
-            // Гроші читаємо в гривнях (можна цілі або з копійками: 11142.50 чи 11142,50)
             const open_cash  = parseMoney(document.getElementById('open_cash').value) ?? 0;
             const close_cash = parseMoney(document.getElementById('close_cash').value);
             const expenses   = parseMoney(document.getElementById('expenses').value) ?? 0;
@@ -1869,121 +1983,195 @@
                 return;
             }
 
+            let reportData = null;
+            let isOfflineFallback = false;
+
             try {
                 const response = await fetch('/api/reports', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ shift: selectedShift, open_cash, close_cash, expenses, collection, senet, note })
                 });
-                const data = await response.json();
-
                 if (response.ok) {
-                    lastReportText = data.report_text;
-                    showToast('✅ Звіт успішно створено!', 'success', 3500);
-                    resultDiv.innerHTML = `
-                        <div class="report-preview">${data.report_text}</div>
-                        <button class="btn btn-copy" onclick="copyReport(this)" style="margin-top: 15px; width: 100%;">
-                            📋 Скопіювати звіт
-                        </button>
-                    `;
-                    // очищаємо поля після успіху
-                    document.getElementById('close_cash').value = '';
-                    document.getElementById('expenses').value = '0';
-                    document.getElementById('report-collection').value = '0';
-                    document.getElementById('senet').value = '';
-                    document.getElementById('report-note').value = '';
-                    updateExpectedTotal();
-                    loadExpectedCash();
-                } else {
-                    resultDiv.innerHTML = `<div class="alert alert-warning">Помилка: ${data.detail || 'невідома'}</div>`;
+                    reportData = await response.json();
                 }
-            } catch (e) {
-                resultDiv.innerHTML = '<div class="alert alert-warning">Помилка з\'єднання з сервером</div>';
+            } catch (e) {}
+
+            // Якщо сервер офлайн або повернув помилку — рахуємо та зберігаємо звіт локально
+            if (!reportData) {
+                const earned = close_cash - open_cash + expenses + collection;
+                const surplus = senet - earned;
+                const surplusStr = surplus === 0 ? '0 грн надлишку/недостачі.' :
+                                   surplus > 0 ? `${fmtMoney(surplus)} грн надлишку.` :
+                                   `${fmtMoney(Math.abs(surplus))} грн недостачі.`;
+
+                const shiftTitle = selectedShift === 'day' ? 'Денна' : 'Нічна';
+                const now = new Date();
+                const nowStr = now.toLocaleDateString('uk-UA') + ' ' + now.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'});
+
+                let text = `Закриття зміни (${shiftTitle}).\n` +
+                           `Каса готівки вечері: ${fmtMoney(open_cash)}\n` +
+                           `Зароблено готівки: ${fmtMoney(earned)}\n`;
+                if (expenses > 0) text += `Торгівельні витрати: ${fmtMoney(expenses)}\n`;
+                if (collection > 0) text += `Інкасація: ${fmtMoney(collection)}\n`;
+                text += `Каса готівки зранку: ${fmtMoney(close_cash)}\n${surplusStr}`;
+                if (note) text += `\n${note}`;
+
+                reportData = {
+                    id: Date.now(),
+                    shift: selectedShift,
+                    open_cash,
+                    close_cash,
+                    earned,
+                    expenses,
+                    senet,
+                    surplus,
+                    report_text: text,
+                    created_at: nowStr,
+                    collection_amount: collection > 0 ? collection : null
+                };
+                isOfflineFallback = true;
+            }
+
+            if (reportData) {
+                lastReportText = reportData.report_text;
+                // Зберігаємо в кеш для надійної підстраховки
+                saveReportToStorage(reportData);
+                clearReportDraft();
+
+                const toastMsg = isOfflineFallback 
+                    ? '💾 Звіт створено та збережено в кеш браузера!' 
+                    : '✅ Звіт успішно створено та зафіксовано!';
+                showToast(toastMsg, 'success', 3500);
+
+                resultDiv.innerHTML = `
+                    <div class="report-preview">${reportData.report_text}</div>
+                    <button class="btn btn-copy" onclick="copyReport(this)" style="margin-top: 15px; width: 100%;">
+                        📋 Скопіювати звіт
+                    </button>
+                `;
+
+                // Очищаємо поля після успіху
+                document.getElementById('close_cash').value = '';
+                document.getElementById('expenses').value = '0';
+                document.getElementById('report-collection').value = '0';
+                document.getElementById('senet').value = '';
+                document.getElementById('report-note').value = '';
+                updateExpectedTotal();
+                loadExpectedCash();
+            } else {
+                resultDiv.innerHTML = '<div class="alert alert-warning">Не вдалося створити звіт</div>';
             }
         }
 
         // ─── History ────────────────────────────────────────────────────
 
         async function loadHistory() {
-            const period  = document.getElementById('history-period').value;
+            const period  = parseInt(document.getElementById('history-period').value) || 7;
             const listDiv = document.getElementById('history-list');
             listDiv.innerHTML = '<div class="loading">Завантаження...</div>';
 
+            let serverRows = [];
             try {
-                const rows = await fetch(`/api/reports?limit=${period}`).then(r => r.json());
-
-                if (rows.length > 0) {
-                    listDiv.innerHTML = rows.map(r => `
-                        <div class="report-item">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                                <div class="date">${r.shift === 'day' ? '☀️ Денна' : '🌙 Нічна'} — ${r.created_at}</div>
-                                <button class="btn-delete" onclick="deleteReport(${r.id})" title="Видалити звіт">🗑 Видалити</button>
-                            </div>
-                            <div class="content">${r.report_text}</div>
-                        </div>
-                    `).join('');
-                } else {
-                    listDiv.innerHTML = '<div class="alert alert-info">Звітів ще немає</div>';
+                const res = await fetch(`/api/reports?limit=${period}`);
+                if (res.ok) {
+                    serverRows = await res.json();
+                    if (Array.isArray(serverRows)) {
+                        serverRows.forEach(r => saveReportToStorage(r));
+                    }
                 }
-            } catch (e) {
-                listDiv.innerHTML = '<div class="alert alert-warning">Помилка завантаження</div>';
+            } catch (e) {}
+
+            const storedRows = getStoredReports();
+            let displayRows = (serverRows && serverRows.length > 0) ? serverRows : storedRows.slice(0, period);
+            const fromCacheOnly = (!serverRows || serverRows.length === 0) && storedRows.length > 0;
+
+            if (displayRows && displayRows.length > 0) {
+                const cacheBadge = fromCacheOnly 
+                    ? '<div class="alert alert-info" style="margin-bottom:12px">💾 Звіти відображаються з локальної пам\'яті браузера</div>' 
+                    : '';
+                listDiv.innerHTML = cacheBadge + displayRows.map(r => `
+                    <div class="report-item">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <div class="date">${r.shift === 'day' ? '☀️ Денна' : '🌙 Нічна'} — ${r.created_at || 'раніше'}</div>
+                            <button class="btn-delete" onclick="deleteReport(${r.id})" title="Видалити звіт">🗑 Видалити</button>
+                        </div>
+                        <div class="content">${r.report_text}</div>
+                    </div>
+                `).join('');
+            } else {
+                listDiv.innerHTML = '<div class="alert alert-info">Звітів ще немає</div>';
             }
         }
 
         async function deleteReport(id) {
-            if (!confirm('Видалити цей звіт? Пов\'язана інкасація стане неврахованою.')) return;
+            if (!confirm('Видалити цей звіт?')) return;
+            removeReportFromStorage(id);
             try {
-                const res = await fetch(`/api/reports/${id}`, { method: 'DELETE' });
-                if (res.ok) {
-                    loadHistory();
-                    loadExpectedCash(); // оновити підказку каси
-                } else {
-                    const data = await res.json();
-                    alert('Помилка: ' + (data.detail || 'невідома'));
-                }
-            } catch (e) {
-                alert('Помилка з\'єднання');
-            }
+                await fetch(`/api/reports/${id}`, { method: 'DELETE' });
+            } catch (e) {}
+            loadHistory();
+            loadExpectedCash();
+            showToast('🗑 Звіт видалено', 'info', 2000);
         }
 
         // ─── Stats ──────────────────────────────────────────────────────
 
         async function loadStats() {
-            const days       = document.getElementById('stats-period').value;
+            const days       = parseInt(document.getElementById('stats-period').value) || 7;
             const contentDiv = document.getElementById('stats-content');
             contentDiv.innerHTML = '<div class="loading">Завантаження...</div>';
 
+            let data = null;
             try {
-                const data = await fetch(`/api/stats?days=${days}`).then(r => r.json());
+                const res = await fetch(`/api/stats?days=${days}`);
+                if (res.ok) {
+                    data = await res.json();
+                }
+            } catch (e) {}
 
-                if (data.cnt > 0) {
-                    contentDiv.innerHTML = `
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <h3>Звітів</h3>
-                                <div class="value">${data.cnt}</div>
-                            </div>
-                            <div class="stat-card">
-                                <h3>Зароблено готівки</h3>
-                                <div class="value">${fmtMoney(data.earned)} <span style="font-size:0.5em">грн</span></div>
-                            </div>
-                            <div class="stat-card">
-                                <h3>Витрати</h3>
-                                <div class="value">${fmtMoney(data.expenses)} <span style="font-size:0.5em">грн</span></div>
-                            </div>
-                            <div class="stat-card">
-                                <h3>Надлишок / Недостача</h3>
-                                <div class="value" style="color:${data.surplus >= 0 ? '#FFEA00' : '#E50914'}">
-                                    ${data.surplus >= 0 ? '+' : ''}${fmtMoney(data.surplus)} <span style="font-size:0.5em">грн</span>
-                                </div>
+            if (!data || data.cnt === 0) {
+                const stored = getStoredReports();
+                if (stored.length > 0) {
+                    let earned = 0, expenses = 0, surplus = 0, count = 0;
+                    stored.slice(0, days * 2).forEach(r => {
+                        count++;
+                        earned += (r.earned || 0);
+                        expenses += (r.expenses || 0);
+                        surplus += (r.surplus || 0);
+                    });
+                    if (count > 0) {
+                        data = { cnt: count, earned, expenses, surplus, is_cached: true };
+                    }
+                }
+            }
+
+            if (data && data.cnt > 0) {
+                contentDiv.innerHTML = `
+                    ${data.is_cached ? '<div class="alert alert-info" style="margin-bottom:12px">💾 Статистика розрахована з локального кешу браузера</div>' : ''}
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Звітів</h3>
+                            <div class="value">${data.cnt}</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Зароблено готівки</h3>
+                            <div class="value">${fmtMoney(data.earned)} <span style="font-size:0.5em">грн</span></div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Витрати</h3>
+                            <div class="value">${fmtMoney(data.expenses)} <span style="font-size:0.5em">грн</span></div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Надлишок / Недостача</h3>
+                            <div class="value" style="color:${data.surplus >= 0 ? '#FFEA00' : '#E50914'}">
+                                ${data.surplus >= 0 ? '+' : ''}${fmtMoney(data.surplus)} <span style="font-size:0.5em">грн</span>
                             </div>
                         </div>
-                    `;
-                } else {
-                    contentDiv.innerHTML = '<div class="alert alert-info">Немає даних за обраний період</div>';
-                }
-            } catch (e) {
-                contentDiv.innerHTML = '<div class="alert alert-warning">Помилка завантаження</div>';
+                    </div>
+                `;
+            } else {
+                contentDiv.innerHTML = '<div class="alert alert-info">Немає даних за обраний період</div>';
             }
         }
 
@@ -2007,9 +2195,22 @@
         let zonesData = {};
 
         async function loadZones() {
+            let zones = null;
             try {
-                const zones  = await fetch('/api/zones').then(r => r.json());
-                const select = document.getElementById('calc-zone');
+                zones = await fetch('/api/zones').then(r => r.json()).catch(() => null);
+                if (Array.isArray(zones) && zones.length > 0) {
+                    localStorage.setItem(ZONES_CACHE_KEY, JSON.stringify(zones));
+                }
+            } catch (e) {}
+
+            if (!zones || !Array.isArray(zones) || zones.length === 0) {
+                try {
+                    zones = JSON.parse(localStorage.getItem(ZONES_CACHE_KEY) || '[]');
+                } catch (e) {}
+            }
+
+            const select = document.getElementById('calc-zone');
+            if (Array.isArray(zones) && zones.length > 0) {
                 select.innerHTML = '<option value="">Оберіть зону</option>';
                 zones.forEach(z => {
                     zonesData[z.id] = z;
@@ -2018,8 +2219,8 @@
                     opt.textContent = z.name;
                     select.appendChild(opt);
                 });
-            } catch (e) {
-                document.getElementById('calc-zone').innerHTML = '<option value="">Помилка завантаження</option>';
+            } else {
+                select.innerHTML = '<option value="">Помилка завантаження</option>';
             }
         }
 
@@ -3287,8 +3488,21 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             initInteractiveBackground();
+            restoreReportDraft();
             loadExpectedCash();
             renderTimelineSlots();
+
+            // Автозбереження чернетки форми звіту при вводі даних
+            ['open_cash', 'close_cash', 'expenses', 'report-collection', 'senet', 'report-note'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', () => {
+                        saveReportDraft();
+                        updateExpectedTotal();
+                    });
+                }
+            });
+
             const waitForModules = setInterval(() => {
                 if (!window.ChangeCalc || !window.CashRegister) return;
                 clearInterval(waitForModules);
