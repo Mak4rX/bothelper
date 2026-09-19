@@ -45,39 +45,11 @@
 
         header h1 {
             font-size: 3em;
-            margin-bottom: 10px;
+            margin-bottom: 0;
             font-weight: 700;
             letter-spacing: 4px;
             text-shadow: 0 0 20px rgba(255, 234, 0, 0.6),
                          0 0 40px rgba(255, 234, 0, 0.4);
-        }
-
-        header p {
-            font-size: 1.2em;
-            color: #CCCCCC;
-            letter-spacing: 2px;
-        }
-
-        .brand-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            margin-bottom: 6px;
-        }
-
-        .brand-logo {
-            width: 52px;
-            height: 52px;
-            object-fit: contain;
-            border-radius: 12px;
-            filter: drop-shadow(0 0 14px rgba(255, 234, 0, 0.45));
-            transition: transform 0.25s ease, filter 0.25s ease;
-        }
-
-        .brand-logo:hover {
-            transform: scale(1.08) rotate(-3deg);
-            filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.75));
         }
 
         .main-tabs {
@@ -763,9 +735,6 @@
 
             header { margin-bottom: 16px; }
             header h1 { font-size: 1.5em; letter-spacing: 2px; }
-            .brand-header { gap: 10px; }
-            .brand-logo { width: 38px; height: 38px; border-radius: 9px; }
-            header p  { font-size: 0.9em; }
 
             /* ── Головні вкладки ── */
             .main-tabs {
@@ -1329,11 +1298,7 @@
     <div id="toast-container"></div>
     <div class="container">
         <header>
-            <div class="brand-header">
-                <img src="logo.png" alt="CyberHelper Logo" class="brand-logo" onerror="this.onerror=null; this.src='static/logo.png';">
-                <h1>CyberHelper</h1>
-            </div>
-            <p>Управління касою кіберклубу</p>
+            <h1>⚡ CyberHelper</h1>
         </header>
 
         <div class="main-tabs">
