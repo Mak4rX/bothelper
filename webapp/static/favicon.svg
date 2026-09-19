@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#08080E"/>
+      <stop offset="50%" stop-color="#12131D"/>
+      <stop offset="100%" stop-color="#06070B"/>
+    </linearGradient>
+
+    <!-- Neon Yellow Glow & Fill -->
+    <linearGradient id="yellowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF75A"/>
+      <stop offset="45%" stop-color="#FFEA00"/>
+      <stop offset="100%" stop-color="#FF9D00"/>
+    </linearGradient>
+
+    <!-- Cyan Neon Glow & Fill -->
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60FBFF"/>
+      <stop offset="100%" stop-color="#00A3FF"/>
+    </linearGradient>
+
+    <!-- Metal Armor Gradient -->
+    <linearGradient id="armorLight" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#32384E"/>
+      <stop offset="50%" stop-color="#1E2130"/>
+      <stop offset="100%" stop-color="#12141D"/>
+    </linearGradient>
+
+    <linearGradient id="armorDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#202332"/>
+      <stop offset="100%" stop-color="#0B0C11"/>
+    </linearGradient>
+
+    <!-- Visor Gradient -->
+    <linearGradient id="visorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFF99"/>
+      <stop offset="30%" stop-color="#FFEA00"/>
+      <stop offset="100%" stop-color="#FF5D00"/>
+    </linearGradient>
+
+    <!-- Filters for Neon Glow -->
+    <filter id="glowYellow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="glowCyan" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000000" flood-opacity="0.85"/>
+    </filter>
+  </defs>
+
+  <!-- Base Rounded Squircle with Subtle Neon Border -->
+  <rect x="14" y="14" width="484" height="484" rx="112" fill="url(#bgGrad)" stroke="#252A3C" stroke-width="6"/>
+  <rect x="20" y="20" width="472" height="472" rx="106" fill="none" stroke="url(#cyanGrad)" stroke-width="3" opacity="0.45"/>
+
+  <!-- Ambient Glow Behind Robot Head -->
+  <circle cx="256" cy="250" r="150" fill="#FFEA00" opacity="0.14" filter="url(#glowYellow)"/>
+  <circle cx="256" cy="265" r="170" fill="#00F0FF" opacity="0.10" filter="url(#glowCyan)"/>
+
+  <!-- Scaled Robot Group with Shadow -->
+  <g filter="url(#subtleShadow)" transform="translate(256, 256) scale(1.18) translate(-256, -252)">
+
+    <!-- Outer Ear / Comm Headset Wings -->
+    <path d="M 120 210 L 155 190 L 155 310 L 115 285 L 105 245 Z" fill="url(#armorLight)" stroke="#00F0FF" stroke-width="2.5"/>
+    <path d="M 392 210 L 357 190 L 357 310 L 397 285 L 407 245 Z" fill="url(#armorLight)" stroke="#00F0FF" stroke-width="2.5"/>
+
+    <!-- Headset Cyan Accent Lights -->
+    <line x1="126" y1="225" x2="126" y2="275" stroke="#00F0FF" stroke-width="4.5" stroke-linecap="round" filter="url(#glowCyan)"/>
+    <line x1="386" y1="225" x2="386" y2="275" stroke="#00F0FF" stroke-width="4.5" stroke-linecap="round" filter="url(#glowCyan)"/>
+
+    <!-- Antennas / Cyber Horns -->
+    <path d="M 175 140 L 195 90 L 210 120 L 195 155 Z" fill="url(#yellowGrad)" filter="url(#glowYellow)"/>
+    <path d="M 337 140 L 317 90 L 302 120 L 317 155 Z" fill="url(#yellowGrad)" filter="url(#glowYellow)"/>
+
+    <!-- Helmet Crown Outer Plate -->
+    <path d="M 160 185 L 256 125 L 352 185 L 360 270 L 325 365 L 256 415 L 187 365 L 152 270 Z" fill="url(#armorDark)" stroke="#313850" stroke-width="4.5"/>
+
+    <!-- Helmet Top Crest Accent Lines -->
+    <path d="M 185 180 L 256 135 L 327 180" fill="none" stroke="#434D6F" stroke-width="3"/>
+
+    <!-- Main Mask Inner Plate -->
+    <path d="M 175 205 L 256 155 L 337 205 L 342 275 L 315 355 L 256 395 L 197 355 L 170 275 Z" fill="url(#armorLight)" stroke="#171A24" stroke-width="3"/>
+
+    <!-- Forehead Tech Shield -->
+    <polygon points="256,165 295,190 256,215 217,190" fill="#12141F" stroke="#2D344B" stroke-width="2"/>
+
+    <!-- Glowing Cyber Lightning Bolt (Center Crest - ⚡ CyberHelper Symbol) -->
+    <polygon points="259,165 244,193 256,193 252,216 268,187 256,187" fill="url(#yellowGrad)" filter="url(#glowYellow)"/>
+
+    <!-- Glowing Cyber Visor (Eyes / Display) -->
+    <!-- Visor Background Cavity -->
+    <path d="M 188 245 L 256 262 L 324 245 L 332 285 L 256 308 L 180 285 Z" fill="#06080E" stroke="#222838" stroke-width="3"/>
+
+    <!-- Visor Glowing Neon Core -->
+    <path d="M 194 252 L 256 268 L 318 252 L 325 280 L 256 300 L 187 280 Z" fill="url(#visorGrad)" filter="url(#glowYellow)"/>
+
+    <!-- Visor Cyber Glow Split line -->
+    <line x1="200" y1="266" x2="312" y2="266" stroke="#FFFFFF" stroke-width="2" opacity="0.85"/>
+    <line x1="256" y1="255" x2="256" y2="295" stroke="#000000" stroke-width="3.5" opacity="0.65"/>
+
+    <!-- Dual Cyber Eye Slits (Gaming look) -->
+    <rect x="214" y="260" width="28" height="6" rx="3" fill="#FFFFFF" opacity="0.95"/>
+    <rect x="270" y="260" width="28" height="6" rx="3" fill="#FFFFFF" opacity="0.95"/>
+
+    <!-- Lower Jaw / Grill Plates (Cyber Vent) -->
+    <path d="M 220 330 L 256 345 L 292 330 L 285 365 L 256 380 L 227 365 Z" fill="#0C0E14" stroke="#282F45" stroke-width="2.5"/>
+    <line x1="238" y1="344" x2="274" y2="344" stroke="#00F0FF" stroke-width="2.5" opacity="0.8" filter="url(#glowCyan)"/>
+    <line x1="243" y1="354" x2="269" y2="354" stroke="#00F0FF" stroke-width="2.5" opacity="0.8" filter="url(#glowCyan)"/>
+    <line x1="248" y1="364" x2="264" y2="364" stroke="#FFEA00" stroke-width="2.5" opacity="0.85" filter="url(#glowYellow)"/>
+
+    <!-- Cheek Accents -->
+    <polygon points="182,310 196,295 196,335 182,330" fill="url(#yellowGrad)" opacity="0.9"/>
+    <polygon points="330,310 316,295 316,335 330,330" fill="url(#yellowGrad)" opacity="0.9"/>
+
+    <!-- Circuit Trace Dots & Lines -->
+    <circle cx="168" cy="205" r="4" fill="#00F0FF" filter="url(#glowCyan)"/>
+    <circle cx="344" cy="205" r="4" fill="#00F0FF" filter="url(#glowCyan)"/>
+    <line x1="168" y1="205" x2="152" y2="230" stroke="#00F0FF" stroke-width="2" opacity="0.7"/>
+    <line x1="344" y1="205" x2="360" y2="230" stroke="#00F0FF" stroke-width="2" opacity="0.7"/>
+  </g>
+</svg>

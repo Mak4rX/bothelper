@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -117,6 +117,26 @@ class StatsResponse(BaseModel):
 async def root():
     """Отдаем главную страницу"""
     return FileResponse(Path(__file__).parent / "static" / "index.html")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+@app.get("/favicon.svg", include_in_schema=False)
+@app.get("/favicon-16x16.png", include_in_schema=False)
+@app.get("/favicon-32x32.png", include_in_schema=False)
+@app.get("/favicon-48x48.png", include_in_schema=False)
+@app.get("/apple-touch-icon.png", include_in_schema=False)
+@app.get("/android-chrome-192x192.png", include_in_schema=False)
+@app.get("/android-chrome-512x512.png", include_in_schema=False)
+@app.get("/logo.png", include_in_schema=False)
+@app.get("/logo.svg", include_in_schema=False)
+@app.get("/site.webmanifest", include_in_schema=False)
+@app.get("/manifest.json", include_in_schema=False)
+async def static_root_files(request: Request):
+    filename = request.url.path.lstrip("/")
+    file_path = Path(__file__).parent / "static" / filename
+    if file_path.is_file():
+        return FileResponse(file_path)
+    raise HTTPException(status_code=404, detail="File not found")
 
 
 @app.get("/api/expected-cash")

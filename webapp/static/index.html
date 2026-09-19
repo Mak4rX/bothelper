@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CyberHelper — Управління касою</title>
+
+    <!-- Favicon & App Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#FFEA00">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -47,6 +56,28 @@
             font-size: 1.2em;
             color: #CCCCCC;
             letter-spacing: 2px;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 6px;
+        }
+
+        .brand-logo {
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
+            border-radius: 12px;
+            filter: drop-shadow(0 0 14px rgba(255, 234, 0, 0.45));
+            transition: transform 0.25s ease, filter 0.25s ease;
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.08) rotate(-3deg);
+            filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.75));
         }
 
         .main-tabs {
@@ -732,6 +763,8 @@
 
             header { margin-bottom: 16px; }
             header h1 { font-size: 1.5em; letter-spacing: 2px; }
+            .brand-header { gap: 10px; }
+            .brand-logo { width: 38px; height: 38px; border-radius: 9px; }
             header p  { font-size: 0.9em; }
 
             /* ── Головні вкладки ── */
@@ -1296,7 +1329,10 @@
     <div id="toast-container"></div>
     <div class="container">
         <header>
-            <h1>⚡ CyberHelper</h1>
+            <div class="brand-header">
+                <img src="/logo.png" alt="CyberHelper Logo" class="brand-logo" onerror="this.onerror=null; this.src='static/logo.png';">
+                <h1>⚡ CyberHelper</h1>
+            </div>
             <p>Управління касою кіберклубу</p>
         </header>
 
