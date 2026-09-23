@@ -122,9 +122,8 @@ async def last_reports(limit: int = 20) -> list[aiosqlite.Row]:
                       r.created_at, c.amount as collection_amount
                FROM reports r
                LEFT JOIN collections c ON r.collection_id = c.id
-               WHERE r.user_id = ?
                ORDER BY r.id DESC LIMIT ?""",
-            (WEB_USER_ID, limit),
+            (limit,),
         )
         return await cur.fetchall()
 
@@ -139,9 +138,8 @@ async def stats(days: int) -> aiosqlite.Row | None:
                       COALESCE(SUM(expenses), 0) AS expenses,
                       COALESCE(SUM(surplus), 0)  AS surplus
                FROM reports
-               WHERE user_id = ?
-                 AND created_at >= datetime('now', 'localtime', ?)""",
-            (WEB_USER_ID, f"-{days} days"),
+               WHERE created_at >= datetime('now', 'localtime', ?)""",
+            (f"-{days} days",),
         )
         return await cur.fetchone()
 
@@ -218,8 +216,8 @@ async def delete_report(report_id: int) -> bool:
             (report_id,),
         )
         cur = await db.execute(
-            "DELETE FROM reports WHERE id = ? AND user_id = ?",
-            (report_id, WEB_USER_ID),
+            "DELETE FROM reports WHERE id = ?",
+            (report_id,),
         )
         await db.commit()
         return cur.rowcount > 0
@@ -229,8 +227,8 @@ async def delete_collection(collection_id: int) -> bool:
     """Удалить инкассацию (только если ещё не учтена в отчёте)."""
     async with aiosqlite.connect(DB_PATH) as db:
         cur = await db.execute(
-            "DELETE FROM collections WHERE id = ? AND user_id = ? AND report_id IS NULL",
-            (collection_id, WEB_USER_ID),
+            "DELETE FROM collections WHERE id = ? AND report_id IS NULL",
+            (collection_id,),
         )
         await db.commit()
         return cur.rowcount > 0
@@ -246,9 +244,7 @@ async def expected_cash() -> int | None:
     """
     async with aiosqlite.connect(DB_PATH) as db:
         cur = await db.execute(
-            "SELECT close_cash FROM reports WHERE user_id = ?"
-            " ORDER BY id DESC LIMIT 1",
-            (WEB_USER_ID,),
+            "SELECT close_cash FROM reports ORDER BY id DESC LIMIT 1"
         )
         row = await cur.fetchone()
         return row[0] if row else None

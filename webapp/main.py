@@ -1,6 +1,7 @@
 """FastAPI веб-приложение для управления кассой киберклуба."""
 
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 from contextlib import asynccontextmanager
@@ -218,10 +219,15 @@ async def create_report(data: ReportCreate):
 
         return {
             "id": report_id,
-            "report_text": text,
-            "close_cash": to_grivnas(close_cash),
+            "shift": data.shift,
+            "open_cash": to_grivnas(open_cash),
             "earned": to_grivnas(earned),
+            "expenses": to_grivnas(expenses),
+            "close_cash": to_grivnas(close_cash),
+            "senet": to_grivnas(senet),
             "surplus": to_grivnas(surplus),
+            "report_text": text,
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "collection_amount": to_grivnas(collected) if collected else None,
         }
     except HTTPException:
