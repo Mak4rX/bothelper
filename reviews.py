@@ -56,30 +56,48 @@ def parse_csv_rows(csv_text: str) -> list[dict[str, str]]:
             continue
 
         col_b = r[1].strip() if len(r) > 1 else ""
+        col_c = r[2].strip() if len(r) > 2 else ""
+        col_e = r[4].strip() if len(r) > 4 else ""
         col_f = r[5].strip() if len(r) > 5 else ""
-        contact = col_b or col_f
+        col_g = r[6].strip() if len(r) > 6 else ""
+        col_h = r[7].strip() if len(r) > 7 else ""
+
+        if col_f:
+            contact = col_g or col_f
+            raw = col_f
+            note = col_e or "Відгук гугл карта"
+            status = col_h or "ЗАЛИШЕНО В БАЗІ (Google)"
+            contact_type = col_c or ("Телефон" if any(char.isdigit() for char in contact) else "Логін")
+        elif col_b:
+            contact = col_b
+            raw = col_b
+            note = col_e or "Відгук гугл карта"
+            status = col_h or "ЗАЛИШЕНО В БАЗІ (Google)"
+            contact_type = col_c or ("Телефон" if any(char.isdigit() for char in contact) else "Логін")
+        else:
+            continue
+
         # Пропускаємо службові рядки та заголовки
         contact_lower = contact.lower()
         if (
             not contact
             or "чистий контакт" in contact_lower
             or "непотрібні" in contact_lower
+            or "зона вставки" in contact_lower
+            or "телефон / логін" in contact_lower
+            or "спарсений контакт" in contact_lower
             or contact.startswith("✨")
+            or contact.startswith("📥")
         ):
             continue
 
-        col_c = r[2].strip() if len(r) > 2 else ""
-        col_e = r[4].strip() if len(r) > 4 else ""
-        col_g = r[6].strip() if len(r) > 6 else ""
-        col_h = r[7].strip() if len(r) > 7 else ""
-
         entries.append({
             "clean": contact,
-            "type": col_c or ("Телефон" if any(char.isdigit() for char in contact) else "Логін"),
-            "note": col_e or "Відгук гугл карта",
-            "raw": col_f or contact,
-            "parsed": col_g or contact,
-            "status": col_h or "ЗАЛИШЕНО В БАЗІ (Google)",
+            "type": contact_type,
+            "note": note,
+            "raw": raw,
+            "parsed": contact,
+            "status": status,
         })
 
     return entries
@@ -184,6 +202,16 @@ def check_contact(query: str, entries: Optional[list[dict[str, str]]] = None) ->
             matched_entries.append(entry)
 
     if matched_entries:
+        # Дедуплікація збігів за нормалізованим контактом
+        unique_matches = []
+        seen_keys = set()
+        for m in matched_entries:
+            key = normalize_phone(m.get("clean") or m.get("raw") or "") if is_phone_query else normalize_login(m.get("clean") or m.get("raw") or "")
+            key = key or m.get("clean") or m.get("raw")
+            if key not in seen_keys:
+                seen_keys.add(key)
+                unique_matches.append(m)
+
         if contact_type == "Телефон":
             status_text = "ВЖЕ В БАЗІ: Отримав за відгук Google Карта!"
         else:
@@ -192,9 +220,9 @@ def check_contact(query: str, entries: Optional[list[dict[str, str]]] = None) ->
             "query": q,
             "found": True,
             "status": status_text,
-            "matches": matched_entries,
+            "matches": unique_matches,
             "contact_type": contact_type,
-            "total_matches": len(matched_entries),
+            "total_matches": len(unique_matches),
         }
     else:
         if contact_type == "Телефон":
