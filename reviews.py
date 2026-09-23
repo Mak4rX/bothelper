@@ -76,11 +76,11 @@ def parse_csv_rows(csv_text: str) -> list[dict[str, str]]:
         # Зазвичай '✅ ЗАЛИШЕНО В БАЗІ (Google)' або не пусте col_b
         entries.append({
             "clean": col_b,
-            "type": col_c or ("📱 Телефон" if any(char.isdigit() for char in col_b) else "👤 Логін"),
+            "type": col_c or ("Телефон" if any(char.isdigit() for char in col_b) else "Логін"),
             "note": col_e or "Відгук гугл карта",
             "raw": col_f or col_b,
             "parsed": col_g or col_b,
-            "status": col_h or "✅ ЗАЛИШЕНО В БАЗІ (Google)",
+            "status": col_h or "ЗАЛИШЕНО В БАЗІ (Google)",
         })
 
     return entries
@@ -148,7 +148,7 @@ def check_contact(query: str, entries: Optional[list[dict[str, str]]] = None) ->
 
     q_phone = normalize_phone(q)
     is_phone_query = len(q_phone) >= 9 and any(c.isdigit() for c in q)
-    contact_type = "📱 Телефон" if is_phone_query else "👤 Логін"
+    contact_type = "Телефон" if is_phone_query else "Логін"
     q_login = normalize_login(q)
 
     matched_entries = []
@@ -185,10 +185,10 @@ def check_contact(query: str, entries: Optional[list[dict[str, str]]] = None) ->
             matched_entries.append(entry)
 
     if matched_entries:
-        if contact_type == "📱 Телефон":
-            status_text = "❌ ВЖЕ В БАЗІ: Отримав за Відгук Google Карта!"
+        if contact_type == "Телефон":
+            status_text = "ВЖЕ В БАЗІ: Отримав за відгук Google Карта!"
         else:
-            status_text = "❌ ВЖЕ В БАЗІ: Логін знайдено у Відгуках Google!"
+            status_text = "ВЖЕ В БАЗІ: Логін знайдено у Відгуках Google!"
         return {
             "query": q,
             "found": True,
@@ -198,10 +198,10 @@ def check_contact(query: str, entries: Optional[list[dict[str, str]]] = None) ->
             "total_matches": len(matched_entries),
         }
     else:
-        if contact_type == "📱 Телефон":
-            status_text = "✅ НЕМАЄ В БАЗІ: Новий клієнт (акція доступна!)"
+        if contact_type == "Телефон":
+            status_text = "НЕМАЄ В БАЗІ: Новий клієнт (акція доступна!)"
         else:
-            status_text = "✅ НЕМАЄ В БАЗІ: Новий логін (акція доступна!)"
+            status_text = "НЕМАЄ В БАЗІ: Новий логін (акція доступна!)"
         return {
             "query": q,
             "found": False,
