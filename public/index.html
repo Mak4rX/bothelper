@@ -1317,14 +1317,6 @@
             font-size: 0.85em;
             padding: 6px 12px;
         }
-        .reviews-settings-box {
-            background: #141416;
-            border: 1px solid #FFEA00;
-            border-radius: 10px;
-            padding: 14px;
-            margin-bottom: 16px;
-            animation: fadeIn 0.2s ease;
-        }
         .reviews-search-card {
             background: #141416;
             border: 1px solid #282828;
@@ -1491,72 +1483,6 @@
             font-family: 'Courier New', monospace;
             word-break: break-all;
             font-size: 0.92em;
-        }
-        .reviews-inline-add-box {
-            margin-top: 16px;
-            padding: 14px;
-            background: rgba(0, 0, 0, 0.45);
-            border: 1px solid rgba(0, 255, 102, 0.25);
-            border-radius: 8px;
-        }
-        .reviews-inline-label {
-            font-size: 0.82em;
-            color: #A0A0A0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-            display: block;
-        }
-        .reviews-inline-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .reviews-inline-field {
-            flex: 1;
-            min-width: 240px;
-        }
-        .reviews-inline-select {
-            width: 100%;
-            background: #0E0E10;
-            color: #FFFFFF;
-            border: 1px solid #333333;
-            border-radius: 8px;
-            padding: 9px 12px;
-            font-size: 0.9em;
-            cursor: pointer;
-            box-sizing: border-box;
-        }
-        .reviews-inline-select:focus {
-            outline: none;
-            border-color: #00FF66;
-        }
-        .reviews-inline-input {
-            width: 100%;
-            background: #0E0E10;
-            color: #FFFFFF;
-            border: 1px solid #333333;
-            border-radius: 8px;
-            padding: 9px 12px;
-            font-size: 0.9em;
-            margin-top: 8px;
-            box-sizing: border-box;
-        }
-        .reviews-inline-input:focus {
-            outline: none;
-            border-color: #00FF66;
-        }
-        .reviews-inline-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .reviews-feedback-text {
-            font-size: 0.88em;
-            color: #00FF66;
-            margin-top: 8px;
         }
 
         /* ── 3 головних вкладки ──────────────────────────────────────── */
@@ -1994,33 +1920,6 @@
                     <a href="https://docs.google.com/spreadsheets/d/1Q7l94fvXV1zmC11gCxOelnn_Bw-fROqawE3w8JHg08Y/edit#gid=333018725" target="_blank" rel="noopener" class="btn btn-secondary reviews-open-btn" title="Відкрити Google Таблицю">
                         Таблиця Google
                     </a>
-                    <button type="button" class="btn btn-secondary" onclick="toggleReviewsSettings()" title="Налаштування синхронізації">
-                        Налаштування
-                    </button>
-                </div>
-            </div>
-
-            <!-- Settings box -->
-            <div id="reviews-settings-box" class="reviews-settings-box" style="display: none;">
-                <h3 style="margin-bottom: 8px;">Прямий запис у Google Таблицю (Google Apps Script)</h3>
-                <p style="font-size: 0.85em; color: #A0A0A0; margin-bottom: 12px; line-height: 1.4;">
-                    Щоб нові записи <strong>автоматично додавалися прямо в Google Таблицю</strong> при збереженні, вставте URL розгорнутого веб-додатка Google Apps Script. Якщо веб-додаток ще не створено — записи зберігаються у пам'яті браузера, і їх можна в 1 клік скопіювати для вставки в таблицю.
-                </p>
-                <div class="form-group" style="margin-bottom: 10px;">
-                    <label>URL веб-додатка Google Apps Script:</label>
-                    <input type="url" id="reviews-script-url" placeholder="https://script.google.com/macros/s/.../exec" onchange="saveReviewsScriptUrl()">
-                </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button type="button" class="btn btn-secondary" onclick="copyAppsScriptSnippet()" style="font-size: 0.82em;">Скопіювати код Apps Script</button>
-                    <button type="button" class="btn btn-secondary" onclick="toggleAppsScriptGuide()" style="font-size: 0.82em;">Коротка інструкція (3 кроки)</button>
-                </div>
-                <div id="reviews-script-guide" style="display: none; margin-top: 10px; background: #0E0E10; border: 1px solid #333333; border-radius: 8px; padding: 12px 16px; font-size: 0.85em; color: #CCCCCC;">
-                    <strong style="color: #FFEA00;">Як підключити авто-запис за 1 хвилину:</strong>
-                    <ol style="margin: 8px 0 0 18px; padding: 0; line-height: 1.6;">
-                        <li>Відкрийте <a href="https://docs.google.com/spreadsheets/d/1Q7l94fvXV1zmC11gCxOelnn_Bw-fROqawE3w8JHg08Y/edit" target="_blank" style="color: #00D9FF;">Google Таблицю</a> → Меню <em>«Розширення» (Extensions)</em> → <em>«Apps Script»</em>.</li>
-                        <li>Вставте скопійований код (кнопка вище) і збережіть.</li>
-                        <li>Натисніть кнопку <em>«Розгорнути» (Deploy) → «Нове розгортання» (New deployment)</em>. Виберіть тип <em>«Веб-додаток» (Web app)</em>, доступ: <em>«Усі» (Anyone)</em> → Скопіюйте Web app URL і вставте сюди!</li>
-                    </ol>
                 </div>
             </div>
 
@@ -4348,12 +4247,6 @@
                 if (rawLocal) reviewsLocalAdded = JSON.parse(rawLocal) || [];
             } catch (e) { reviewsLocalAdded = []; }
 
-            try {
-                const scriptUrl = localStorage.getItem(REVIEWS_SCRIPT_URL_KEY) || '';
-                const scriptEl = document.getElementById('reviews-script-url');
-                if (scriptEl) scriptEl.value = scriptUrl;
-            } catch (e) {}
-
             updateReviewsCountBadge();
 
             const searchInput = document.getElementById('reviews-search-input');
@@ -4380,12 +4273,7 @@
         function updateReviewsCountBadge() {
             const countEl = document.getElementById('reviews-stat-count');
             if (!countEl) return;
-            const total = reviewsDatabase.length + reviewsLocalAdded.length;
-            if (reviewsLocalAdded.length > 0) {
-                countEl.innerHTML = `${total} <small style="color: #00FF66; font-size: 0.85em;">(+${reviewsLocalAdded.length} нов.)</small>`;
-            } else {
-                countEl.textContent = total;
-            }
+            countEl.textContent = reviewsDatabase.length;
         }
 
         async function refreshReviewsData(userTriggered = false) {
@@ -4590,145 +4478,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="reviews-inline-add-box">
-                            <span class="reviews-inline-label">Додати клієнта до бази:</span>
-                            <div class="reviews-inline-row">
-                                <div class="reviews-inline-field">
-                                    <select id="reviews-inline-note-select" class="reviews-inline-select" onchange="handleInlineNoteChange(this.value)">
-                                        <option value="Відгук гугл карта">Відгук гугл карта</option>
-                                        <option value="Відгук гугл карта плойка">Відгук гугл карта плойка</option>
-                                        <option value="custom">Своя примітка...</option>
-                                    </select>
-                                    <input type="text" id="reviews-inline-note-custom" class="reviews-inline-input" placeholder="Введіть свою примітку..." style="display: none;">
-                                </div>
-                                <div class="reviews-inline-actions">
-                                    <button type="button" class="btn" id="reviews-inline-save-btn" onclick="submitInlineReviewAdd('${escapeHtml(res.query)}')">
-                                        Зберегти в базу
-                                    </button>
-                                    <button type="button" class="btn btn-secondary" onclick="copyInlineReviewRow('${escapeHtml(res.query)}')">
-                                        Скопіювати рядок
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="reviews-inline-feedback" class="reviews-feedback-text"></div>
-                        </div>
                     </div>
                 `;
             }
-        }
-
-        function handleInlineNoteChange(val) {
-            const customInput = document.getElementById('reviews-inline-note-custom');
-            if (!customInput) return;
-            if (val === 'custom') {
-                customInput.style.display = 'block';
-                customInput.focus();
-            } else {
-                customInput.style.display = 'none';
-            }
-        }
-
-        function getSelectedInlineNote() {
-            const select = document.getElementById('reviews-inline-note-select');
-            if (!select) return 'Відгук гугл карта';
-            if (select.value === 'custom') {
-                const customInput = document.getElementById('reviews-inline-note-custom');
-                const customVal = customInput ? customInput.value.trim() : '';
-                return customVal || 'Відгук гугл карта';
-            }
-            return select.value;
-        }
-
-        function copyInlineReviewRow(contact) {
-            const note = getSelectedInlineNote();
-            if (!contact) return;
-            const rowText = `${note}\t${contact}`;
-            const onDone = () => showToast('Рядок скопійовано для таблиці (Ctrl+V)', 'info', 3000);
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(rowText).then(onDone).catch(() => {
-                    copyTextFallback(rowText);
-                    onDone();
-                });
-            } else {
-                copyTextFallback(rowText);
-                onDone();
-            }
-        }
-
-        function copyTextFallback(text) {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed';
-            ta.style.opacity = '0';
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-        }
-
-        async function submitInlineReviewAdd(contact) {
-            const note = getSelectedInlineNote();
-            const saveBtn = document.getElementById('reviews-inline-save-btn');
-            const feedbackEl = document.getElementById('reviews-inline-feedback');
-
-            if (!contact) {
-                showToast('Помилка: контакт порожній', 'warning', 2500);
-                return;
-            }
-
-            if (saveBtn) saveBtn.disabled = true;
-            if (feedbackEl) feedbackEl.textContent = 'Збереження в базу...';
-
-            const isPhone = /\d/.test(contact) && normalizePhone(contact).length >= 9;
-            const contactType = isPhone ? 'Телефон' : 'Логін';
-            const newRecord = {
-                clean: contact,
-                type: contactType,
-                note: note,
-                raw: contact,
-                parsed: contact,
-                status: 'ЗАЛИШЕНО В БАЗІ (Google)',
-                addedAt: new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })
-            };
-
-            reviewsLocalAdded.unshift(newRecord);
-            try {
-                localStorage.setItem(REVIEWS_LOCAL_ADDED_KEY, JSON.stringify(reviewsLocalAdded));
-            } catch (e) {}
-
-            updateReviewsCountBadge();
-
-            let syncGoogle = false;
-            const scriptUrl = (localStorage.getItem(REVIEWS_SCRIPT_URL_KEY) || '').trim();
-            if (scriptUrl) {
-                try {
-                    await fetch(scriptUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contact, note })
-                    });
-                    syncGoogle = true;
-                } catch (e) {
-                    console.warn('Apps Script POST failed:', e);
-                }
-            }
-
-            try {
-                await fetch('/api/reviews/add', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contact, note, script_url: scriptUrl || undefined })
-                });
-            } catch (e) {}
-
-            showToast(`Клієнта ${contact} збережено до бази!`, 'success', 3000);
-
-            // Re-check automatically so user immediately sees the updated "ВЖЕ В БАЗІ" card!
-            const searchInput = document.getElementById('reviews-search-input');
-            if (searchInput) searchInput.value = contact;
-            executeReviewsSearch();
         }
 
         function clearReviewsSearch() {
@@ -4752,55 +4504,6 @@
             }
         }
 
-        function toggleReviewsSettings() {
-            const box = document.getElementById('reviews-settings-box');
-            if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function saveReviewsScriptUrl() {
-            const el = document.getElementById('reviews-script-url');
-            if (el) {
-                const url = el.value.trim();
-                try {
-                    localStorage.setItem(REVIEWS_SCRIPT_URL_KEY, url);
-                    showToast('URL Google Apps Script збережено!', 'success', 2500);
-                } catch (e) {}
-            }
-        }
-
-        function toggleAppsScriptGuide() {
-            const guide = document.getElementById('reviews-script-guide');
-            if (guide) guide.style.display = guide.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function copyAppsScriptSnippet() {
-            const code = `function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("📥 База_Даних_EF");
-  var data = JSON.parse(e.postData.contents);
-  var note = data.note || "Відгук гугл карта";
-  var contact = data.contact || "";
-  if (!contact) {
-    return ContentService.createTextOutput(JSON.stringify({error: "No contact"})).setMimeType(ContentService.MimeType.JSON);
-  }
-  var lastRow = sheet.getLastRow();
-  // Записуємо у колонки E (5) та F (6)
-  sheet.getRange(lastRow + 1, 5).setValue(note);
-  sheet.getRange(lastRow + 1, 6).setValue(contact);
-  return ContentService.createTextOutput(JSON.stringify({status: "success", contact: contact})).setMimeType(ContentService.MimeType.JSON);
-}`;
-
-            navigator.clipboard.writeText(code).then(() => {
-                showToast('📋 Код Apps Script скопійовано у буфер!', 'success', 3000);
-            }).catch(() => {
-                const ta = document.createElement('textarea');
-                ta.value = code;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                showToast('📋 Код Apps Script скопійовано у буфер!', 'success', 3000);
-            });
-        }
 
         // ─── Init ───────────────────────────────────────────────────────
 
