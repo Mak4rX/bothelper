@@ -1242,6 +1242,307 @@
             .denom-badge { font-size: 0.88em; padding: 7px 4px; }
             .denom-subtotal { font-size: 0.85em; }
             .cashcount-total-amount { font-size: 2.2em; }
+        /* ── Перевірка на відгук (Reviews) ─────────────────────────── */
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .reviews-desc {
+            color: #A0A0A0;
+            font-size: 0.85em;
+            margin-top: 3px;
+            max-width: 680px;
+            line-height: 1.4;
+        }
+        .reviews-sync-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .reviews-stat-badge {
+            background: #141416;
+            border: 1px solid #333333;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            color: #FFEA00;
+            font-weight: 600;
+        }
+        .reviews-sync-btn, .reviews-open-btn {
+            font-size: 0.85em;
+            padding: 6px 12px;
+        }
+        .reviews-settings-box {
+            background: #141416;
+            border: 1px solid #FFEA00;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+        .reviews-search-card {
+            background: #141416;
+            border: 1px solid #282828;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+        }
+        .reviews-search-group {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+        .reviews-input-wrapper {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        .reviews-search-icon {
+            position: absolute;
+            left: 12px;
+            font-size: 1.1em;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .reviews-search-input {
+            width: 100%;
+            background: #0E0E10;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 11px 36px 11px 38px;
+            color: #FFFFFF;
+            font-size: 1.05em;
+            font-family: inherit;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+        .reviews-search-input:focus {
+            outline: none;
+            border-color: #FFEA00;
+            box-shadow: 0 0 12px rgba(255, 234, 0, 0.3);
+        }
+        .reviews-clear-btn {
+            position: absolute;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: #777777;
+            font-size: 1.1em;
+            cursor: pointer;
+            padding: 4px;
+            display: none;
+        }
+        .reviews-clear-btn:hover {
+            color: #FFFFFF;
+        }
+        .reviews-search-action-btn {
+            padding: 10px 22px;
+            font-size: 0.95em;
+            white-space: nowrap;
+        }
+        .reviews-quick-hints {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .reviews-hint-chip {
+            background: #1E1E22;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.78em;
+            color: #A0A0A0;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .reviews-hint-chip:hover {
+            border-color: #00D9FF;
+            color: #00D9FF;
+        }
+        .reviews-result-container {
+            margin-bottom: 16px;
+        }
+        .reviews-status-box {
+            border-radius: 12px;
+            padding: 18px 20px;
+            transition: all 0.2s ease;
+        }
+        .reviews-status-box.empty {
+            background: #141416;
+            border: 1px dashed #333333;
+            text-align: center;
+            padding: 24px 20px;
+        }
+        .reviews-status-box.found {
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.16), rgba(20, 20, 22, 0.95));
+            border: 2px solid #E50914;
+            box-shadow: 0 0 25px rgba(229, 9, 20, 0.25);
+        }
+        .reviews-status-box.not-found {
+            background: linear-gradient(135deg, rgba(0, 255, 102, 0.12), rgba(20, 20, 22, 0.95));
+            border: 2px solid #00FF66;
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.25);
+        }
+        .reviews-status-icon {
+            font-size: 2em;
+            margin-bottom: 6px;
+        }
+        .reviews-status-title {
+            font-size: 1.25em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .reviews-status-box.found .reviews-status-title {
+            color: #FF4D4D;
+            text-shadow: 0 0 12px rgba(229, 9, 20, 0.4);
+        }
+        .reviews-status-box.not-found .reviews-status-title {
+            color: #00FF66;
+            text-shadow: 0 0 12px rgba(0, 255, 102, 0.4);
+        }
+        .reviews-status-sub {
+            color: #CCCCCC;
+            font-size: 0.9em;
+        }
+        .reviews-match-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+            background: rgba(0,0,0,0.35);
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .reviews-match-cell-label {
+            color: #888888;
+            font-size: 0.74em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+        .reviews-match-cell-val {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            font-size: 0.92em;
+        }
+        .reviews-add-card, .reviews-history-card {
+            background: #141416;
+            border: 1px solid #282828;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .reviews-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .reviews-section-badge {
+            font-size: 0.75em;
+            background: rgba(255, 234, 0, 0.12);
+            color: #FFEA00;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 234, 0, 0.3);
+        }
+        .reviews-add-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 600px) {
+            .reviews-add-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .reviews-note-input-row {
+            display: flex;
+            gap: 6px;
+        }
+        .reviews-note-input-row select {
+            background: #0E0E10;
+            color: #A0A0A0;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 0.85em;
+            cursor: pointer;
+        }
+        .reviews-add-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        .reviews-feedback-text {
+            font-size: 0.88em;
+            color: #00FF66;
+            margin-left: 6px;
+        }
+        .reviews-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        .reviews-history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0E0E10;
+            border: 1px solid #222222;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.86em;
+            transition: border-color 0.15s;
+        }
+        .reviews-history-item:hover {
+            border-color: #333333;
+        }
+        .reviews-history-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .reviews-history-tag {
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.76em;
+            font-weight: 700;
+        }
+        .reviews-history-tag.tag-found {
+            background: rgba(229, 9, 20, 0.2);
+            color: #FF4D4D;
+            border: 1px solid rgba(229, 9, 20, 0.4);
+        }
+        .reviews-history-tag.tag-new {
+            background: rgba(0, 255, 102, 0.15);
+            color: #00FF66;
+            border: 1px solid rgba(0, 255, 102, 0.3);
+        }
+        .reviews-history-query {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+        .reviews-history-time {
+            font-size: 0.78em;
+            color: #777777;
         }
 
         /* ── 3 головних вкладки ──────────────────────────────────────── */
@@ -1279,6 +1580,7 @@
 
         <div class="main-tabs">
             <button class="main-tab active" onclick="showMainTab('cash-management', this)">💼 Управління касою</button>
+            <button class="main-tab" onclick="showMainTab('reviews', this)">⭐ Відгуки</button>
             <button class="main-tab" onclick="showMainTab('calculator', this)">🧮 Калькулятор</button>
             <button class="main-tab" onclick="showMainTab('cashcount', this)">💵 Рахунок каси</button>
             <button class="main-tab" onclick="showMainTab('change', this)">💱 Решта</button>
@@ -1659,6 +1961,132 @@
 
             <div id="gen-result-container" style="margin-top: 20px;"></div>
         </div>
+
+        <!-- Reviews Panel -->
+        <div id="reviews" class="panel">
+            <div class="reviews-header">
+                <div>
+                    <h2>⭐ Перевірка клієнтів на відгук (Google)</h2>
+                    <p class="reviews-desc">
+                        Звірка номера телефону або логіна з чистою базою Google Відгуків. Система миттєво покаже, чи видавався вже бонус клієнту.
+                    </p>
+                </div>
+                <div class="reviews-sync-bar">
+                    <span class="reviews-stat-badge">📊 У базі: <strong id="reviews-stat-count">0</strong></span>
+                    <button type="button" class="btn btn-secondary reviews-sync-btn" onclick="refreshReviewsData(true)" id="reviews-refresh-btn" title="Оновити з Google Таблиці">
+                        🔄 Оновити
+                    </button>
+                    <a href="https://docs.google.com/spreadsheets/d/1Q7l94fvXV1zmC11gCxOelnn_Bw-fROqawE3w8JHg08Y/edit#gid=333018725" target="_blank" rel="noopener" class="btn btn-secondary reviews-open-btn" title="Відкрити Google Таблицю">
+                        🔗 Таблиця Google
+                    </a>
+                    <button type="button" class="btn btn-secondary" onclick="toggleReviewsSettings()" title="Налаштування синхронізації">
+                        ⚙️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Settings box -->
+            <div id="reviews-settings-box" class="reviews-settings-box" style="display: none;">
+                <h3 style="margin-bottom: 8px;">⚙️ Прямий запис у Google Таблицю (Google Apps Script)</h3>
+                <p style="font-size: 0.85em; color: #A0A0A0; margin-bottom: 12px; line-height: 1.4;">
+                    Щоб нові записи <strong>автоматично додавалися прямо в Google Таблицю</strong> при збереженні, вставте URL розгорнутого веб-додатка Google Apps Script. Якщо веб-додаток ще не створено — записи зберігаються у пам'яті браузера, і їх можна в 1 клік скопіювати для вставки в таблицю.
+                </p>
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label>URL веб-додатка Google Apps Script:</label>
+                    <input type="url" id="reviews-script-url" placeholder="https://script.google.com/macros/s/.../exec" onchange="saveReviewsScriptUrl()">
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-secondary" onclick="copyAppsScriptSnippet()" style="font-size: 0.82em;">📋 Скопіювати код Apps Script</button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleAppsScriptGuide()" style="font-size: 0.82em;">📖 Коротка інструкція (3 кроки)</button>
+                </div>
+                <div id="reviews-script-guide" style="display: none; margin-top: 10px; background: #0E0E10; border: 1px solid #333333; border-radius: 8px; padding: 12px 16px; font-size: 0.85em; color: #CCCCCC;">
+                    <strong style="color: #FFEA00;">Як підключити авто-запис за 1 хвилину:</strong>
+                    <ol style="margin: 8px 0 0 18px; padding: 0; line-height: 1.6;">
+                        <li>Відкрийте <a href="https://docs.google.com/spreadsheets/d/1Q7l94fvXV1zmC11gCxOelnn_Bw-fROqawE3w8JHg08Y/edit" target="_blank" style="color: #00D9FF;">Google Таблицю</a> → Меню <em>«Розширення» (Extensions)</em> → <em>«Apps Script»</em>.</li>
+                        <li>Вставте скопійований код (кнопка вище) і збережіть.</li>
+                        <li>Натисніть синю кнопку <em>«Розгорнути» (Deploy) → «Нове розгортання» (New deployment)</em>. Виберіть тип <em>«Веб-додаток» (Web app)</em>, доступ: <em>«Усі» (Anyone)</em> → Скопіюйте Web app URL і вставте сюди!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Search Area -->
+            <div class="reviews-search-card">
+                <div class="reviews-search-group">
+                    <div class="reviews-input-wrapper">
+                        <span class="reviews-search-icon">🔍</span>
+                        <input type="text" id="reviews-search-input" class="reviews-search-input" placeholder="Введіть номер телефону (067... / +380...) або логін..." autocomplete="off">
+                        <button type="button" class="reviews-clear-btn" id="reviews-clear-btn" onclick="clearReviewsSearch()" title="Очистити">✕</button>
+                    </div>
+                    <button type="button" class="btn reviews-search-action-btn" onclick="executeReviewsSearch()">
+                        🔍 Перевірити
+                    </button>
+                </div>
+                <div class="reviews-quick-hints">
+                    <span style="color: #777777; font-size: 0.8em; margin-right: 4px;">Швидкі приклади:</span>
+                    <button type="button" class="reviews-hint-chip" onclick="quickSearchReview('0639436554')">0639436554</button>
+                    <button type="button" class="reviews-hint-chip" onclick="quickSearchReview('karma1488')">karma1488</button>
+                    <button type="button" class="reviews-hint-chip" onclick="quickSearchReview('buuurmalda')">buuurmalda</button>
+                    <button type="button" class="reviews-hint-chip" onclick="quickSearchReview('+380985184647')">+380985184647</button>
+                </div>
+            </div>
+
+            <!-- Result Card Area -->
+            <div id="reviews-result-container" class="reviews-result-container">
+                <div class="reviews-status-box empty">
+                    <div class="reviews-status-icon">🔎</div>
+                    <div class="reviews-status-title">Введіть номер телефону або логін вище</div>
+                    <div class="reviews-status-sub">Система миттєво перевірить, чи є контакт у базі Google Відгуків</div>
+                </div>
+            </div>
+
+            <!-- Add to Base Section -->
+            <div class="reviews-add-card" id="reviews-add-section">
+                <div class="reviews-section-header">
+                    <h3>➕ Додати нового клієнта в базу відгуків</h3>
+                    <span class="reviews-section-badge">Локально + Google Sheets</span>
+                </div>
+                <div class="reviews-add-grid">
+                    <div class="form-group">
+                        <label>Телефон або Логін клієнта:</label>
+                        <input type="text" id="reviews-add-contact" placeholder="Наприклад: 0671234567 або HQCK">
+                    </div>
+                    <div class="form-group">
+                        <label>Примітка (Стовпчик E):</label>
+                        <div class="reviews-note-input-row">
+                            <input type="text" id="reviews-add-note" value="Відгук гугл карта">
+                            <select id="reviews-add-note-select" onchange="applyReviewNoteTemplate(this.value)">
+                                <option value="Відгук гугл карта">Відгук гугл карта</option>
+                                <option value="Відгук гугл карта плойка">Відгук гугл карта плойка</option>
+                                <option value="Відгук Гугл Карта">Відгук Гугл Карта</option>
+                                <option value="custom">Своя примітка...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="reviews-add-actions">
+                    <button type="button" class="btn" onclick="submitReviewAdd()" id="reviews-add-btn">
+                        💾 Додати в базу
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="copyReviewRowForSheet()">
+                        📋 Скопіювати рядок для таблиці
+                    </button>
+                    <span id="reviews-add-feedback" class="reviews-feedback-text"></span>
+                </div>
+            </div>
+
+            <!-- History of Checks & Local Added -->
+            <div class="reviews-history-card">
+                <div class="reviews-section-header">
+                    <h3>🕒 Останні перевірки та додані клієнти</h3>
+                    <button type="button" class="btn btn-secondary" onclick="clearReviewsHistory()" style="font-size: 0.78em; padding: 4px 10px;">
+                        Очистити історію
+                    </button>
+                </div>
+                <div id="reviews-history-list" class="reviews-history-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="/static/change.js"></script>
@@ -1704,6 +2132,8 @@
                 if (panel) panel.classList.add('active');
                 if (mainTabName === 'cashcount') {
                     renderCashHistory();
+                } else if (mainTabName === 'reviews') {
+                    initReviewsTab();
                 } else if (mainTabName === 'stats') {
                     loadStats();
                 }
@@ -3837,12 +4267,635 @@
             requestAnimationFrame((t) => { lastFrame = t; animate(t); });
         }
 
+        // ─── Reviews (Перевірка на відгук Google) ──────────────────────
+
+        const REVIEWS_CACHE_KEY = 'cyberhelper.reviewsDatabase.v2';
+        const REVIEWS_LOCAL_ADDED_KEY = 'cyberhelper.reviewsLocalAdded.v2';
+        const REVIEWS_HISTORY_KEY = 'cyberhelper.reviewsHistory.v2';
+        const REVIEWS_SCRIPT_URL_KEY = 'cyberhelper.reviewsScriptUrl.v2';
+        const REVIEWS_LAST_SYNC_KEY = 'cyberhelper.reviewsLastSync.v2';
+        const SPREADSHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1Q7l94fvXV1zmC11gCxOelnn_Bw-fROqawE3w8JHg08Y/export?format=csv&gid=333018725';
+
+        let reviewsDatabase = [];
+        let reviewsLocalAdded = [];
+        let reviewsHistory = [];
+        let reviewsIsLoading = false;
+        let reviewsInitialized = false;
+
+        function normalizePhone(val) {
+            if (!val) return '';
+            const digits = String(val).replace(/\D/g, '');
+            if (digits.startsWith('380') && digits.length === 12) {
+                return digits.substring(2);
+            }
+            if (digits.length === 9) {
+                return '0' + digits;
+            }
+            return digits;
+        }
+
+        function normalizeLogin(val) {
+            if (!val) return '';
+            return String(val).trim().replace(/^@+/, '').toLowerCase();
+        }
+
+        function parseReviewsCSV(csvText) {
+            if (!csvText) return [];
+            let inQuotes = false;
+            let currentField = '';
+            let currentRow = [];
+            const allRows = [];
+
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                const nextChar = csvText[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        currentField += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    currentRow.push(currentField);
+                    currentField = '';
+                } else if ((char === '\r' || char === '\n') && !inQuotes) {
+                    if (char === '\r' && nextChar === '\n') i++;
+                    currentRow.push(currentField);
+                    allRows.push(currentRow);
+                    currentField = '';
+                    currentRow = [];
+                } else {
+                    currentField += char;
+                }
+            }
+            if (currentField || currentRow.length > 0) {
+                currentRow.push(currentField);
+                allRows.push(currentRow);
+            }
+
+            const entries = [];
+            for (const r of allRows) {
+                if (!r || r.length < 2) continue;
+                const colB = (r[1] || '').trim();
+                const colBLower = colB.toLowerCase();
+                if (!colB || colBLower.includes('чистий контакт') || colBLower.includes('непотрібні') || colB.startsWith('✨')) {
+                    continue;
+                }
+
+                const colC = (r[2] || '').trim();
+                const colE = (r[4] || '').trim();
+                const colF = (r[5] || '').trim();
+                const colG = (r[6] || '').trim();
+                const colH = (r[7] || '').trim();
+
+                entries.push({
+                    clean: colB,
+                    type: colC || (/\d/.test(colB) ? '📱 Телефон' : '👤 Логін'),
+                    note: colE || 'Відгук гугл карта',
+                    raw: colF || colB,
+                    parsed: colG || colB,
+                    status: colH || '✅ ЗАЛИШЕНО В БАЗІ (Google)'
+                });
+            }
+
+            return entries;
+        }
+
+        function initReviewsTab() {
+            if (reviewsInitialized) return;
+            reviewsInitialized = true;
+
+            try {
+                const rawDb = localStorage.getItem(REVIEWS_CACHE_KEY);
+                if (rawDb) reviewsDatabase = JSON.parse(rawDb) || [];
+            } catch (e) { reviewsDatabase = []; }
+
+            try {
+                const rawLocal = localStorage.getItem(REVIEWS_LOCAL_ADDED_KEY);
+                if (rawLocal) reviewsLocalAdded = JSON.parse(rawLocal) || [];
+            } catch (e) { reviewsLocalAdded = []; }
+
+            try {
+                const rawHist = localStorage.getItem(REVIEWS_HISTORY_KEY);
+                if (rawHist) reviewsHistory = JSON.parse(rawHist) || [];
+            } catch (e) { reviewsHistory = []; }
+
+            try {
+                const scriptUrl = localStorage.getItem(REVIEWS_SCRIPT_URL_KEY) || '';
+                const scriptEl = document.getElementById('reviews-script-url');
+                if (scriptEl) scriptEl.value = scriptUrl;
+            } catch (e) {}
+
+            updateReviewsCountBadge();
+            renderReviewsHistory();
+
+            const searchInput = document.getElementById('reviews-search-input');
+            const clearBtn = document.getElementById('reviews-clear-btn');
+            if (searchInput) {
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        executeReviewsSearch();
+                    }
+                });
+                searchInput.addEventListener('input', () => {
+                    if (clearBtn) clearBtn.style.display = searchInput.value ? 'block' : 'none';
+                });
+            }
+
+            const lastSync = parseInt(localStorage.getItem(REVIEWS_LAST_SYNC_KEY) || '0', 10);
+            const now = Date.now();
+            if (!reviewsDatabase.length || (now - lastSync) > 10 * 60 * 1000) {
+                refreshReviewsData(false);
+            }
+        }
+
+        function updateReviewsCountBadge() {
+            const countEl = document.getElementById('reviews-stat-count');
+            if (!countEl) return;
+            const total = reviewsDatabase.length + reviewsLocalAdded.length;
+            if (reviewsLocalAdded.length > 0) {
+                countEl.innerHTML = `${total} <small style="color: #00FF66; font-size: 0.85em;">(+${reviewsLocalAdded.length} нов.)</small>`;
+            } else {
+                countEl.textContent = total;
+            }
+        }
+
+        async function refreshReviewsData(userTriggered = false) {
+            if (reviewsIsLoading) return;
+            reviewsIsLoading = true;
+
+            const btn = document.getElementById('reviews-refresh-btn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Оновлення...';
+            }
+
+            let loadedEntries = null;
+
+            try {
+                const url = SPREADSHEET_CSV_URL + '&_t=' + Date.now();
+                const resp = await fetch(url, { cache: 'no-cache' });
+                if (resp.ok) {
+                    const csvText = await resp.text();
+                    const parsed = parseReviewsCSV(csvText);
+                    if (parsed && parsed.length > 0) {
+                        loadedEntries = parsed;
+                    }
+                }
+            } catch (e) {
+                console.warn('Direct Google Sheet fetch failed, trying backend API:', e);
+            }
+
+            if (!loadedEntries) {
+                try {
+                    const resp = await fetch('/api/reviews/database?refresh=true');
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data && data.entries && data.entries.length > 0) {
+                            loadedEntries = data.entries;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Backend API fallback failed:', e);
+                }
+            }
+
+            if (loadedEntries) {
+                reviewsDatabase = loadedEntries;
+                try {
+                    localStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify(reviewsDatabase));
+                    localStorage.setItem(REVIEWS_LAST_SYNC_KEY, String(Date.now()));
+                } catch (e) {}
+
+                updateReviewsCountBadge();
+                if (userTriggered) {
+                    showToast(`✅ Базу оновлено! Завантажено ${loadedEntries.length} контактів`, 'success', 3000);
+                }
+            } else {
+                if (userTriggered) {
+                    showToast('⚠️ Не вдалося оновити базу з Google. Використовується збережений кеш.', 'warning', 4000);
+                }
+            }
+
+            reviewsIsLoading = false;
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '🔄 Оновити';
+            }
+        }
+
+        function checkContactLocally(query) {
+            const q = (query || '').trim();
+            if (!q) return null;
+
+            const allEntries = [...reviewsLocalAdded, ...reviewsDatabase];
+            const qPhone = normalizePhone(q);
+            const isPhone = qPhone.length >= 9 && /\d/.test(q);
+            const qLogin = normalizeLogin(q);
+            const matches = [];
+
+            for (const entry of allEntries) {
+                const rawText = `${entry.clean || ''} ${entry.raw || ''} ${entry.parsed || ''}`;
+
+                let phoneMatch = false;
+                if (isPhone) {
+                    const foundPhones = (rawText.match(/\+?\d[\d\s\-\(\)]{7,}\d/g) || []).map(normalizePhone);
+                    for (const fp of foundPhones) {
+                        if (fp.length >= 9 && (fp === qPhone || fp.endsWith(qPhone.slice(-9)) || qPhone.endsWith(fp.slice(-9)))) {
+                            phoneMatch = true;
+                            break;
+                        }
+                    }
+                    if (!phoneMatch) {
+                        const cleanPhone = normalizePhone(entry.clean || '');
+                        if (cleanPhone.length >= 9 && (cleanPhone === qPhone || cleanPhone.endsWith(qPhone.slice(-9)) || qPhone.endsWith(cleanPhone.slice(-9)))) {
+                            phoneMatch = true;
+                        }
+                    }
+                }
+
+                let loginMatch = false;
+                if (!phoneMatch && qLogin) {
+                    const tokens = (rawText.toLowerCase().match(/[a-zA-Z0-9_\-\.]+/g) || []);
+                    if (tokens.includes(qLogin)) {
+                        loginMatch = true;
+                    }
+                }
+
+                if (phoneMatch || loginMatch) {
+                    matches.push(entry);
+                }
+            }
+
+            return {
+                query: q,
+                isPhone,
+                contactType: isPhone ? '📱 Телефон' : '👤 Логін',
+                found: matches.length > 0,
+                matches,
+            };
+        }
+
+        function executeReviewsSearch() {
+            const input = document.getElementById('reviews-search-input');
+            const query = input ? input.value.trim() : '';
+            if (!query) {
+                showToast('Введіть номер телефону або логін для перевірки', 'info', 2500);
+                if (input) input.focus();
+                return;
+            }
+
+            const result = checkContactLocally(query);
+            renderReviewsResult(result);
+            addToReviewsHistory(result);
+        }
+
+        function renderReviewsResult(res) {
+            const container = document.getElementById('reviews-result-container');
+            if (!container) return;
+
+            if (!res) {
+                container.innerHTML = `
+                    <div class="reviews-status-box empty">
+                        <div class="reviews-status-icon">🔎</div>
+                        <div class="reviews-status-title">Введіть номер телефону або логін вище</div>
+                        <div class="reviews-status-sub">Система миттєво перевірить, чи є контакт у базі Google Відгуків</div>
+                    </div>`;
+                return;
+            }
+
+            if (res.found) {
+                const matchRows = res.matches.map(m => `
+                    <div class="reviews-match-grid">
+                        <div class="reviews-match-cell">
+                            <div class="reviews-match-cell-label">Знайдений контакт</div>
+                            <div class="reviews-match-cell-val">${escapeHtml(m.clean)}</div>
+                        </div>
+                        <div class="reviews-match-cell">
+                            <div class="reviews-match-cell-label">Тип</div>
+                            <div class="reviews-match-cell-val">${escapeHtml(m.type || res.contactType)}</div>
+                        </div>
+                        <div class="reviews-match-cell">
+                            <div class="reviews-match-cell-label">Примітка з бази</div>
+                            <div class="reviews-match-cell-val" style="color: #FFEA00;">${escapeHtml(m.note || 'Відгук гугл карта')}</div>
+                        </div>
+                        <div class="reviews-match-cell">
+                            <div class="reviews-match-cell-label">Як записано в таблиці</div>
+                            <div class="reviews-match-cell-val">${escapeHtml(m.raw || m.clean)}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                const statusTitle = res.isPhone
+                    ? '❌ ВЖЕ В БАЗІ: Отримав за Відгук Google Карта!'
+                    : '❌ ВЖЕ В БАЗІ: Логін знайдено у Відгуках Google!';
+
+                container.innerHTML = `
+                    <div class="reviews-status-box found">
+                        <div class="reviews-status-header">
+                            <span class="reviews-status-icon">❌</span>
+                            <div>
+                                <div class="reviews-status-title">${statusTitle}</div>
+                                <div class="reviews-status-sub">
+                                    ⚠️ <strong>УВАГА:</strong> Цей клієнт вже раніше отримував бонус за відгук! Повторний бонус нараховувати не можна.
+                                </div>
+                            </div>
+                        </div>
+                        ${matchRows}
+                    </div>
+                `;
+            } else {
+                const statusTitle = res.isPhone
+                    ? '✅ НЕМАЄ В БАЗІ: Новий клієнт (акція доступна!)'
+                    : '✅ НЕМАЄ В БАЗІ: Новий логін (акція доступна!)';
+
+                container.innerHTML = `
+                    <div class="reviews-status-box not-found">
+                        <div class="reviews-status-header">
+                            <span class="reviews-status-icon">✅</span>
+                            <div>
+                                <div class="reviews-status-title">${statusTitle}</div>
+                                <div class="reviews-status-sub">
+                                    Клієнта <strong>${escapeHtml(res.query)}</strong> не знайдено серед відгуків Google Карти. <strong>Бонус можна нараховувати!</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                            <button type="button" class="btn" onclick="prefillReviewAdd('${escapeHtml(res.query)}')">
+                                ➕ Додати цього клієнта в базу відгуків
+                            </button>
+                            <span style="font-size: 0.85em; color: #A0A0A0;">
+                                Натисніть, щоб зафіксувати видачу бонусу
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function clearReviewsSearch() {
+            const input = document.getElementById('reviews-search-input');
+            const clearBtn = document.getElementById('reviews-clear-btn');
+            if (input) {
+                input.value = '';
+                input.focus();
+            }
+            if (clearBtn) clearBtn.style.display = 'none';
+            renderReviewsResult(null);
+        }
+
+        function quickSearchReview(val) {
+            const input = document.getElementById('reviews-search-input');
+            const clearBtn = document.getElementById('reviews-clear-btn');
+            if (input) {
+                input.value = val;
+                if (clearBtn) clearBtn.style.display = 'block';
+                executeReviewsSearch();
+            }
+        }
+
+        function prefillReviewAdd(contact) {
+            const addInput = document.getElementById('reviews-add-contact');
+            if (addInput) {
+                addInput.value = contact;
+                addInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                addInput.focus();
+                showToast('Контакт підставлено у форму додавання 👇', 'info', 2000);
+            }
+        }
+
+        function applyReviewNoteTemplate(val) {
+            if (val === 'custom') {
+                const noteInput = document.getElementById('reviews-add-note');
+                if (noteInput) {
+                    noteInput.value = '';
+                    noteInput.focus();
+                }
+            } else {
+                const noteInput = document.getElementById('reviews-add-note');
+                if (noteInput) noteInput.value = val;
+            }
+        }
+
+        async function submitReviewAdd() {
+            const contactInput = document.getElementById('reviews-add-contact');
+            const noteInput = document.getElementById('reviews-add-note');
+            const feedbackEl = document.getElementById('reviews-add-feedback');
+            const btn = document.getElementById('reviews-add-btn');
+
+            const contact = contactInput ? contactInput.value.trim() : '';
+            const note = noteInput ? noteInput.value.trim() : 'Відгук гугл карта';
+
+            if (!contact) {
+                showToast('Введіть номер телефону або логін клієнта', 'warning', 2500);
+                if (contactInput) contactInput.focus();
+                return;
+            }
+
+            if (btn) btn.disabled = true;
+            if (feedbackEl) feedbackEl.textContent = 'Збереження...';
+
+            const contactType = /\d/.test(contact) && normalizePhone(contact).length >= 9 ? '📱 Телефон' : '👤 Логін';
+            const newRecord = {
+                clean: contact,
+                type: contactType,
+                note: note,
+                raw: contact,
+                parsed: contact,
+                status: '✅ ЗАЛИШЕНО В БАЗІ (Google)',
+                addedAt: new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            reviewsLocalAdded.unshift(newRecord);
+            try {
+                localStorage.setItem(REVIEWS_LOCAL_ADDED_KEY, JSON.stringify(reviewsLocalAdded));
+            } catch (e) {}
+
+            updateReviewsCountBadge();
+
+            let syncGoogle = false;
+            const scriptUrl = (localStorage.getItem(REVIEWS_SCRIPT_URL_KEY) || '').trim();
+            if (scriptUrl) {
+                try {
+                    await fetch(scriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contact, note })
+                    });
+                    syncGoogle = true;
+                } catch (e) {
+                    console.warn('Apps Script POST failed:', e);
+                }
+            }
+
+            try {
+                await fetch('/api/reviews/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contact, note, script_url: scriptUrl || undefined })
+                });
+            } catch (e) {}
+
+            if (btn) btn.disabled = false;
+            if (feedbackEl) {
+                feedbackEl.textContent = syncGoogle ? '✅ Збережено в пам\'ять та Google Таблицю!' : '✅ Збережено в локальну пам\'ять!';
+                setTimeout(() => { if (feedbackEl) feedbackEl.textContent = ''; }, 3500);
+            }
+
+            showToast(`✅ Клієнта ${contact} успішно додано до бази відгуків!`, 'success', 3000);
+
+            if (contactInput) contactInput.value = '';
+
+            const searchInput = document.getElementById('reviews-search-input');
+            if (searchInput) {
+                searchInput.value = contact;
+                const clearBtn = document.getElementById('reviews-clear-btn');
+                if (clearBtn) clearBtn.style.display = 'block';
+                executeReviewsSearch();
+            }
+        }
+
+        function copyReviewRowForSheet() {
+            const contactInput = document.getElementById('reviews-add-contact');
+            const noteInput = document.getElementById('reviews-add-note');
+            const contact = contactInput ? contactInput.value.trim() : '';
+            const note = noteInput ? noteInput.value.trim() : 'Відгук гугл карта';
+
+            if (!contact) {
+                showToast('Введіть номер або логін клієнта', 'warning', 2500);
+                return;
+            }
+
+            const rowText = `${note}\t${contact}`;
+            navigator.clipboard.writeText(rowText).then(() => {
+                showToast('📋 Рядок скопійовано! Вставте через Ctrl+V у колонки E:F таблиці', 'info', 3500);
+            }).catch(() => {
+                const ta = document.createElement('textarea');
+                ta.value = rowText;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('📋 Рядок скопійовано! Вставте через Ctrl+V у колонки E:F таблиці', 'info', 3500);
+            });
+        }
+
+        function addToReviewsHistory(result) {
+            if (!result || !result.query) return;
+
+            const timeStr = new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+            reviewsHistory = reviewsHistory.filter(h => h.query.toLowerCase() !== result.query.toLowerCase());
+            reviewsHistory.unshift({
+                query: result.query,
+                found: result.found,
+                contactType: result.contactType,
+                time: timeStr
+            });
+
+            if (reviewsHistory.length > 25) reviewsHistory = reviewsHistory.slice(0, 25);
+            try {
+                localStorage.setItem(REVIEWS_HISTORY_KEY, JSON.stringify(reviewsHistory));
+            } catch (e) {}
+
+            renderReviewsHistory();
+        }
+
+        function renderReviewsHistory() {
+            const container = document.getElementById('reviews-history-list');
+            if (!container) return;
+
+            if (!reviewsHistory.length) {
+                container.innerHTML = '<div style="color: #666; font-size: 0.85em; text-align: center; padding: 10px;">Історія перевірок порожня</div>';
+                return;
+            }
+
+            container.innerHTML = reviewsHistory.map(item => `
+                <div class="reviews-history-item">
+                    <div class="reviews-history-left">
+                        <span class="reviews-history-tag ${item.found ? 'tag-found' : 'tag-new'}">
+                            ${item.found ? '❌ В базі' : '✅ Новий'}
+                        </span>
+                        <span class="reviews-history-query">${escapeHtml(item.query)}</span>
+                        <span style="font-size: 0.8em; color: #888;">${escapeHtml(item.contactType || '')}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="reviews-history-time">${escapeHtml(item.time || '')}</span>
+                        <button type="button" class="btn btn-secondary" onclick="quickSearchReview('${escapeHtml(item.query)}')" style="font-size: 0.76em; padding: 3px 8px;">
+                            Перевірити
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearReviewsHistory() {
+            reviewsHistory = [];
+            try { localStorage.removeItem(REVIEWS_HISTORY_KEY); } catch (e) {}
+            renderReviewsHistory();
+            showToast('Історію перевірок очищено', 'info', 2000);
+        }
+
+        function toggleReviewsSettings() {
+            const box = document.getElementById('reviews-settings-box');
+            if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function saveReviewsScriptUrl() {
+            const el = document.getElementById('reviews-script-url');
+            if (el) {
+                const url = el.value.trim();
+                try {
+                    localStorage.setItem(REVIEWS_SCRIPT_URL_KEY, url);
+                    showToast('URL Google Apps Script збережено!', 'success', 2500);
+                } catch (e) {}
+            }
+        }
+
+        function toggleAppsScriptGuide() {
+            const guide = document.getElementById('reviews-script-guide');
+            if (guide) guide.style.display = guide.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function copyAppsScriptSnippet() {
+            const code = `function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("📥 База_Даних_EF");
+  var data = JSON.parse(e.postData.contents);
+  var note = data.note || "Відгук гугл карта";
+  var contact = data.contact || "";
+  if (!contact) {
+    return ContentService.createTextOutput(JSON.stringify({error: "No contact"})).setMimeType(ContentService.MimeType.JSON);
+  }
+  var lastRow = sheet.getLastRow();
+  // Записуємо у колонки E (5) та F (6)
+  sheet.getRange(lastRow + 1, 5).setValue(note);
+  sheet.getRange(lastRow + 1, 6).setValue(contact);
+  return ContentService.createTextOutput(JSON.stringify({status: "success", contact: contact})).setMimeType(ContentService.MimeType.JSON);
+}`;
+
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('📋 Код Apps Script скопійовано у буфер!', 'success', 3000);
+            }).catch(() => {
+                const ta = document.createElement('textarea');
+                ta.value = code;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('📋 Код Apps Script скопійовано у буфер!', 'success', 3000);
+            });
+        }
+
         // ─── Init ───────────────────────────────────────────────────────
 
         window.addEventListener('DOMContentLoaded', () => {
             initInteractiveBackground();
             restoreReportDraft();
             restoreShiftGenDraft();
+            initReviewsTab();
             loadExpectedCash();
             loadZones().then(() => {
                 restoreCalcState();

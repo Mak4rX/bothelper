@@ -24,6 +24,7 @@ from pricing import (
     calculate_price,
     is_morning_rate_active,
 )
+import reviews
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -110,6 +111,12 @@ class StatsResponse(BaseModel):
     earned: float
     expenses: float
     surplus: float
+
+
+class ReviewAddRequest(BaseModel):
+    contact: str
+    note: str = "Відгук гугл карта"
+    script_url: Optional[str] = None
 
 
 # ---------- API endpoints ----------
@@ -403,6 +410,32 @@ async def get_compensation(
         return calculate_compensation(amount, percent)
     except ValueError as e:
         raise HTTPException(400, str(e))
+
+
+# ---------- Google Відгуки ----------
+
+@app.get("/api/reviews/database")
+async def get_reviews_database(refresh: bool = False):
+    """Повертає список контактів з Google Таблиці (кешований)."""
+    entries = reviews.fetch_database(force_refresh=refresh)
+    return {
+        "total": len(entries),
+        "entries": entries,
+        "spreadsheet_id": reviews.SPREADSHEET_ID,
+        "gid": reviews.DATA_GID,
+    }
+
+
+@app.get("/api/reviews/check")
+async def check_review_contact(q: str = Query(..., description="Телефон або логін")):
+    """Перевіряє, чи є контакт у базі відгуків."""
+    return reviews.check_contact(q)
+
+
+@app.post("/api/reviews/add")
+async def add_review_contact(data: ReviewAddRequest):
+    """Додає новий контакт у базу відгуків."""
+    return reviews.add_contact(contact=data.contact, note=data.note, script_url=data.script_url)
 
 
 # Статические файлы последними
