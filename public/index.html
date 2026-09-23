@@ -1888,10 +1888,17 @@
             </div>
 
             <div id="gen-doors-fields" style="display: none;">
-            <div class="form-group" style="margin-top: 20px;">
-                <label>Кількість нічників</label>
-                <input type="number" id="gen-nightstay" placeholder="0" min="0" step="1" inputmode="numeric">
-                <small style="color: #555555; margin-top: 4px; display: block;">Скільки гостей залишилися на ніч (після 23:00)</small>
+            <div class="calc-grid" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label>Кількість нічників</label>
+                    <input type="number" id="gen-nightstay" placeholder="0" min="0" step="1" inputmode="numeric">
+                    <small style="color: #555555; margin-top: 4px; display: block;">Скільки гостей залишилися на ніч (після 23:00)</small>
+                </div>
+                <div class="form-group">
+                    <label>Кількість людей в клубі</label>
+                    <input type="number" id="gen-club-guests" placeholder="0" min="0" step="1" inputmode="numeric">
+                    <small style="color: #555555; margin-top: 4px; display: block;">Загальна кількість відвідувачів у клубі на 23:00</small>
+                </div>
             </div>
             </div>
 
@@ -2242,6 +2249,7 @@
                     other: document.getElementById('gen-other')?.value || '',
                     feedback: document.getElementById('gen-feedback')?.value || '',
                     nightstay: document.getElementById('gen-nightstay')?.value || '',
+                    clubGuests: document.getElementById('gen-club-guests')?.value || '',
                     slots: timelineSlots,
                 };
                 localStorage.setItem(SHIFT_GEN_DRAFT_KEY, JSON.stringify(draft));
@@ -2272,6 +2280,7 @@
                 if (draft.other !== undefined && document.getElementById('gen-other')) document.getElementById('gen-other').value = draft.other;
                 if (draft.feedback !== undefined && document.getElementById('gen-feedback')) document.getElementById('gen-feedback').value = draft.feedback;
                 if (draft.nightstay !== undefined && document.getElementById('gen-nightstay')) document.getElementById('gen-nightstay').value = draft.nightstay;
+                if (draft.clubGuests !== undefined && document.getElementById('gen-club-guests')) document.getElementById('gen-club-guests').value = draft.clubGuests;
                 if (Array.isArray(draft.slots) && draft.slots.length > 0) {
                     timelineSlots = draft.slots;
                 }
@@ -3925,6 +3934,8 @@
             document.getElementById('gen-feedback').value = '';
             var nsi = document.getElementById('gen-nightstay');
             if (nsi) nsi.value = '';
+            var cgi = document.getElementById('gen-club-guests');
+            if (cgi) cgi.value = '';
             timelineSlots = JSON.parse(JSON.stringify(selectedGenShift === 'day' ? DEFAULT_DAY_SLOTS : DEFAULT_NIGHT_SLOTS));
             renderTimelineSlots();
             document.getElementById('gen-result-container').innerHTML = '';
@@ -3937,8 +3948,9 @@
 
             if (selectedGenShift === 'doors') {
                 var nightstayCount = parseInt(document.getElementById('gen-nightstay').value) || 0;
+                var clubGuestsCount = parseInt(document.getElementById('gen-club-guests').value) || 0;
                 lines.push('23:00');
-                lines.push('Двері зачинені.\nКількість нічників: ' + nightstayCount);
+                lines.push('Двері зачинені.\nКількість нічників: ' + nightstayCount + '\nКількість людей в клубі: ' + clubGuestsCount);
             } else {
                 const tech = document.getElementById('gen-tech').value.trim() || 'відсутні';
                 const other = document.getElementById('gen-other').value.trim() || 'відсутні';
@@ -4531,7 +4543,7 @@
             });
 
             // Автозбереження чернетки генератора звітів
-            ['gen-tech', 'gen-other', 'gen-feedback', 'gen-nightstay'].forEach(id => {
+            ['gen-tech', 'gen-other', 'gen-feedback', 'gen-nightstay', 'gen-club-guests'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     el.addEventListener('input', () => {
