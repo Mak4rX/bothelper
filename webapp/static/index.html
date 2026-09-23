@@ -17,6 +17,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -27,47 +28,47 @@
             font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #000000;
             min-height: 100vh;
-            padding: 12px 16px;
+            padding: 20px;
             color: #FFFFFF;
         }
 
         .container {
-            max-width: 980px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         header {
             text-align: center;
             color: #FFEA00;
-            margin-bottom: 12px;
+            margin-bottom: 30px;
             text-transform: uppercase;
         }
 
         header h1 {
-            font-size: 1.85em;
+            font-size: 3em;
             margin-bottom: 0;
             font-weight: 700;
-            letter-spacing: 1.5px;
-            text-shadow: 0 0 15px rgba(255, 234, 0, 0.6),
-                         0 0 30px rgba(255, 234, 0, 0.35);
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(255, 234, 0, 0.6),
+                         0 0 40px rgba(255, 234, 0, 0.4);
         }
 
         .main-tabs {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-bottom: 10px;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .main-tab {
             background: #0E0E10;
             border: 1px solid #222222;
-            padding: 8px 6px;
-            border-radius: 9px;
+            padding: 14px 10px;
+            border-radius: 14px;
             cursor: pointer;
-            font-size: 0.88em;
+            font-size: 0.98em;
             font-weight: 700;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
             color: #A0A0A0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -81,21 +82,21 @@
         .main-tab:hover {
             border-color: #FFEA00;
             color: #FFFFFF;
-            box-shadow: 0 0 12px rgba(255, 234, 0, 0.2);
-            transform: translateY(-1px);
+            box-shadow: 0 0 15px rgba(255, 234, 0, 0.25);
+            transform: translateY(-2px);
         }
 
         .main-tab.active {
             background: #1A1A1C;
             color: #FFEA00;
             border-color: #FFEA00;
-            box-shadow: 0 0 15px rgba(255, 234, 0, 0.3);
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.35);
         }
 
         .sub-tabs {
             display: none;
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 20px;
             justify-content: flex-start;
         }
 
@@ -106,12 +107,12 @@
         .sub-tab {
             background: #0E0E10;
             border: 1px solid #1A1A1A;
-            padding: 6px 14px;
-            border-radius: 16px;
+            padding: 8px 18px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 0.82em;
+            font-size: 0.88em;
             font-weight: 600;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
             color: #A0A0A0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -121,22 +122,22 @@
         .sub-tab:hover {
             border-color: #00D9FF;
             color: #FFFFFF;
-            box-shadow: 0 0 8px rgba(0, 217, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
         }
 
         .sub-tab.active {
             background: rgba(0, 217, 255, 0.12);
             color: #00D9FF;
             border-color: #00D9FF;
-            box-shadow: 0 0 10px rgba(0, 217, 255, 0.25);
+            box-shadow: 0 0 12px rgba(0, 217, 255, 0.3);
         }
 
         .panel {
             display: none;
             background: #0E0E10;
-            border-radius: 12px;
-            padding: 16px 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             border: 1px solid #222222;
             position: relative;
         }
@@ -144,74 +145,58 @@
         .panel::before {
             content: '⬤ ⬤ ⬤';
             position: absolute;
-            left: 16px;
-            top: 14px;
-            font-size: 0.6em;
+            left: 20px;
+            top: 20px;
+            font-size: 0.7em;
             color: #333333;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
         }
 
         .panel.active {
             display: block;
-            animation: fadeIn 0.25s;
+            animation: fadeIn 0.3s;
         }
 
         .panel h2 {
             color: #FFEA00;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-top: 2px;
-            margin-bottom: 8px;
-            font-size: 1.3em;
-            text-shadow: 0 0 12px rgba(255, 234, 0, 0.35);
+            letter-spacing: 2px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            text-shadow: 0 0 15px rgba(255, 234, 0, 0.4);
         }
 
         .panel > p {
             color: #A0A0A0;
-            margin-bottom: 10px;
-            font-size: 0.88em;
-        }
-
-        .report-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px 14px;
-            margin-bottom: 10px;
-        }
-
-        .calc-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px 14px;
-            margin-bottom: 10px;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .form-group {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
-            margin-bottom: 3px;
+            margin-bottom: 8px;
             font-weight: 600;
             color: #FFEA00;
             text-transform: uppercase;
-            font-size: 0.8em;
-            letter-spacing: 0.5px;
+            font-size: 0.9em;
+            letter-spacing: 1px;
         }
 
         input, select, textarea {
             width: 100%;
-            padding: 7px 11px;
+            padding: 12px;
             border: 1px solid #333333;
-            border-radius: 7px;
-            font-size: 0.9em;
-            transition: all 0.2s;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
             background: #1A1A1C;
             color: #FFFFFF;
             font-family: 'Rajdhani', sans-serif;
@@ -220,7 +205,7 @@
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #FFEA00;
-            box-shadow: 0 0 12px rgba(255, 234, 0, 0.25);
+            box-shadow: 0 0 15px rgba(255, 234, 0, 0.3);
         }
 
         input::placeholder, textarea::placeholder {
@@ -231,21 +216,21 @@
             background: #FFEA00;
             color: #000000;
             border: none;
-            padding: 9px 20px;
-            border-radius: 8px;
-            font-size: 0.9em;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 1em;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 3px 10px rgba(255, 234, 0, 0.2);
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(255, 234, 0, 0.25);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .btn:hover {
             background: #FFEE00;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(255, 234, 0, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(255, 234, 0, 0.4);
         }
 
         .btn:active {
@@ -256,38 +241,38 @@
             background: #222226;
             color: #FFFFFF;
             border: 1px solid #333338;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         .btn-secondary:hover {
             background: #2D2D33;
             border-color: #44444D;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
         }
 
         .report-preview {
             background: #141416;
-            padding: 16px;
-            border-radius: 10px;
-            margin-top: 12px;
+            padding: 22px;
+            border-radius: 12px;
+            margin-top: 15px;
             white-space: pre-wrap;
             font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: 1em;
+            font-size: 1.1em;
             font-weight: 600;
-            line-height: 1.5;
+            line-height: 1.7;
             border: 1px solid #2D2D32;
             border-left: 4px solid #FFEA00;
             color: #FFFFFF;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
 
         .alert {
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-top: 10px;
-            margin-bottom: 12px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
             border: 1px solid;
-            font-size: 0.9em;
+            font-size: 0.98em;
             font-weight: 600;
         }
 
@@ -363,19 +348,19 @@
 
         .shift-selector {
             display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .shift-btn {
             flex: 1;
-            padding: 10px 14px;
+            padding: 20px;
             border: 2px solid #333333;
             background: #1A1A1C;
-            border-radius: 12px;
+            border-radius: 16px;
             cursor: pointer;
-            font-size: 0.95em;
-            transition: all 0.25s;
+            font-size: 1.1em;
+            transition: all 0.3s;
             color: #A0A0A0;
             position: relative;
             overflow: hidden;
@@ -395,8 +380,8 @@
 
         .shift-btn:hover {
             border-color: #FFEA00;
-            transform: translateY(-1px);
-            box-shadow: 0 0 15px rgba(255, 234, 0, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.3);
             color: #FFFFFF;
         }
 
@@ -408,51 +393,63 @@
             border-color: #FFEA00;
             background: #1A1A1C;
             color: #FFEA00;
-            box-shadow: 0 0 20px rgba(255, 234, 0, 0.35);
+            box-shadow: 0 0 25px rgba(255, 234, 0, 0.4);
         }
 
         .shift-btn.selected::before {
             opacity: 1;
         }
 
+        .report-preview {
+            background: #1A1A1C;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            white-space: pre-line;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            border: 1px solid #333333;
+            color: #CCCCCC;
+        }
+
         .report-item {
             background: #1A1A1C;
-            padding: 12px 14px;
-            border-radius: 10px;
-            margin-bottom: 8px;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #FFEA00;
             border: 1px solid #333333;
             border-left: 4px solid #FFEA00;
         }
 
         .report-item .date {
             color: #FFEA00;
-            font-size: 0.85em;
-            margin-bottom: 4px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .report-item .content {
             white-space: pre-line;
             font-family: 'Courier New', monospace;
-            line-height: 1.45;
+            line-height: 1.6;
             color: #CCCCCC;
-            font-size: 0.92em;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-top: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
         }
 
         .stat-card {
             background: #1A1A1C;
             color: white;
-            padding: 16px;
-            border-radius: 12px;
-            box-shadow: 0 0 15px rgba(255, 234, 0, 0.15);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.2);
             border: 1px solid #333333;
             position: relative;
             overflow: hidden;
@@ -467,12 +464,12 @@
             bottom: -2px;
             background: linear-gradient(135deg, #FFEA00 0%, transparent 50%);
             opacity: 0.1;
-            border-radius: 12px;
+            border-radius: 16px;
         }
 
         .stat-card h3 {
-            font-size: 0.82em;
-            margin-bottom: 6px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
             color: #A0A0A0;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -480,24 +477,49 @@
         }
 
         .stat-card .value {
-            font-size: 1.8em;
+            font-size: 2.5em;
             font-weight: bold;
             color: #FFEA00;
-            text-shadow: 0 0 12px rgba(255, 234, 0, 0.4);
+            text-shadow: 0 0 15px rgba(255, 234, 0, 0.5);
             position: relative;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid;
+        }
+
+        .alert-info {
+            background: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+            border-color: #17a2b8;
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border-color: #ffc107;
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border-color: #28a745;
         }
 
         .loading {
             text-align: center;
-            padding: 24px;
+            padding: 40px;
             color: #A0A0A0;
         }
 
         .collection-item {
             background: #1A1A1C;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 8px;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -509,6 +531,21 @@
             border-left: 4px solid #ffc107;
         }
 
+        .collection-item.pending::after {
+            content: 'АКЦІЯ!';
+            position: absolute;
+            top: 10px;
+            right: -25px;
+            background: #E50914;
+            color: #FFFFFF;
+            padding: 4px 30px;
+            font-size: 0.7em;
+            font-weight: bold;
+            transform: rotate(35deg);
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+            letter-spacing: 1px;
+        }
+
         .collection-item.completed {
             border-left: 4px solid #28a745;
         }
@@ -516,28 +553,28 @@
         /* Calculator styles */
         .calculator-mode {
             display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .mode-btn {
             flex: 1;
-            padding: 10px;
+            padding: 15px;
             border: 2px solid #333333;
             background: #1A1A1C;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 0.92em;
-            transition: all 0.25s;
+            font-size: 1em;
+            transition: all 0.3s;
             color: #A0A0A0;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .mode-btn:hover {
             border-color: #FFEA00;
             color: #FFFFFF;
-            box-shadow: 0 0 12px rgba(255, 234, 0, 0.25);
+            box-shadow: 0 0 15px rgba(255, 234, 0, 0.3);
         }
 
         .mode-btn.selected {
@@ -545,47 +582,47 @@
             background: #1A1A1C;
             color: #FFEA00;
             font-weight: bold;
-            box-shadow: 0 0 15px rgba(255, 234, 0, 0.35);
+            box-shadow: 0 0 20px rgba(255, 234, 0, 0.4);
         }
 
         .result-card {
             background: #1A1A1C;
-            padding: 10px 14px;
-            border-radius: 10px;
-            margin-bottom: 8px;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #FFEA00;
             border: 1px solid #333333;
             border-left: 4px solid #FFEA00;
         }
 
         .result-card h4 {
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             color: #FFEA00;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9em;
+            letter-spacing: 1px;
         }
 
         .result-card .highlight {
-            font-size: 1.4em;
+            font-size: 1.8em;
             font-weight: bold;
             color: #FFFFFF;
-            margin: 4px 0;
+            margin: 10px 0;
             text-shadow: 0 0 10px rgba(255, 234, 0, 0.3);
         }
 
         .result-card .detail {
             color: #A0A0A0;
-            font-size: 0.88em;
+            font-size: 0.95em;
         }
 
-        .btn-delete {
+            .btn-delete {
             background: transparent;
             color: #E50914;
             border: 1px solid #E50914;
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.82em;
+            font-size: 0.85em;
             font-family: 'Rajdhani', sans-serif;
             transition: all 0.2s;
             white-space: nowrap;
@@ -593,60 +630,60 @@
 
         .btn-delete:hover {
             background: rgba(229, 9, 20, 0.15);
-            box-shadow: 0 0 8px rgba(229, 9, 20, 0.3);
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
         }
 
         /* Calculator banner */
         .calc-banner {
             background: #1A1A1C;
             border: 2px solid #FFEA00;
-            border-radius: 12px;
-            padding: 14px 18px;
+            border-radius: 16px;
+            padding: 24px;
             text-align: center;
             margin-bottom: 10px;
-            box-shadow: 0 0 20px rgba(255, 234, 0, 0.15);
+            box-shadow: 0 0 30px rgba(255, 234, 0, 0.2);
         }
 
         .calc-banner-label {
             color: #A0A0A0;
-            font-size: 0.82em;
+            font-size: 0.9em;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
         }
 
         .calc-banner-hours {
-            font-size: 2.2em;
+            font-size: 3em;
             font-weight: 700;
             color: #FFEA00;
-            text-shadow: 0 0 15px rgba(255, 234, 0, 0.5);
+            text-shadow: 0 0 20px rgba(255, 234, 0, 0.6);
             line-height: 1.1;
         }
 
         .calc-banner-rate {
             color: #A0A0A0;
-            font-size: 0.85em;
-            margin-top: 4px;
-            letter-spacing: 0.5px;
+            font-size: 0.9em;
+            margin-top: 6px;
+            letter-spacing: 1px;
         }
 
         /* Discount & Cashback chips and layout */
         .chip-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 6px;
-            margin-bottom: 10px;
+            gap: 8px;
+            margin-top: 8px;
+            margin-bottom: 12px;
         }
 
         .chip-btn {
             background: #141416;
             border: 1px solid #333333;
             color: #A0A0A0;
-            padding: 5px 10px;
-            border-radius: 6px;
+            padding: 7px 14px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.82em;
+            font-size: 0.9em;
             font-family: 'Rajdhani', sans-serif;
             font-weight: 600;
             transition: all 0.2s;
@@ -661,34 +698,34 @@
             background: rgba(255, 234, 0, 0.15);
             border-color: #FFEA00;
             color: #FFEA00;
-            box-shadow: 0 0 8px rgba(255, 234, 0, 0.25);
+            box-shadow: 0 0 10px rgba(255, 234, 0, 0.3);
         }
 
         .calc-breakdown {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-            gap: 8px;
-            margin-top: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
         }
 
         .breakdown-card {
             background: #141416;
             border: 1px solid #333333;
-            border-radius: 8px;
-            padding: 8px 10px;
+            border-radius: 10px;
+            padding: 12px;
             text-align: center;
         }
 
         .breakdown-card-label {
             color: #A0A0A0;
-            font-size: 0.75em;
+            font-size: 0.8em;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .breakdown-card-value {
-            font-size: 1.1em;
+            font-size: 1.25em;
             font-weight: 700;
             color: #FFFFFF;
         }
@@ -803,71 +840,70 @@
         .cashcount-total-box {
             background: #1A1A1C;
             border: 2px solid #FFEA00;
-            border-radius: 12px;
-            padding: 12px 18px;
+            border-radius: 16px;
+            padding: 20px;
             text-align: center;
-            margin-bottom: 14px;
-            box-shadow: 0 0 20px rgba(255, 234, 0, 0.15);
+            margin-bottom: 24px;
+            box-shadow: 0 0 25px rgba(255, 234, 0, 0.2);
         }
 
         .cashcount-total-label {
             color: #A0A0A0;
-            font-size: 0.8em;
+            font-size: 0.85em;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 4px;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
         }
 
         .cashcount-total-amount {
-            font-size: 2.2em;
+            font-size: 3em;
             font-weight: 700;
             color: #FFEA00;
-            text-shadow: 0 0 15px rgba(255, 234, 0, 0.5);
+            text-shadow: 0 0 20px rgba(255, 234, 0, 0.6);
             line-height: 1.1;
         }
 
         .denom-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            column-gap: 20px;
-            row-gap: 6px;
-            margin-bottom: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
         }
 
         .denom-row {
             display: grid;
-            grid-template-columns: 75px 1fr 90px;
-            gap: 8px;
+            grid-template-columns: 90px 1fr 120px;
+            gap: 10px;
             align-items: center;
         }
 
         .denom-badge {
             background: #1A1A1C;
             border: 1px solid #333;
-            border-radius: 6px;
-            padding: 6px 4px;
+            border-radius: 8px;
+            padding: 8px 6px;
             text-align: center;
             font-weight: 700;
-            font-size: 0.88em;
+            font-size: 0.95em;
             color: #FFEA00;
             letter-spacing: 0.5px;
         }
 
         #received-denominations {
             display: grid;
-            grid-template-columns: repeat(6, minmax(0, 1fr));
-            gap: 6px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
         }
 
         .received-denom-tile {
-            min-height: 52px;
+            min-height: 76px;
             cursor: pointer;
             font-family: inherit;
             color: #FFEA00;
             background: #1A1A1C;
             border: 1px solid #333;
-            border-radius: 8px;
-            padding: 6px 4px;
+            border-radius: 10px;
+            padding: 10px 8px;
             transition: border-color 0.15s, background 0.15s, transform 0.1s, box-shadow 0.15s;
         }
 
@@ -885,23 +921,23 @@
         .received-denom-tile.is-selected {
             background: #29290F;
             border-color: #FFEA00;
-            box-shadow: 0 0 12px rgba(255, 234, 0, 0.2);
+            box-shadow: 0 0 14px rgba(255, 234, 0, 0.22);
         }
 
         .received-denom-label {
             display: block;
-            font-size: 0.95em;
+            font-size: 1.1em;
             font-weight: 700;
             letter-spacing: 0.5px;
         }
 
         .received-denom-count {
             display: block;
-            min-height: 1em;
-            margin-top: 2px;
+            min-height: 1.1em;
+            margin-top: 5px;
             color: #777;
             font-family: 'Courier New', monospace;
-            font-size: 0.8em;
+            font-size: 0.86em;
         }
 
         .received-denom-tile.is-selected .received-denom-count {
@@ -914,14 +950,12 @@
 
         .denom-input {
             text-align: center;
-            padding: 6px 8px;
-            font-size: 0.92em;
         }
 
         .denom-subtotal {
             text-align: right;
             color: #555;
-            font-size: 0.88em;
+            font-size: 0.95em;
             font-family: 'Courier New', monospace;
             transition: color 0.2s;
         }
@@ -1224,15 +1258,6 @@
         }
 
         @media (max-width: 768px) {
-            .report-grid, .calc-grid {
-                grid-template-columns: 1fr;
-                gap: 0;
-            }
-            .denom-grid {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-            }
             .denom-row {
                 grid-template-columns: 75px 1fr 90px;
                 gap: 8px;
@@ -1242,6 +1267,8 @@
             .denom-badge { font-size: 0.88em; padding: 7px 4px; }
             .denom-subtotal { font-size: 0.85em; }
             .cashcount-total-amount { font-size: 2.2em; }
+        }
+
         /* ── Перевірка на відгук (Reviews) ─────────────────────────── */
         .reviews-header {
             display: flex;
@@ -1568,6 +1595,7 @@
             z-index: -1;
         }
 
+    
     </style>
 </head>
 <body>
@@ -4275,6 +4303,7 @@
         const REVIEWS_SCRIPT_URL_KEY = 'cyberhelper.reviewsScriptUrl.v2';
         const REVIEWS_LAST_SYNC_KEY = 'cyberhelper.reviewsLastSync.v2';
         const SPREADSHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1Q7l94fvXV1zmC11gCxOelnn_Bw-fROqawE3w8JHg08Y/export?format=csv&gid=333018725';
+        const DEFAULT_REVIEWS_SNAPSHOT = [{"clean": "380639436554", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "HQCK (380639436554)"}, {"clean": "380971818343", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "TSEJ (380971818343)"}, {"clean": "380973982801", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "MWBP(380973982801)"}, {"clean": "380680151761", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "AK1R (380680151761)"}, {"clean": "380688406775", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "DUYD (380688406775)"}, {"clean": "380974403535", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "ECCX (380974403535)"}, {"clean": "+380985184647", "type": "📱 Телефон", "note": "Відгук Гугл Карта", "raw": "C737 (+380985184647)"}, {"clean": "+380985184647", "type": "📱 Телефон", "note": "Відгук Гугл Карта (помилка забув про 200 грн за відгук)", "raw": "V58K (+380985184647)"}, {"clean": "380688406775", "type": "📱 Телефон", "note": "Відгук Гугл Карта", "raw": "3QK0 (380688406775)"}, {"clean": "380989097988", "type": "📱 Телефон", "note": "Відгук Гугл Карта", "raw": "380989097988"}, {"clean": "380686398858", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380686398858"}, {"clean": "380501442956", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380501442956"}, {"clean": "380688406775", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380688406775"}, {"clean": "380985184647", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380985184647"}, {"clean": "380686398858", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380686398858"}, {"clean": "380688644216", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380688644216"}, {"clean": "0974403535", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "0974403535"}, {"clean": "buuurmalda+380961051420", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "buuurmalda+380961051420"}, {"clean": "b0br1408+380971522962", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "b0br1408+380971522962"}, {"clean": "kykysh+380976457908", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "kykysh+380976457908"}, {"clean": "380997554607", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380997554607"}, {"clean": "380986038266", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380986038266"}, {"clean": "380687380775", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380687380775"}, {"clean": "380689409264", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380689409264"}, {"clean": "380995251002", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380995251002"}, {"clean": "380935578368", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380935578368"}, {"clean": "380687185482", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380687185482"}, {"clean": "kvasha+380688567068", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "kvasha+380688567068"}, {"clean": "kater+380980036609", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "kater+380980036609"}, {"clean": "0687380775+380687380775", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "0687380775+380687380775"}, {"clean": "380972101678", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380972101678"}, {"clean": "380930866803", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380930866803"}, {"clean": "karma1488+380680151761", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "karma1488+380680151761"}, {"clean": "soska193+380973982801", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "soska193+380973982801"}, {"clean": "bogdankerez+380986656954", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "bogdankerez+380986656954"}, {"clean": "kiril_2812+380985161746", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "kiril_2812+380985161746"}, {"clean": "380668505719", "type": "📱 Телефон", "note": "відгук карта гугл", "raw": "380668505719"}, {"clean": "380961415034", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380961415034"}, {"clean": "380664233202", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380664233202"}, {"clean": "380980683051", "type": "📱 Телефон", "note": "Відгук гугл карта плойка", "raw": "380980683051"}, {"clean": "380960360733", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380960360733"}, {"clean": "380688537725", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380688537725"}, {"clean": "0673164429", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "0673164429"}, {"clean": "380960148840", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380960148840"}, {"clean": "380976162202", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380976162202"}, {"clean": "380681519443", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380681519443"}, {"clean": "380987757171", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380987757171"}, {"clean": "380975568785", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380975568785"}, {"clean": "380971934601", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380971934601"}, {"clean": "380637244076", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380637244076"}, {"clean": "380983542788", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "ZKRZ (380983542788)"}, {"clean": "380970224002", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "380970224002"}, {"clean": "0930618242", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "0930618242"}, {"clean": "09827182883", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "09827182883"}, {"clean": "0970659325", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "0970659325"}, {"clean": "0980262106", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "0980262106"}, {"clean": "0961480027", "type": "📱 Телефон", "note": "відгук гугл карта", "raw": "0961480027"}, {"clean": "380964331085", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380964331085"}, {"clean": "kaiserl111+380669307524", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "kaiserl111+380669307524"}, {"clean": "dunda+380961629495", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "dunda+380961629495"}, {"clean": "blender+380688840792", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "blender+380688840792"}, {"clean": "0978242128", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "0978242128"}, {"clean": "380981024272", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380981024272"}, {"clean": "380684822827", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380684822827"}, {"clean": "380960971226", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380960971226"}, {"clean": "38066165229", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "38066165229"}, {"clean": "0686923289", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "0686923289"}, {"clean": "0932395901", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "0932395901"}, {"clean": "380955281988", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380955281988"}, {"clean": "0971276834", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "0971276834"}, {"clean": "0977823588", "type": "📱 Телефон", "note": "Відгук гугл карта плойка", "raw": "0977823588"}, {"clean": "380730304139", "type": "📱 Телефон", "note": "Відгук гугл карта, плойка", "raw": "380730304139"}, {"clean": "380679960196", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380679960196"}, {"clean": "380963797345", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380963797345"}, {"clean": "380985642686", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380985642686"}, {"clean": "380686130907", "type": "📱 Телефон", "note": "Відгук гугл карта плойка", "raw": "380686130907"}, {"clean": "380961594644", "type": "📱 Телефон", "note": "Відгук гугл карта плойка", "raw": "380961594644"}, {"clean": "380977823588", "type": "📱 Телефон", "note": "Відгук гугл карта плойка", "raw": "380977823588"}, {"clean": "380982179501", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380982179501"}, {"clean": "380636672610", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380636672610"}, {"clean": "380683773025", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380683773025"}, {"clean": "380684209059", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380684209059"}, {"clean": "380978127968", "type": "📱 Телефон", "note": "Відгук гугл карта, плойка", "raw": "380978127968"}, {"clean": "068723477", "type": "📱 Телефон", "note": "Відгук гугл карта, плойка", "raw": "068723477"}, {"clean": "380998676919", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380998676919"}, {"clean": "380688086565", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380688086565"}, {"clean": "3809310933966", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "3809310933966"}, {"clean": "380987313321", "type": "📱 Телефон", "note": "Відгук гугл карта плойка", "raw": "380987313321"}, {"clean": "380969891875", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380969891875"}, {"clean": "380972068162", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380972068162"}, {"clean": "380961783497", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380961783497"}, {"clean": "380935260650", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380935260650"}, {"clean": "380995558168", "type": "📱 Телефон", "note": "Відгук гугл карта плойка", "raw": "380995558168"}, {"clean": "380681232242", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380681232242"}, {"clean": "380637888759", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380637888759"}, {"clean": "380631038040", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380631038040"}, {"clean": "380689586985", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380689586985"}, {"clean": "380969866653", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380969866653"}, {"clean": "380636967767", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380636967767"}, {"clean": "380936331770", "type": "📱 Телефон", "note": "Відгук гугл карта плойка", "raw": "380936331770"}, {"clean": "380680902813", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380680902813"}, {"clean": "380932690241", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380932690241"}, {"clean": "380679960196", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380679960196"}, {"clean": "380982670543", "type": "📱 Телефон", "note": "Відгук гугл карта плойка", "raw": "380982670543 (Y8O8)"}, {"clean": "380930418481", "type": "📱 Телефон", "note": "Відгук гугл карта плойка", "raw": "380930418481"}, {"clean": "380965017899", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380965017899"}, {"clean": "380686614964", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380686614964"}, {"clean": "380689778446", "type": "📱 Телефон", "note": "привів друга + відгук гугл карта", "raw": "380689778446"}, {"clean": "380969866653", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380969866653"}, {"clean": "0982039320", "type": "📱 Телефон", "note": "Відгук гугл карта, плойка", "raw": "0982039320"}, {"clean": "380635618514", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380635618514"}, {"clean": "0505720853", "type": "📱 Телефон", "note": "Відгук гугл карта, плойка", "raw": "0505720853"}, {"clean": "misha060913+380683961855", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "misha060913+380683961855"}, {"clean": "artembiiba+380689291383", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "artembiiba+380689291383"}, {"clean": "0986650385", "type": "📱 Телефон", "note": "пс відгук гугл карти", "raw": "0986650385"}, {"clean": "380985227515", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380985227515"}, {"clean": "380631926784", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380631926784"}, {"clean": "cot_nagib+380972139801", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "cot_nagib+380972139801"}, {"clean": "verisnow+380930522866", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "verisnow+380930522866"}, {"clean": "bobinator+380961336484", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "bobinator+380961336484"}, {"clean": "380635706616", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380635706616"}, {"clean": "380985197546", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380985197546"}, {"clean": "380935032961", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380935032961"}, {"clean": "380979782070", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380979782070"}, {"clean": "380681831729", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380681831729"}, {"clean": "puli_ot_babu+380631486923", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "puli_ot_babu+380631486923"}, {"clean": "problemkaqq+380995196059", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "problemkaqq+380995196059"}, {"clean": "380972408117", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380972408117"}, {"clean": "380982171151", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380982171151"}, {"clean": "380974051642", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380974051642"}, {"clean": "380966457987", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380966457987"}, {"clean": "380974051642", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380974051642"}, {"clean": "makc12345+380684558482", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "makc12345+380684558482"}, {"clean": "banana2280+380663006792", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "banana2280+380663006792"}, {"clean": "rikoshet+380660734445", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "rikoshet+380660734445"}, {"clean": "0951679994", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "0951679994"}, {"clean": "winter1o+380933647618", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "winter1o+380933647618"}, {"clean": "0681888462", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "0681888462"}, {"clean": "zakrevo+380635509256", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "zakrevo+380635509256"}, {"clean": "380637320394", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380637320394"}, {"clean": "380971406977", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380971406977"}, {"clean": "380935276833", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380935276833"}, {"clean": "380968020575", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380968020575"}, {"clean": "380685561187", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380685561187"}, {"clean": "380969556640", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380969556640"}, {"clean": "380689109028", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380689109028"}, {"clean": "380682061512", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380682061512"}, {"clean": "380676990850", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380676990850"}, {"clean": "380681604768", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380681604768"}, {"clean": "380976926818", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380976926818"}, {"clean": "380676990850", "type": "📱 Телефон", "note": "Відгук гугл карта (Ps 5), перекинули людину на пс через відсутність телефону ( не міг зареєструватися)", "raw": "380676990850"}, {"clean": "380994715408", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380994715408"}, {"clean": "0951153907", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "0951153907"}, {"clean": "0681752640", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "0681752640"}, {"clean": "380679119400", "type": "📱 Телефон", "note": "Відгук гугл карта", "raw": "380679119400"}];
 
         let reviewsDatabase = [];
         let reviewsLocalAdded = [];
@@ -4371,6 +4400,10 @@
                 const rawDb = localStorage.getItem(REVIEWS_CACHE_KEY);
                 if (rawDb) reviewsDatabase = JSON.parse(rawDb) || [];
             } catch (e) { reviewsDatabase = []; }
+
+            if (!reviewsDatabase || !reviewsDatabase.length) {
+                reviewsDatabase = Array.isArray(DEFAULT_REVIEWS_SNAPSHOT) ? [...DEFAULT_REVIEWS_SNAPSHOT] : [];
+            }
 
             try {
                 const rawLocal = localStorage.getItem(REVIEWS_LOCAL_ADDED_KEY);
