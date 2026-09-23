@@ -46,42 +46,38 @@ def normalize_login(val: str) -> str:
 
 
 def parse_csv_rows(csv_text: str) -> list[dict[str, str]]:
-    """Парсить вивантажений CSV Google Таблиці у список валідних записів."""
+    """Парсить вивантажений CSV Google Таблиці у список валідних записів із колонки B."""
     reader = csv.reader(csv_text.splitlines())
     rows = list(reader)
-    entries: list[dict[str, str]] = []
 
+    # 1. Збираємо примітки та оригінальні записи із зони вставки (якщо є логіни, плойка, PS тощо)
+    note_map: dict[str, str] = {}
+    raw_map: dict[str, str] = {}
+    for r in rows:
+        if len(r) > 5 and r[5].strip():
+            raw_c = r[5].strip()
+            note = r[4].strip() if len(r) > 4 else ""
+            parsed_c = r[6].strip() if len(r) > 6 else ""
+
+            keys = [k for k in (raw_c, parsed_c, normalize_phone(raw_c), normalize_phone(parsed_c)) if k]
+            for k in keys:
+                if note:
+                    note_map[k] = note
+                raw_map[k] = raw_c
+
+    # 2. Зчитуємо чисту базу виключно з колонки B
+    entries: list[dict[str, str]] = []
     for r in rows:
         if not r or len(r) < 2:
             continue
 
-        col_b = r[1].strip() if len(r) > 1 else ""
-        col_c = r[2].strip() if len(r) > 2 else ""
-        col_e = r[4].strip() if len(r) > 4 else ""
-        col_f = r[5].strip() if len(r) > 5 else ""
-        col_g = r[6].strip() if len(r) > 6 else ""
-        col_h = r[7].strip() if len(r) > 7 else ""
-
-        if col_f:
-            contact = col_g or col_f
-            raw = col_f
-            note = col_e or "Відгук гугл карта"
-            status = col_h or "ЗАЛИШЕНО В БАЗІ (Google)"
-            contact_type = col_c or ("Телефон" if any(char.isdigit() for char in contact) else "Логін")
-        elif col_b:
-            contact = col_b
-            raw = col_b
-            note = col_e or "Відгук гугл карта"
-            status = col_h or "ЗАЛИШЕНО В БАЗІ (Google)"
-            contact_type = col_c or ("Телефон" if any(char.isdigit() for char in contact) else "Логін")
-        else:
+        contact = r[1].strip()
+        if not contact:
             continue
 
-        # Пропускаємо службові рядки та заголовки
         contact_lower = contact.lower()
         if (
-            not contact
-            or "чистий контакт" in contact_lower
+            "чистий контакт" in contact_lower
             or "непотрібні" in contact_lower
             or "зона вставки" in contact_lower
             or "телефон / логін" in contact_lower
@@ -91,13 +87,20 @@ def parse_csv_rows(csv_text: str) -> list[dict[str, str]]:
         ):
             continue
 
+        col_c = r[2].strip() if len(r) > 2 else ""
+        contact_type = col_c or ("Телефон" if any(char.isdigit() for char in contact) else "Логін")
+
+        norm_c = normalize_phone(contact)
+        note = note_map.get(contact) or (note_map.get(norm_c) if norm_c else None) or "Відгук гугл карта"
+        raw = raw_map.get(contact) or (raw_map.get(norm_c) if norm_c else None) or contact
+
         entries.append({
             "clean": contact,
             "type": contact_type,
             "note": note,
             "raw": raw,
             "parsed": contact,
-            "status": status,
+            "status": "ЗАЛИШЕНО В БАЗІ (Google)",
         })
 
     return entries

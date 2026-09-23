@@ -4212,37 +4212,39 @@
                 allRows.push(currentRow);
             }
 
+            // 1. Збираємо примітки та оригінальні записи із зони вставки (колонка E пов'язана з F/G)
+            const noteMap = new Map();
+            const rawMap = new Map();
+            for (const r of allRows) {
+                if (!r || r.length < 6) continue;
+                const note = (r[4] || '').trim();
+                const rawContact = (r[5] || '').trim();
+                const parsedContact = (r[6] || '').trim();
+
+                const keys = [rawContact, parsedContact, normalizePhone(rawContact), normalizePhone(parsedContact)].filter(Boolean);
+                for (const k of keys) {
+                    if (note) noteMap.set(k, note);
+                    rawMap.set(k, rawContact);
+                }
+            }
+
+            // 2. Зчитуємо номери строго з колонки B (Чиста база: 1 лінія = 1 номер)
             const entries = [];
             for (const r of allRows) {
                 if (!r || r.length < 2) continue;
-                const colB = (r[1] || '').trim();
-                const colC = (r[2] || '').trim();
-                const colE = (r[4] || '').trim();
-                const colF = (r[5] || '').trim();
-                const colG = (r[6] || '').trim();
-                const colH = (r[7] || '').trim();
-
-                let contact, raw, note, status, contactType;
-                if (colF) {
-                    contact = colG || colF;
-                    raw = colF;
-                    note = colE || 'Відгук гугл карта';
-                    status = colH || 'ЗАЛИШЕНО В БАЗІ (Google)';
-                    contactType = colC || (/\d/.test(contact) ? 'Телефон' : 'Логін');
-                } else if (colB) {
-                    contact = colB;
-                    raw = colB;
-                    note = colE || 'Відгук гугл карта';
-                    status = colH || 'ЗАЛИШЕНО В БАЗІ (Google)';
-                    contactType = colC || (/\d/.test(contact) ? 'Телефон' : 'Логін');
-                } else {
-                    continue;
-                }
+                const contact = (r[1] || '').trim();
+                if (!contact) continue;
 
                 const contactLower = contact.toLowerCase();
-                if (!contact || contactLower.includes('чистий контакт') || contactLower.includes('непотрібні') || contactLower.includes('зона вставки') || contactLower.includes('телефон / логін') || contactLower.includes('спарсений контакт') || contact.startsWith('✨') || contact.startsWith('📥')) {
+                if (contactLower.includes('чистий контакт') || contactLower.includes('непотрібні') || contactLower.includes('зона вставки') || contactLower.includes('телефон / логін') || contactLower.includes('спарсений контакт') || contact.startsWith('✨') || contact.startsWith('📥')) {
                     continue;
                 }
+
+                const colC = (r[2] || '').trim();
+                const contactType = colC || (/\d/.test(contact) ? 'Телефон' : 'Логін');
+                const normP = normalizePhone(contact);
+                const note = noteMap.get(contact) || (normP && noteMap.get(normP)) || 'Відгук гугл карта';
+                const raw = rawMap.get(contact) || (normP && rawMap.get(normP)) || contact;
 
                 entries.push({
                     clean: contact,
@@ -4250,7 +4252,7 @@
                     note: note,
                     raw: raw,
                     parsed: contact,
-                    status: status
+                    status: 'ЗАЛИШЕНО В БАЗІ (Google)'
                 });
             }
 
