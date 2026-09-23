@@ -4292,24 +4292,25 @@
             for (const r of allRows) {
                 if (!r || r.length < 2) continue;
                 const colB = (r[1] || '').trim();
-                const colBLower = colB.toLowerCase();
-                if (!colB || colBLower.includes('чистий контакт') || colBLower.includes('непотрібні') || colB.startsWith('✨')) {
+                const colF = (r[5] || '').trim();
+                const contact = colB || colF;
+                const contactLower = contact.toLowerCase();
+                if (!contact || contactLower.includes('чистий контакт') || contactLower.includes('непотрібні') || contact.startsWith('✨')) {
                     continue;
                 }
 
                 const colC = (r[2] || '').trim();
                 const colE = (r[4] || '').trim();
-                const colF = (r[5] || '').trim();
                 const colG = (r[6] || '').trim();
                 const colH = (r[7] || '').trim();
 
                 entries.push({
-                    clean: colB,
-                    type: colC || (/\d/.test(colB) ? '📱 Телефон' : '👤 Логін'),
+                    clean: contact,
+                    type: colC || (/\d/.test(contact) ? 'Телефон' : 'Логін'),
                     note: colE || 'Відгук гугл карта',
-                    raw: colF || colB,
-                    parsed: colG || colB,
-                    status: colH || '✅ ЗАЛИШЕНО В БАЗІ (Google)'
+                    raw: colF || contact,
+                    parsed: colG || contact,
+                    status: colH || 'ЗАЛИШЕНО В БАЗІ (Google)'
                 });
             }
 

@@ -55,31 +55,30 @@ def parse_csv_rows(csv_text: str) -> list[dict[str, str]]:
         if not r or len(r) < 2:
             continue
 
-        col_b = r[1].strip()
+        col_b = r[1].strip() if len(r) > 1 else ""
+        col_f = r[5].strip() if len(r) > 5 else ""
+        contact = col_b or col_f
         # Пропускаємо службові рядки та заголовки
-        col_b_lower = col_b.lower()
+        contact_lower = contact.lower()
         if (
-            not col_b
-            or "чистий контакт" in col_b_lower
-            or "непотрібні" in col_b_lower
-            or col_b.startswith("✨")
+            not contact
+            or "чистий контакт" in contact_lower
+            or "непотрібні" in contact_lower
+            or contact.startswith("✨")
         ):
             continue
 
         col_c = r[2].strip() if len(r) > 2 else ""
         col_e = r[4].strip() if len(r) > 4 else ""
-        col_f = r[5].strip() if len(r) > 5 else ""
         col_g = r[6].strip() if len(r) > 6 else ""
         col_h = r[7].strip() if len(r) > 7 else ""
 
-        # Якщо є рядок статусу, перевіряємо, чи це відгук Google
-        # Зазвичай '✅ ЗАЛИШЕНО В БАЗІ (Google)' або не пусте col_b
         entries.append({
-            "clean": col_b,
-            "type": col_c or ("Телефон" if any(char.isdigit() for char in col_b) else "Логін"),
+            "clean": contact,
+            "type": col_c or ("Телефон" if any(char.isdigit() for char in contact) else "Логін"),
             "note": col_e or "Відгук гугл карта",
-            "raw": col_f or col_b,
-            "parsed": col_g or col_b,
+            "raw": col_f or contact,
+            "parsed": col_g or contact,
             "status": col_h or "ЗАЛИШЕНО В БАЗІ (Google)",
         })
 
