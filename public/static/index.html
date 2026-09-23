@@ -1545,72 +1545,6 @@
             color: #00FF66;
             margin-top: 8px;
         }
-        .reviews-history-card {
-            background: #141416;
-            border: 1px solid #282828;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        .reviews-section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-        .reviews-history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 280px;
-            overflow-y: auto;
-        }
-        .reviews-history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #0E0E10;
-            border: 1px solid #222222;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 0.86em;
-            transition: border-color 0.15s;
-        }
-        .reviews-history-item:hover {
-            border-color: #333333;
-        }
-        .reviews-history-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .reviews-history-tag {
-            padding: 2px 7px;
-            border-radius: 4px;
-            font-size: 0.74em;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-        .reviews-history-tag.tag-found {
-            background: rgba(229, 9, 20, 0.2);
-            color: #FF4D4D;
-            border: 1px solid rgba(229, 9, 20, 0.4);
-        }
-        .reviews-history-tag.tag-new {
-            background: rgba(0, 255, 102, 0.15);
-            color: #00FF66;
-            border: 1px solid rgba(0, 255, 102, 0.3);
-        }
-        .reviews-history-query {
-            font-family: 'Courier New', monospace;
-            font-weight: 600;
-            color: #FFFFFF;
-        }
-        .reviews-history-time {
-            font-size: 0.78em;
-            color: #777777;
-        }
 
         /* ── 3 головних вкладки ──────────────────────────────────────── */
         h3 {
@@ -2102,19 +2036,6 @@
                 <div class="reviews-status-box empty">
                     <div class="reviews-status-title" style="color: #888888; font-size: 1.1em;">Введіть номер телефону або логін вище</div>
                     <div class="reviews-status-sub">Система миттєво перевірить наявність клієнта в базі Google Відгуків</div>
-                </div>
-            </div>
-
-            <!-- History of Checks & Local Added -->
-            <div class="reviews-history-card">
-                <div class="reviews-section-header">
-                    <h3>Останні перевірки</h3>
-                    <button type="button" class="btn btn-secondary" onclick="clearReviewsHistory()" style="font-size: 0.78em; padding: 4px 10px;">
-                        Очистити історію
-                    </button>
-                </div>
-                <div id="reviews-history-list" class="reviews-history-list">
-                    <!-- Populated by JS -->
                 </div>
             </div>
         </div>
@@ -4414,18 +4335,12 @@
             } catch (e) { reviewsLocalAdded = []; }
 
             try {
-                const rawHist = localStorage.getItem(REVIEWS_HISTORY_KEY);
-                if (rawHist) reviewsHistory = JSON.parse(rawHist) || [];
-            } catch (e) { reviewsHistory = []; }
-
-            try {
                 const scriptUrl = localStorage.getItem(REVIEWS_SCRIPT_URL_KEY) || '';
                 const scriptEl = document.getElementById('reviews-script-url');
                 if (scriptEl) scriptEl.value = scriptUrl;
             } catch (e) {}
 
             updateReviewsCountBadge();
-            renderReviewsHistory();
 
             const searchInput = document.getElementById('reviews-search-input');
             const clearBtn = document.getElementById('reviews-clear-btn');
@@ -4586,7 +4501,6 @@
 
             const result = checkContactLocally(query);
             renderReviewsResult(result);
-            addToReviewsHistory(result);
         }
 
         function stripReviewEmojis(str) {
@@ -4823,61 +4737,6 @@
                 if (clearBtn) clearBtn.style.display = 'block';
                 executeReviewsSearch();
             }
-        }
-
-        function addToReviewsHistory(result) {
-            if (!result || !result.query) return;
-
-            const timeStr = new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
-            reviewsHistory = reviewsHistory.filter(h => h.query.toLowerCase() !== result.query.toLowerCase());
-            reviewsHistory.unshift({
-                query: result.query,
-                found: result.found,
-                contactType: result.contactType,
-                time: timeStr
-            });
-
-            if (reviewsHistory.length > 25) reviewsHistory = reviewsHistory.slice(0, 25);
-            try {
-                localStorage.setItem(REVIEWS_HISTORY_KEY, JSON.stringify(reviewsHistory));
-            } catch (e) {}
-
-            renderReviewsHistory();
-        }
-
-        function renderReviewsHistory() {
-            const container = document.getElementById('reviews-history-list');
-            if (!container) return;
-
-            if (!reviewsHistory.length) {
-                container.innerHTML = '<div style="color: #666; font-size: 0.85em; text-align: center; padding: 10px;">Історія перевірок порожня</div>';
-                return;
-            }
-
-            container.innerHTML = reviewsHistory.map(item => `
-                <div class="reviews-history-item">
-                    <div class="reviews-history-left">
-                        <span class="reviews-history-tag ${item.found ? 'tag-found' : 'tag-new'}">
-                            ${item.found ? 'В базі' : 'Новий'}
-                        </span>
-                        <span class="reviews-history-query">${escapeHtml(item.query)}</span>
-                        <span style="font-size: 0.8em; color: #888;">${escapeHtml(stripReviewEmojis(item.contactType || ''))}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="reviews-history-time">${escapeHtml(item.time || '')}</span>
-                        <button type="button" class="btn btn-secondary" onclick="quickSearchReview('${escapeHtml(item.query)}')" style="font-size: 0.76em; padding: 3px 8px;">
-                            Перевірити
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function clearReviewsHistory() {
-            reviewsHistory = [];
-            try { localStorage.removeItem(REVIEWS_HISTORY_KEY); } catch (e) {}
-            renderReviewsHistory();
-            showToast('Історію перевірок очищено', 'info', 2000);
         }
 
         function toggleReviewsSettings() {
