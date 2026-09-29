@@ -210,7 +210,12 @@ async def last_collections(limit: int = 10) -> list[aiosqlite.Row]:
 async def delete_report(report_id: int) -> bool:
     """Удалить отчет. Возвращает True если запись была."""
     async with aiosqlite.connect(DB_PATH) as db:
-        # Відв'язуємо інкасацію від звіту щоб вона знову стала pending
+        # Видаляємо інкасації, створені суто під цей звіт при закритті зміни,
+        # а для зовнішніх інкасацій відв'язуємо report_id, щоб повернути статус pending
+        await db.execute(
+            "DELETE FROM collections WHERE report_id = ? AND comment = 'Введено при закритті зміни'",
+            (report_id,),
+        )
         await db.execute(
             "UPDATE collections SET report_id = NULL WHERE report_id = ?",
             (report_id,),

@@ -2291,6 +2291,29 @@
             }
         }
 
+        function parseReportDate(dateStr) {
+            if (!dateStr) return 0;
+            const uaMatch = String(dateStr).match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})[,\s]+(\d{1,2}):(\d{2})/);
+            if (uaMatch) {
+                const [, day, month, year, hour, min] = uaMatch;
+                return new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(min)).getTime();
+            }
+            const t = new Date(String(dateStr).replace(' ', 'T')).getTime();
+            return isNaN(t) ? 0 : t;
+        }
+
+        function sortReportsDesc(list) {
+            return (list || []).filter(Boolean).sort((a, b) => {
+                const dateA = parseReportDate(a.created_at);
+                const dateB = parseReportDate(b.created_at);
+                if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+                const idA = Number(a.id) || 0;
+                const idB = Number(b.id) || 0;
+                if (idA && idB && idA !== idB) return idB - idA;
+                return String(b.id || '').localeCompare(String(a.id || ''));
+            });
+        }
+
         function getStoredReports() {
             try {
                 let list = JSON.parse(localStorage.getItem(REPORTS_BACKUP_KEY) || '[]');
@@ -2299,10 +2322,7 @@
                     !r.report_text?.includes("Зміна без пригод") && 
                     r.note !== "Зміна без пригод"
                 );
-                if (filtered.length !== list.length) {
-                    localStorage.setItem(REPORTS_BACKUP_KEY, JSON.stringify(filtered));
-                }
-                return filtered;
+                return sortReportsDesc(filtered);
             } catch (e) {
                 return [];
             }
@@ -2322,9 +2342,10 @@
                 } else {
                     list.unshift(report);
                 }
-                localStorage.setItem(REPORTS_BACKUP_KEY, JSON.stringify(list.slice(0, 100)));
-                if (report.close_cash !== undefined && report.close_cash !== null) {
-                    localStorage.setItem(LAST_CLOSE_CASH_KEY, String(report.close_cash));
+                const sorted = sortReportsDesc(list);
+                localStorage.setItem(REPORTS_BACKUP_KEY, JSON.stringify(sorted.slice(0, 100)));
+                if (sorted.length > 0 && sorted[0].close_cash !== undefined && sorted[0].close_cash !== null) {
+                    localStorage.setItem(LAST_CLOSE_CASH_KEY, String(sorted[0].close_cash));
                 }
             } catch (e) {
                 console.warn('Помилка запису звіту у кеш:', e);
@@ -2335,9 +2356,10 @@
             try {
                 let list = getStoredReports();
                 list = list.filter(r => String(r.id) !== String(id));
-                localStorage.setItem(REPORTS_BACKUP_KEY, JSON.stringify(list));
-                if (list.length > 0 && list[0].close_cash !== undefined) {
-                    localStorage.setItem(LAST_CLOSE_CASH_KEY, String(list[0].close_cash));
+                const sorted = sortReportsDesc(list);
+                localStorage.setItem(REPORTS_BACKUP_KEY, JSON.stringify(sorted));
+                if (sorted.length > 0 && sorted[0].close_cash !== undefined && sorted[0].close_cash !== null) {
+                    localStorage.setItem(LAST_CLOSE_CASH_KEY, String(sorted[0].close_cash));
                 } else {
                     localStorage.removeItem(LAST_CLOSE_CASH_KEY);
                 }
@@ -2503,22 +2525,36 @@
             // Якщо сервер офлайн або повернув помилку — рахуємо та зберігаємо звіт локально
             if (!reportData) {
                 const earned = close_cash - open_cash + expenses + collection;
-                const surplus = senet - earned;
-                const surplusStr = surplus === 0 ? '0 грн надлишку/недостачі.' :
-                                   surplus > 0 ? `${fmtMoney(surplus)} грн надлишку.` :
-                                   `${fmtMoney(Math.abs(surplus))} грн недостачі.`;
+                const surplus = earned - senet;
+                const noteSuffix = note ? `, ${note}` : '';
+                let surplusStr = '';
+                if (surplus > 0) {
+                    surplusStr = `${fmtMoney(surplus)} грн надлишку${noteSuffix}.`;
+                } else if (surplus < 0) {
+                    surplusStr = `${fmtMoney(Math.abs(surplus))} грн недостачі${noteSuffix}.`;
+                } else {
+                    surplusStr = `Надлишок: 0 грн${noteSuffix}`;
+                }
 
-                const shiftTitle = selectedShift === 'day' ? 'Денна' : 'Нічна';
+                const isDay = selectedShift === 'day';
+                const openLabel = isDay ? 'Каса готівки зранку' : 'Каса готівки вечері';
+                const earnedLabel = isDay ? 'Зароблено за день готівки' : 'Зароблено за ніч готівки';
+                const closeLabel = isDay ? 'Каса готівки ввечері' : 'Каса готівки зранку';
+
                 const now = new Date();
-                const nowStr = now.toLocaleDateString('uk-UA') + ' ' + now.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'});
+                const nowStr = now.getFullYear() + '-' +
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(now.getDate()).padStart(2, '0') + ' ' +
+                    String(now.getHours()).padStart(2, '0') + ':' +
+                    String(now.getMinutes()).padStart(2, '0') + ':' +
+                    String(now.getSeconds()).padStart(2, '0');
 
-                let text = `Закриття зміни (${shiftTitle}).\n` +
-                           `Каса готівки вечері: ${fmtMoney(open_cash)}\n` +
-                           `Зароблено готівки: ${fmtMoney(earned)}\n`;
-                if (expenses > 0) text += `Торгівельні витрати: ${fmtMoney(expenses)}\n`;
+                let text = `Закриття зміни.\n` +
+                           `${openLabel}: ${fmtMoney(open_cash)}\n` +
+                           `${earnedLabel}: ${fmtMoney(earned)}\n` +
+                           `Торгівельні витрати: ${fmtMoney(expenses)}\n`;
                 if (collection > 0) text += `Інкасація: ${fmtMoney(collection)}\n`;
-                text += `Каса готівки зранку: ${fmtMoney(close_cash)}\n${surplusStr}`;
-                if (note) text += `\n${note}`;
+                text += `${closeLabel}: ${fmtMoney(close_cash)}\n${surplusStr}`;
 
                 reportData = {
                     id: Date.now(),
@@ -2541,7 +2577,12 @@
                 if (!reportData.shift) reportData.shift = selectedShift;
                 if (!reportData.created_at) {
                     const now = new Date();
-                    reportData.created_at = now.toLocaleDateString('uk-UA') + ' ' + now.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'});
+                    reportData.created_at = now.getFullYear() + '-' +
+                        String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(now.getDate()).padStart(2, '0') + ' ' +
+                        String(now.getHours()).padStart(2, '0') + ':' +
+                        String(now.getMinutes()).padStart(2, '0') + ':' +
+                        String(now.getSeconds()).padStart(2, '0');
                 }
                 if (reportData.open_cash === undefined) reportData.open_cash = open_cash;
                 if (reportData.close_cash === undefined) reportData.close_cash = close_cash;
@@ -2568,11 +2609,13 @@
                 `;
 
                 // Очищаємо поля після успіху
+                document.getElementById('open_cash').value = '';
                 document.getElementById('close_cash').value = '';
                 document.getElementById('expenses').value = '0';
                 document.getElementById('report-collection').value = '0';
                 document.getElementById('senet').value = '';
                 document.getElementById('report-note').value = '';
+                clearReportDraft();
                 updateExpectedTotal();
                 loadExpectedCash();
             } else {
@@ -2672,20 +2715,13 @@
                     } else {
                         reportsMap.set(key, r);
                     }
-                    saveReportToStorage(r);
                 });
 
-                const allMerged = Array.from(reportsMap.values()).sort((a, b) => {
-                    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-                    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-                    if (!isNaN(dateA) && !isNaN(dateB) && dateA !== dateB) {
-                        return dateB - dateA;
-                    }
-                    const idA = Number(a.id) || 0;
-                    const idB = Number(b.id) || 0;
-                    if (idA && idB && idA !== idB) return idB - idA;
-                    return String(b.id || '').localeCompare(String(a.id || ''));
-                });
+                const allMerged = sortReportsDesc(Array.from(reportsMap.values()));
+                localStorage.setItem(REPORTS_BACKUP_KEY, JSON.stringify(allMerged.slice(0, 100)));
+                if (allMerged.length > 0 && allMerged[0].close_cash !== undefined && allMerged[0].close_cash !== null) {
+                    localStorage.setItem(LAST_CLOSE_CASH_KEY, String(allMerged[0].close_cash));
+                }
 
                 renderHistoryList(allMerged.slice(0, period), false);
             }
@@ -2711,18 +2747,15 @@
             const cutoff = new Date();
             cutoff.setDate(cutoff.getDate() - days);
             cutoff.setHours(0, 0, 0, 0);
+            const cutoffTime = cutoff.getTime();
 
             let earned = 0, expenses = 0, surplus = 0, count = 0;
             stored.forEach(r => {
                 if (!r) return;
                 let include = false;
                 if (r.created_at) {
-                    const d = new Date(r.created_at.replace(' ', 'T'));
-                    if (!isNaN(d.getTime())) {
-                        include = d >= cutoff;
-                    } else {
-                        include = true;
-                    }
+                    const t = parseReportDate(r.created_at);
+                    include = t > 0 ? t >= cutoffTime : true;
                 } else {
                     include = true;
                 }
