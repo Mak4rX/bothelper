@@ -1371,26 +1371,125 @@
             font-size: 0.95em;
             white-space: nowrap;
         }
-        .reviews-quick-hints {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            margin-top: 8px;
-            flex-wrap: wrap;
+        .reviews-history-container {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .reviews-hint-chip {
-            background: #1E1E22;
-            border: 1px solid #333333;
-            border-radius: 12px;
-            padding: 2px 8px;
-            font-size: 0.78em;
-            color: #A0A0A0;
+        .reviews-history-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .reviews-history-title {
+            color: #888888;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .reviews-history-clear-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #888888;
+            font-size: 0.74em;
             cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 4px;
             transition: all 0.15s;
         }
-        .reviews-hint-chip:hover {
-            border-color: #00D9FF;
-            color: #00D9FF;
+        .reviews-history-clear-btn:hover {
+            color: #FF4D4D;
+            border-color: rgba(229, 9, 20, 0.4);
+            background: rgba(229, 9, 20, 0.1);
+        }
+        .reviews-history-chips {
+            display: flex;
+            gap: 7px;
+            align-items: center;
+            flex-wrap: wrap;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+        .reviews-history-empty {
+            color: #666666;
+            font-size: 0.8em;
+            font-style: italic;
+        }
+        .reviews-history-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #19191D;
+            border: 1px solid #303038;
+            border-radius: 14px;
+            padding: 3px 9px;
+            font-size: 0.82em;
+            color: #CCCCCC;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .reviews-history-chip:hover {
+            color: #FFFFFF;
+            background: #22222A;
+            transform: translateY(-1px);
+        }
+        .reviews-history-chip.status-found {
+            border-color: rgba(229, 9, 20, 0.35);
+        }
+        .reviews-history-chip.status-found:hover {
+            border-color: #E50914;
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.25);
+        }
+        .reviews-history-chip.status-new {
+            border-color: rgba(0, 255, 102, 0.35);
+        }
+        .reviews-history-chip.status-new:hover {
+            border-color: #00FF66;
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.25);
+        }
+        .reviews-chip-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .reviews-chip-dot.found {
+            background: #FF4D4D;
+            box-shadow: 0 0 5px #FF4D4D;
+        }
+        .reviews-chip-dot.new {
+            background: #00FF66;
+            box-shadow: 0 0 5px #00FF66;
+        }
+        .reviews-chip-query {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+        .reviews-chip-time {
+            font-size: 0.74em;
+            color: #777777;
+        }
+        .reviews-chip-remove {
+            background: transparent;
+            border: none;
+            color: #666666;
+            font-size: 0.88em;
+            line-height: 1;
+            padding: 1px 3px;
+            margin-left: 2px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: color 0.15s, background 0.15s;
+        }
+        .reviews-chip-remove:hover {
+            color: #FF4D4D;
+            background: rgba(255, 255, 255, 0.12);
         }
         .reviews-result-container {
             margin-bottom: 16px;
@@ -1941,12 +2040,16 @@
                         Перевірити
                     </button>
                 </div>
-                <div class="reviews-quick-hints">
-                    <span style="color: #777777; font-size: 0.8em; margin-right: 4px;">Приклади:</span>
-                    <button type="button" class="reviews-hint-chip" onclick="quickSearchReview('0639436554')">0639436554</button>
-                    <button type="button" class="reviews-hint-chip" onclick="quickSearchReview('karma1488')">karma1488</button>
-                    <button type="button" class="reviews-hint-chip" onclick="quickSearchReview('buuurmalda')">buuurmalda</button>
-                    <button type="button" class="reviews-hint-chip" onclick="quickSearchReview('+380985184647')">+380985184647</button>
+                <div class="reviews-history-container" id="reviews-history-container">
+                    <div class="reviews-history-bar">
+                        <span class="reviews-history-title">🕒 Останні перевірки:</span>
+                        <button type="button" class="reviews-history-clear-btn" id="reviews-history-clear-btn" onclick="clearReviewsHistory()" title="Очистити всю історію перевірок" style="display: none;">
+                            Очистити
+                        </button>
+                    </div>
+                    <div class="reviews-history-chips" id="reviews-history-chips">
+                        <span class="reviews-history-empty">Ще немає перевірок</span>
+                    </div>
                 </div>
             </div>
 
@@ -4293,7 +4396,10 @@
         }
 
         function initReviewsTab() {
-            if (reviewsInitialized) return;
+            if (reviewsInitialized) {
+                renderReviewsHistory();
+                return;
+            }
             reviewsInitialized = true;
 
             try {
@@ -4310,7 +4416,13 @@
                 if (rawLocal) reviewsLocalAdded = JSON.parse(rawLocal) || [];
             } catch (e) { reviewsLocalAdded = []; }
 
+            try {
+                const rawHist = localStorage.getItem(REVIEWS_HISTORY_KEY);
+                if (rawHist) reviewsHistory = JSON.parse(rawHist) || [];
+            } catch (e) { reviewsHistory = []; }
+
             updateReviewsCountBadge();
+            renderReviewsHistory();
 
             const searchInput = document.getElementById('reviews-search-input');
             const clearBtn = document.getElementById('reviews-clear-btn');
@@ -4480,6 +4592,7 @@
 
             const result = checkContactLocally(query);
             renderReviewsResult(result);
+            addToReviewsHistory(result);
         }
 
         function stripReviewEmojis(str) {
@@ -4579,6 +4692,105 @@
                 if (clearBtn) clearBtn.style.display = 'block';
                 executeReviewsSearch();
             }
+        }
+
+        function addToReviewsHistory(result) {
+            if (!result || !result.query) return;
+
+            const timeStr = new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+            reviewsHistory = reviewsHistory.filter(h => h.query.toLowerCase() !== result.query.toLowerCase());
+            reviewsHistory.unshift({
+                query: result.query,
+                found: Boolean(result.found),
+                contactType: result.contactType || '',
+                time: timeStr
+            });
+
+            if (reviewsHistory.length > 20) {
+                reviewsHistory = reviewsHistory.slice(0, 20);
+            }
+
+            try {
+                localStorage.setItem(REVIEWS_HISTORY_KEY, JSON.stringify(reviewsHistory));
+            } catch (e) {
+                console.warn('Failed to save reviews history to localStorage:', e);
+            }
+
+            renderReviewsHistory();
+        }
+
+        function initReviewsHistoryEvents() {
+            const container = document.getElementById('reviews-history-chips');
+            if (!container || container._eventsBound) return;
+            container._eventsBound = true;
+
+            container.addEventListener('click', (e) => {
+                const removeBtn = e.target.closest('[data-action="remove"]');
+                const chip = e.target.closest('.reviews-history-chip');
+                if (!chip) return;
+                const query = chip.getAttribute('data-query');
+                if (!query) return;
+
+                if (removeBtn) {
+                    e.stopPropagation();
+                    removeReviewHistoryItem(query);
+                } else {
+                    quickSearchReview(query);
+                }
+            });
+        }
+
+        function renderReviewsHistory() {
+            const container = document.getElementById('reviews-history-chips');
+            const clearBtn = document.getElementById('reviews-history-clear-btn');
+            if (!container) return;
+
+            initReviewsHistoryEvents();
+
+            if (!reviewsHistory || !reviewsHistory.length) {
+                container.innerHTML = '<span class="reviews-history-empty">Ще немає перевірок</span>';
+                if (clearBtn) clearBtn.style.display = 'none';
+                return;
+            }
+
+            if (clearBtn) clearBtn.style.display = 'inline-block';
+
+            container.innerHTML = reviewsHistory.map(item => {
+                const isFound = Boolean(item.found);
+                const statusClass = isFound ? 'status-found' : 'status-new';
+                const dotClass = isFound ? 'found' : 'new';
+                const statusTooltip = isFound ? 'В базі (бонус вже видавався)' : 'Новий клієнт (бонус можна видати)';
+                const cleanQuery = escapeHtml(item.query);
+                const cleanTime = item.time ? escapeHtml(item.time) : '';
+
+                return `
+                    <div class="reviews-history-chip ${statusClass}" data-query="${cleanQuery}" title="${statusTooltip}${cleanTime ? ' • ' + cleanTime : ''}">
+                        <span class="reviews-chip-dot ${dotClass}"></span>
+                        <span class="reviews-chip-query">${cleanQuery}</span>
+                        ${cleanTime ? `<span class="reviews-chip-time">${cleanTime}</span>` : ''}
+                        <button type="button" class="reviews-chip-remove" data-action="remove" title="Видалити з історії">✕</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function clearReviewsHistory() {
+            if (!reviewsHistory || !reviewsHistory.length) return;
+            reviewsHistory = [];
+            try {
+                localStorage.removeItem(REVIEWS_HISTORY_KEY);
+            } catch (e) {}
+            renderReviewsHistory();
+            showToast('Історію перевірок очищено', 'info', 2000);
+        }
+
+        function removeReviewHistoryItem(query) {
+            if (!query) return;
+            reviewsHistory = reviewsHistory.filter(h => h.query.toLowerCase() !== query.toLowerCase());
+            try {
+                localStorage.setItem(REVIEWS_HISTORY_KEY, JSON.stringify(reviewsHistory));
+            } catch (e) {}
+            renderReviewsHistory();
         }
 
 
