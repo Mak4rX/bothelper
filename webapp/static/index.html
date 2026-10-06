@@ -3827,40 +3827,69 @@
             }
         ];
 
-        function getCachedPromotions() {
+        const PROMOTIONS_LOCAL_KEY = 'cyberhelper.promotions.v2';
+        const PROMOTIONS_INITIALIZED_KEY = 'cyberhelper.promotionsInitialized.v2';
+
+        function getLocalPromotions() {
             try {
-                const raw = localStorage.getItem(PROMOTIONS_CACHE_KEY);
+                const raw = localStorage.getItem(PROMOTIONS_LOCAL_KEY);
                 if (raw !== null) {
                     const parsed = JSON.parse(raw);
                     if (Array.isArray(parsed)) return parsed;
                 }
+
+                const oldRaw = localStorage.getItem('cyberhelper.promotionsCache.v1');
+                if (oldRaw !== null) {
+                    const oldParsed = JSON.parse(oldRaw);
+                    if (Array.isArray(oldParsed)) {
+                        saveLocalPromotions(oldParsed);
+                        return oldParsed;
+                    }
+                }
+
+                const isInit = localStorage.getItem(PROMOTIONS_INITIALIZED_KEY);
+                if (!isInit) {
+                    saveLocalPromotions(DEFAULT_PROMOTIONS);
+                    return [...DEFAULT_PROMOTIONS];
+                }
             } catch (e) {}
-            return DEFAULT_PROMOTIONS;
+            return [...DEFAULT_PROMOTIONS];
+        }
+
+        function saveLocalPromotions(promos) {
+            try {
+                localStorage.setItem(PROMOTIONS_LOCAL_KEY, JSON.stringify(promos));
+                localStorage.setItem(PROMOTIONS_INITIALIZED_KEY, 'true');
+            } catch (e) {}
         }
 
         async function loadPromotions() {
             const container = document.getElementById('promotions-list');
-            if (container) container.innerHTML = '<div class="loading">Завантаження...</div>';
+            if (container && (!promotionsCache || !promotionsCache.length)) {
+                container.innerHTML = '<div class="loading">Завантаження...</div>';
+            }
             renderTodayTariffsWidget('today-tariffs-table-content');
+
+            // 1. Спочатку миттєво беремо з локальної пам'яті браузера
+            promotionsCache = getLocalPromotions();
+            renderPromotionsList(promotionsCache);
+            renderPromotionsAdminList(promotionsCache);
+
+            // 2. Якщо є робочий бекенд, синхронізуємося
             try {
                 const response = await fetch('/api/promotions', { cache: 'no-cache' });
                 if (response.ok) {
-                    const data = await response.json();
-                    if (Array.isArray(data)) {
-                        promotionsCache = data;
-                        try { localStorage.setItem(PROMOTIONS_CACHE_KEY, JSON.stringify(promotionsCache)); } catch (e) {}
-                    } else {
-                        promotionsCache = getCachedPromotions();
+                    const serverData = await response.json();
+                    if (Array.isArray(serverData) && serverData.length > 0) {
+                        promotionsCache = serverData;
+                        saveLocalPromotions(promotionsCache);
+                        renderPromotionsList(promotionsCache);
+                        renderPromotionsAdminList(promotionsCache);
                     }
-                } else {
-                    promotionsCache = getCachedPromotions();
                 }
             } catch (error) {
-                console.warn('Використовуємо кешовані або стандартні акції клубу:', error);
-                promotionsCache = getCachedPromotions();
+                // Працює виключно на локальній пам'яті браузера
             }
-            renderPromotionsList(promotionsCache);
-            renderPromotionsAdminList(promotionsCache);
         }
 
         function resetPromotionForm() {
@@ -3893,7 +3922,9 @@
 
         async function submitPromotion(event) {
             event.preventDefault();
-            const id = document.getElementById('promotion-id').value;
+            const idVal = document.getElementById('promotion-id').value;
+            const isEdit = Boolean(idVal);
+            const id = isEdit ? Number(idVal) : Date.now();
             const chk = document.getElementById('promotion-unlimited');
             const unlimited = chk ? chk.checked : false;
             let startDateIso;
@@ -3924,42 +3955,83 @@
                 }
             }
             const payload = {
+                id: id,
                 title: document.getElementById('promotion-title').value.trim(),
                 start_date: startDateIso,
                 end_date: endDateIso,
                 conditions: document.getElementById('promotion-conditions').value.trim(),
                 cashier_instructions: document.getElementById('promotion-instructions').value.trim(),
             };
+
+            // 1. Миттєво зберігаємо в локальну пам'ять браузера (localStorage)
+            if (isEdit) {
+                const idx = promotionsCache.findIndex(p => p.id === id);
+                if (idx !== -1) {
+                    promotionsCache[idx] = { ...promotionsCache[idx], ...payload };
+                } else {
+                    promotionsCache.unshift(payload);
+                }
+            } else {
+                promotionsCache.unshift(payload);
+            }
+            saveLocalPromotions(promotionsCache);
+
+            // 2. Оновлюємо інтерфейс
+            renderPromotionsList(promotionsCache);
+            renderPromotionsAdminList(promotionsCache);
+            showToast(isEdit ? 'Акцію оновлено' : 'Акцію додано');
+            resetPromotionForm();
+            switchModalTab('list');
+
+            // 3. Якщо бекенд доступний, надсилаємо збереження у фоні
             try {
-                const response = await fetch(id ? `/api/promotions/${id}` : '/api/promotions', {
-                    method: id ? 'PUT' : 'POST',
+                const res = await fetch(isEdit ? `/api/promotions/${id}` : '/api/promotions', {
+                    method: isEdit ? 'PUT' : 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify({
+                        title: payload.title,
+                        start_date: payload.start_date,
+                        end_date: payload.end_date,
+                        conditions: payload.conditions,
+                        cashier_instructions: payload.cashier_instructions,
+                    }),
                 });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.detail || 'Не вдалося зберегти акцію');
-                showToast(id ? 'Акцію оновлено' : 'Акцію додано');
-                resetPromotionForm();
-                await loadPromotions();
-                switchModalTab('list');
-            } catch (error) {
-                showToast(escapeHtml(error.message), 'error');
+                if (res.ok) {
+                    const serverResult = await res.json();
+                    if (!isEdit && serverResult && serverResult.id) {
+                        const localItem = promotionsCache.find(p => p.id === id);
+                        if (localItem) {
+                            localItem.id = serverResult.id;
+                            saveLocalPromotions(promotionsCache);
+                        }
+                    }
+                }
+            } catch (e) {
+                // Бекенд відсутній (статичний хостинг) — в localStorage все вже збережено!
             }
         }
 
         async function removePromotion(id) {
             const promotion = promotionsCache.find(item => item.id === id);
-            if (!promotion || !confirm(`Видалити акцію «${promotion.title}»?`)) return;
+            if (!promotion) return;
+            if (!confirm(`Видалити акцію «${promotion.title}»?`)) return;
+
+            // 1. Негайно видаляємо з локальної пам'яті браузера (localStorage)
+            promotionsCache = promotionsCache.filter(item => item.id !== id);
+            saveLocalPromotions(promotionsCache);
+
+            // 2. Оновлюємо інтерфейс
+            renderPromotionsList(promotionsCache);
+            renderPromotionsAdminList(promotionsCache);
+            resetPromotionForm();
+            switchModalTab('list');
+            showToast('Акцію видалено');
+
+            // 3. Якщо бекенд доступний, надсилаємо DELETE
             try {
-                const response = await fetch(`/api/promotions/${id}`, { method: 'DELETE' });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.detail || 'Не вдалося видалити акцію');
-                showToast('Акцію видалено');
-                resetPromotionForm();
-                await loadPromotions();
-                switchModalTab('list');
-            } catch (error) {
-                showToast(escapeHtml(error.message), 'error');
+                await fetch(`/api/promotions/${id}`, { method: 'DELETE' });
+            } catch (e) {
+                // Бекенд відсутній (статичний хостинг) — в localStorage вже видалено!
             }
         }
 
