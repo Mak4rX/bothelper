@@ -1,7 +1,7 @@
 """FastAPI веб-приложение для управления кассой киберклуба."""
 
 import logging
-from datetime import datetime
+from datetime import datetime, date
 from pathlib import Path
 from typing import Optional
 from contextlib import asynccontextmanager
@@ -23,6 +23,7 @@ from pricing import (
     calculate_hours,
     calculate_price,
     is_morning_rate_active,
+    get_live_pricing_data,
 )
 import reviews
 
@@ -117,6 +118,74 @@ class ReviewAddRequest(BaseModel):
     contact: str
     note: str = "Відгук гугл карта"
     script_url: Optional[str] = None
+
+
+class PromotionRequest(BaseModel):
+    title: str
+    start_date: str
+    end_date: Optional[str] = None
+    conditions: str
+    cashier_instructions: str
+
+
+class PromotionResponse(BaseModel):
+    id: int
+    title: str
+    start_date: str
+    end_date: Optional[str] = None
+    conditions: str
+    cashier_instructions: str
+    created_at: str
+    updated_at: str
+
+
+def validate_promotion(data: PromotionRequest) -> tuple[str, str, str | None, str, str]:
+    """Нормалізує та перевіряє дані акції перед записом у SQLite."""
+    title = data.title.strip()
+    start_date = data.start_date.strip()
+    end_date = data.end_date.strip() if data.end_date else None
+    conditions = data.conditions.strip()
+    cashier_instructions = data.cashier_instructions.strip()
+
+    if not title:
+        raise HTTPException(400, "Promotion title is required")
+    if not conditions:
+        raise HTTPException(400, "Promotion conditions are required")
+    if not cashier_instructions:
+        raise HTTPException(400, "Cashier instructions are required")
+
+    def _parse_date(s: str, field_name: str) -> date:
+        try:
+            return date.fromisoformat(s)
+        except ValueError:
+            pass
+        for fmt in ("%d.%m.%Y", "%d/%m/%Y", "%d-%m-%Y"):
+            try:
+                return datetime.strptime(s, fmt).date()
+            except ValueError:
+                pass
+        raise HTTPException(400, f"{field_name} must be in YYYY-MM-DD or DD.MM.YYYY format")
+
+    start = _parse_date(start_date, "start_date")
+    end = _parse_date(end_date, "end_date") if end_date else None
+    if end and end < start:
+        raise HTTPException(400, "end_date cannot be earlier than start_date")
+
+    return title, start.isoformat(), end.isoformat() if end else None, conditions, cashier_instructions
+
+
+
+def promotion_response(row) -> PromotionResponse:
+    return PromotionResponse(
+        id=row["id"],
+        title=row["title"],
+        start_date=row["start_date"],
+        end_date=row["end_date"],
+        conditions=row["conditions"],
+        cashier_instructions=row["cashier_instructions"],
+        created_at=row["created_at"],
+        updated_at=row["updated_at"],
+    )
 
 
 # ---------- API endpoints ----------
@@ -342,6 +411,7 @@ async def get_zones():
             "id": zone.id,
             "name": zone.name,
             "morning_price": zone.morning_price,
+            "morning_hours_count": getattr(zone, "morning_hours", 1),
             "morning_active": is_morning_rate_active(),
             "morning_hours": "09:00–16:00",
             "weekday_hour": zone.weekday_hour,
@@ -410,6 +480,53 @@ async def get_compensation(
         return calculate_compensation(amount, percent)
     except ValueError as e:
         raise HTTPException(400, str(e))
+
+
+@app.get("/api/pricing/live")
+async def live_pricing(
+    hour: int | None = Query(default=None, ge=0, le=23),
+    dow: int | None = Query(default=None, ge=0, le=6),
+):
+    """Повертає актуальні тарифи в усіх зонах та діючі пакети на поточний (або обраний) день та час."""
+    return get_live_pricing_data(current_hour=hour, day_of_week=dow)
+
+
+# ---------- Акції ----------
+
+@app.get("/api/promotions", response_model=list[PromotionResponse])
+async def get_promotions():
+    """Повернути всі додані акції, включно з майбутніми та завершеними."""
+    rows = await db.list_promotions()
+    return [promotion_response(row) for row in rows]
+
+
+@app.post("/api/promotions", response_model=PromotionResponse, status_code=201)
+async def create_promotion(data: PromotionRequest):
+    """Створити акцію в локальній SQLite-базі."""
+    values = validate_promotion(data)
+    promotion_id = await db.create_promotion(*values)
+    row = await db.get_promotion(promotion_id)
+    return promotion_response(row)
+
+
+@app.put("/api/promotions/{promotion_id}", response_model=PromotionResponse)
+async def update_promotion(promotion_id: int, data: PromotionRequest):
+    """Оновити акцію."""
+    values = validate_promotion(data)
+    updated = await db.update_promotion(promotion_id, *values)
+    if not updated:
+        raise HTTPException(404, "Promotion not found")
+    row = await db.get_promotion(promotion_id)
+    return promotion_response(row)
+
+
+@app.delete("/api/promotions/{promotion_id}")
+async def delete_promotion(promotion_id: int):
+    """Видалити акцію."""
+    deleted = await db.delete_promotion(promotion_id)
+    if not deleted:
+        raise HTTPException(404, "Promotion not found")
+    return {"ok": True}
 
 
 # ---------- Google Відгуки ----------

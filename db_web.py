@@ -38,6 +38,17 @@ CREATE TABLE IF NOT EXISTS collections (
     report_id  INTEGER,
     created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
 );
+
+CREATE TABLE IF NOT EXISTS promotions (
+    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+    title                TEXT NOT NULL,
+    start_date           TEXT NOT NULL,
+    end_date             TEXT,
+    conditions           TEXT NOT NULL,
+    cashier_instructions TEXT NOT NULL,
+    created_at           TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    updated_at           TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+);
 """
 
 _MIGRATIONS = (
@@ -253,3 +264,77 @@ async def expected_cash() -> int | None:
         )
         row = await cur.fetchone()
         return row[0] if row else None
+
+
+# ---------- акції ----------
+
+async def create_promotion(
+    title: str,
+    start_date: str,
+    end_date: str | None,
+    conditions: str,
+    cashier_instructions: str,
+) -> int:
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            """INSERT INTO promotions
+               (title, start_date, end_date, conditions, cashier_instructions)
+               VALUES (?, ?, ?, ?, ?)""",
+            (title, start_date, end_date, conditions, cashier_instructions),
+        )
+        await db.commit()
+        return cur.lastrowid
+
+
+async def list_promotions() -> list[aiosqlite.Row]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            """SELECT id, title, start_date, end_date, conditions,
+                      cashier_instructions, created_at, updated_at
+               FROM promotions
+               ORDER BY start_date DESC, id DESC"""
+        )
+        return await cur.fetchall()
+
+
+async def get_promotion(promotion_id: int) -> aiosqlite.Row | None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            """SELECT id, title, start_date, end_date, conditions,
+                      cashier_instructions, created_at, updated_at
+               FROM promotions WHERE id = ?""",
+            (promotion_id,),
+        )
+        return await cur.fetchone()
+
+
+async def update_promotion(
+    promotion_id: int,
+    title: str,
+    start_date: str,
+    end_date: str | None,
+    conditions: str,
+    cashier_instructions: str,
+) -> bool:
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            """UPDATE promotions
+               SET title = ?, start_date = ?, end_date = ?, conditions = ?,
+                   cashier_instructions = ?, updated_at = datetime('now', 'localtime')
+               WHERE id = ?""",
+            (title, start_date, end_date, conditions, cashier_instructions, promotion_id),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def delete_promotion(promotion_id: int) -> bool:
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            "DELETE FROM promotions WHERE id = ?",
+            (promotion_id,),
+        )
+        await db.commit()
+        return cur.rowcount > 0

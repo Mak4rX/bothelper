@@ -37,8 +37,21 @@ class PricingTests(unittest.TestCase):
         active = ZONES["tv"].get_options("weekday", current_hour=9)
         inactive = ZONES["tv"].get_options("weekday", current_hour=16)
         self.assertEqual(active[0].price, 130)
+        self.assertEqual(active[0].hours, 2)
+        self.assertEqual(active[0].price_per_hour, 65)
         self.assertIn("09:00–16:00", active[0].name)
         self.assertNotIn(130, [option.price for option in inactive])
+
+        # Розрахунок у калькуляторі: 130 грн дає 2 години гри
+        money_morn = calculate_hours(130, "tv", "weekday", current_hour=10)
+        morn_opt = next(o for o in money_morn if "Ранок" in o["package"])
+        self.assertEqual(morn_opt["hours"], 2)
+        self.assertEqual(morn_opt["price"], 130)
+
+        # Розрахунок ціни за 2 години гри у ранковий час
+        price_morn = calculate_price(2, "tv", "weekday", current_hour=10)
+        morn_price_opt = next(o for o in price_morn if "Ранок" in o["package"])
+        self.assertEqual(morn_price_opt["price"], 130)
 
     def test_school_package_time_windows(self):
         self.assertTrue(is_school_package_active("weekday", 14))
@@ -140,6 +153,34 @@ class PricingTests(unittest.TestCase):
             calculate_compensation(100, 105)
         with self.assertRaises(ValueError):
             calculate_compensation(-10, 20)
+
+    def test_live_pricing_data(self):
+        from pricing import get_live_pricing_data
+
+        # Будень 11:00 (Вівторок, dow=1) -> Ранок активний, Школяр 130
+        data_tue_morn = get_live_pricing_data(current_hour=11, day_of_week=1)
+        self.assertTrue(data_tue_morn["morning_active"])
+        self.assertFalse(data_tue_morn["night_active"])
+        self.assertTrue(data_tue_morn["school_active"])
+        self.assertEqual(data_tue_morn["school_price"], 130)
+        gamer_tue = next(z for z in data_tue_morn["zones"] if z["id"] == "gamer")
+        self.assertEqual(gamer_tue["current_hour_price"], 50)
+
+        # П'ятниця 19:00 (dow=4) -> Вихідні, Ранок не активний, Ніч не активна
+        data_fri_eve = get_live_pricing_data(current_hour=19, day_of_week=4)
+        self.assertFalse(data_fri_eve["morning_active"])
+        self.assertFalse(data_fri_eve["night_active"])
+        self.assertFalse(data_fri_eve["school_active"])
+        gamer_fri = next(z for z in data_fri_eve["zones"] if z["id"] == "gamer")
+        self.assertEqual(gamer_fri["current_hour_price"], 80)
+
+        # Субота 23:30 (dow=5, hour=23) -> Ніч активна
+        data_sat_night = get_live_pricing_data(current_hour=23, day_of_week=5)
+        self.assertTrue(data_sat_night["night_active"])
+        gamer_night = next(z for z in data_sat_night["zones"] if z["id"] == "gamer")
+        night_pkg = next(p for p in gamer_night["packages"] if "Ніч" in p["name"])
+        self.assertTrue(night_pkg["active_now"])
+        self.assertEqual(night_pkg["price"], 450)
 
 
 if __name__ == "__main__":
