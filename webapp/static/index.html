@@ -3870,26 +3870,10 @@
             }
             renderTodayTariffsWidget('today-tariffs-table-content');
 
-            // 1. Спочатку миттєво беремо з локальної пам'яті браузера
+            // Акції зберігаються ТІЛЬКИ в локальній пам'яті браузера (localStorage)
             promotionsCache = getLocalPromotions();
             renderPromotionsList(promotionsCache);
             renderPromotionsAdminList(promotionsCache);
-
-            // 2. Якщо є робочий бекенд, синхронізуємося
-            try {
-                const response = await fetch('/api/promotions', { cache: 'no-cache' });
-                if (response.ok) {
-                    const serverData = await response.json();
-                    if (Array.isArray(serverData) && serverData.length > 0) {
-                        promotionsCache = serverData;
-                        saveLocalPromotions(promotionsCache);
-                        renderPromotionsList(promotionsCache);
-                        renderPromotionsAdminList(promotionsCache);
-                    }
-                }
-            } catch (error) {
-                // Працює виключно на локальній пам'яті браузера
-            }
         }
 
         function resetPromotionForm() {
@@ -3982,33 +3966,6 @@
             showToast(isEdit ? 'Акцію оновлено' : 'Акцію додано');
             resetPromotionForm();
             switchModalTab('list');
-
-            // 3. Якщо бекенд доступний, надсилаємо збереження у фоні
-            try {
-                const res = await fetch(isEdit ? `/api/promotions/${id}` : '/api/promotions', {
-                    method: isEdit ? 'PUT' : 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        title: payload.title,
-                        start_date: payload.start_date,
-                        end_date: payload.end_date,
-                        conditions: payload.conditions,
-                        cashier_instructions: payload.cashier_instructions,
-                    }),
-                });
-                if (res.ok) {
-                    const serverResult = await res.json();
-                    if (!isEdit && serverResult && serverResult.id) {
-                        const localItem = promotionsCache.find(p => p.id === id);
-                        if (localItem) {
-                            localItem.id = serverResult.id;
-                            saveLocalPromotions(promotionsCache);
-                        }
-                    }
-                }
-            } catch (e) {
-                // Бекенд відсутній (статичний хостинг) — в localStorage все вже збережено!
-            }
         }
 
         async function removePromotion(id) {
@@ -4026,13 +3983,6 @@
             resetPromotionForm();
             switchModalTab('list');
             showToast('Акцію видалено');
-
-            // 3. Якщо бекенд доступний, надсилаємо DELETE
-            try {
-                await fetch(`/api/promotions/${id}`, { method: 'DELETE' });
-            } catch (e) {
-                // Бекенд відсутній (статичний хостинг) — в localStorage вже видалено!
-            }
         }
 
         async function copyReport(btn) {
