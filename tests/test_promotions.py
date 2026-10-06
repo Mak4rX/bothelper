@@ -10,7 +10,7 @@ class PromotionDatabaseTests(unittest.IsolatedAsyncioTestCase):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.original_db_path = db.DB_PATH
         db.DB_PATH = Path(self.temp_dir.name) / "promotions.db"
-        await db.init_db()
+        await db.init_db(seed_promotions=False)
 
     async def asyncTearDown(self):
         db.DB_PATH = self.original_db_path
@@ -50,9 +50,18 @@ class PromotionDatabaseTests(unittest.IsolatedAsyncioTestCase):
         await db.create_promotion(
             "Перша акція", "2026-10-01", "2026-10-31", "Умова", "Каса"
         )
-        await db.init_db()
+        await db.init_db(seed_promotions=False)
         rows = await db.list_promotions()
         self.assertEqual([row["title"] for row in rows], ["Перша акція"])
+
+    async def test_seed_promotions_on_fresh_db(self):
+        seeded_path = Path(self.temp_dir.name) / "seeded_fresh.db"
+        db.DB_PATH = seeded_path
+        await db.init_db(seed_promotions=True)
+        rows = await db.list_promotions()
+        self.assertEqual(len(rows), len(db.SEED_PROMOTIONS))
+        titles = [r["title"] for r in rows]
+        self.assertIn("🎒 Пакет «Школяр» (3 години гри від 130 ₴)", titles)
 
 
 if __name__ == "__main__":
