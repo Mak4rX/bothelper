@@ -220,10 +220,18 @@ SEED_PROMOTIONS = [
 
 
 async def _seed_default_promotions(db) -> None:
-    """Заповнює базу початковими акціями клубу, якщо таблиця порожня."""
-    cur = await db.execute("SELECT COUNT(*) FROM promotions")
+    """Заповнює базу початковими акціями клубу один раз (якщо база нова і ще не ініціалізувалась)."""
+    await db.execute(
+        "CREATE TABLE IF NOT EXISTS _meta (key TEXT PRIMARY KEY, value TEXT)"
+    )
+    cur = await db.execute("SELECT value FROM _meta WHERE key = 'promotions_seeded'")
     row = await cur.fetchone()
-    if row and row[0] == 0:
+    if row and row[0] == "1":
+        return
+
+    cur_cnt = await db.execute("SELECT COUNT(*) FROM promotions")
+    count_row = await cur_cnt.fetchone()
+    if count_row and count_row[0] == 0:
         for p in SEED_PROMOTIONS:
             await db.execute(
                 """INSERT INTO promotions
@@ -231,6 +239,11 @@ async def _seed_default_promotions(db) -> None:
                    VALUES (?, ?, ?, ?, ?)""",
                 (p["title"], p["start_date"], p["end_date"], p["conditions"], p["cashier_instructions"]),
             )
+
+    await db.execute(
+        "INSERT INTO _meta (key, value) VALUES ('promotions_seeded', '1') "
+        "ON CONFLICT(key) DO UPDATE SET value = '1'"
+    )
 
 
 async def init_db(seed_promotions: bool = True) -> None:
