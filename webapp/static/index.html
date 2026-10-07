@@ -1820,136 +1820,6 @@
             margin-left: 8px;
         }
 
-        .live-status-pills {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: flex-end;
-            max-width: 550px;
-        }
-
-        .live-pill {
-            padding: 7px 13px;
-            border-radius: 8px;
-            font-size: 0.82em;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-
-        .live-pill.active {
-            background: rgba(0, 255, 102, 0.14);
-            border: 1px solid #00FF66;
-            color: #00FF66;
-            box-shadow: 0 0 12px rgba(0, 255, 102, 0.2);
-        }
-
-        .live-pill.inactive {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid #333338;
-            color: #777777;
-        }
-
-        .live-simulation-bar {
-            background: #18181C;
-            border: 1px solid #2B2B32;
-            border-radius: 14px;
-            padding: 16px 20px;
-            margin-bottom: 24px;
-        }
-
-        .live-sim-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .live-sim-title {
-            color: #FFEA00;
-            font-size: 0.95em;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        .live-sim-sub {
-            color: #888888;
-            font-size: 0.85em;
-        }
-
-        .live-presets-grid {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 14px;
-        }
-
-        .live-preset-btn {
-            background: #202025;
-            border: 1px solid #36363E;
-            color: #A5A5B0;
-            padding: 9px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.85em;
-            font-weight: 700;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .live-preset-btn:hover {
-            border-color: #00E5FF;
-            color: #FFFFFF;
-            background: rgba(0, 229, 255, 0.1);
-        }
-
-        .live-preset-btn.active {
-            border-color: #00E5FF;
-            color: #00E5FF;
-            background: rgba(0, 229, 255, 0.15);
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
-        }
-
-        .live-custom-sim-row {
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-            flex-wrap: wrap;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .live-custom-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .live-custom-item label {
-            font-size: 0.78em;
-            color: #888888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .live-custom-item select {
-            background: #202025;
-            border: 1px solid #36363E;
-            color: #FFFFFF;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            outline: none;
-        }
-
         .live-zones-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
@@ -1998,8 +1868,8 @@
         }
 
         .live-cur-price-box {
-            background: linear-gradient(135deg, rgba(255, 234, 0, 0.1) 0%, rgba(255, 234, 0, 0.02) 100%);
-            border: 1px solid rgba(255, 234, 0, 0.35);
+            background: #18181E;
+            border: 1px solid #2B2B33;
             border-radius: 12px;
             padding: 14px 16px;
             text-align: center;
@@ -2010,15 +1880,14 @@
         .live-cur-price-val {
             font-size: 2.1em;
             font-weight: 900;
-            color: #FFEA00;
-            text-shadow: 0 0 16px rgba(255, 234, 0, 0.5);
+            color: #FFFFFF;
             font-family: 'Courier New', monospace;
             line-height: 1.1;
         }
 
         .live-cur-price-tag {
             font-size: 0.82em;
-            color: #E0E0E0;
+            color: #A0A0A0;
             margin-top: 5px;
             font-weight: 600;
         }
@@ -2039,12 +1908,6 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: all 0.2s;
-        }
-
-        .live-pkg-row.active-now {
-            background: rgba(0, 255, 102, 0.07);
-            border: 1px solid rgba(0, 255, 102, 0.3);
-            border-left: 3px solid #00FF66;
         }
 
         .live-pkg-info {
@@ -2075,26 +1938,8 @@
         .live-pkg-price {
             font-size: 1.05em;
             font-weight: 800;
-            color: #FFEA00;
+            color: #FFFFFF;
             font-family: 'Courier New', monospace;
-        }
-
-        .live-pkg-status-badge {
-            font-size: 0.7em;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            text-transform: uppercase;
-        }
-
-        .live-pkg-status-badge.badge-active {
-            background: rgba(0, 255, 102, 0.2);
-            color: #00FF66;
-        }
-
-        .live-pkg-status-badge.badge-sched {
-            background: rgba(255, 255, 255, 0.08);
-            color: #777777;
         }
 
         .live-zone-footer {
@@ -2394,12 +2239,6 @@
             padding-left: 12px;
         }
 
-        .today-table th.col-active {
-            color: #00FF66;
-            background: rgba(0, 255, 102, 0.1);
-            border-bottom: 2px solid #00FF66;
-        }
-
         .today-table td {
             padding: 8px 6px;
             border-bottom: 1px solid #24242C;
@@ -2429,28 +2268,6 @@
             font-weight: 800;
             color: #FFFFFF;
             font-size: 0.94em;
-        }
-
-        .today-table .price-val.highlight-active {
-            color: #00FF66;
-            text-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
-        }
-
-        .today-table .price-val.price-gold {
-            color: #FFEA00;
-        }
-
-        .today-table .badge-now {
-            display: inline-block;
-            padding: 1px 4px;
-            border-radius: 4px;
-            font-size: 0.65em;
-            font-weight: 800;
-            background: rgba(0, 255, 102, 0.2);
-            color: #00FF66;
-            margin-left: 3px;
-            text-transform: uppercase;
-            vertical-align: middle;
         }
 
         .today-table-section-title {
@@ -2614,64 +2431,6 @@
                     </div>
                     <div class="live-clock-time" id="live-clock-time">--:--:--</div>
                     <div class="live-clock-date" id="live-clock-date">Визначення часу клубу...</div>
-                </div>
-                <div class="live-status-pills" id="live-status-pills">
-                    <!-- Pills dynamically injected -->
-                </div>
-            </div>
-
-            <!-- Simulation Controls / Quick Presets -->
-            <div class="live-simulation-bar">
-                <div class="live-sim-header">
-                    <span class="live-sim-title">🎮 Швидка перевірка тарифів за графіком:</span>
-                    <span class="live-sim-sub" id="live-sim-active-note">Показує реальний час клубу</span>
-                </div>
-                <div class="live-presets-grid">
-                    <button type="button" class="live-preset-btn active" id="sim-preset-live" onclick="setLiveSimulation('live')">
-                        🔴 Зараз (Live)
-                    </button>
-                    <button type="button" class="live-preset-btn" id="sim-preset-morning" onclick="setLiveSimulation('morning')">
-                        🌅 Ранок (Пн–Чт 11:00)
-                    </button>
-                    <button type="button" class="live-preset-btn" id="sim-preset-weekday-day" onclick="setLiveSimulation('weekday-day')">
-                        ☀️ Будні День (Пн–Чт 16:30)
-                    </button>
-                    <button type="button" class="live-preset-btn" id="sim-preset-friday" onclick="setLiveSimulation('friday')">
-                        🎉 П'ятниця вечір (19:00)
-                    </button>
-                    <button type="button" class="live-preset-btn" id="sim-preset-weekend" onclick="setLiveSimulation('weekend')">
-                        🕹️ Вихідний День (Сб 13:00)
-                    </button>
-                    <button type="button" class="live-preset-btn" id="sim-preset-night" onclick="setLiveSimulation('night')">
-                        🌙 Ніч (23:30)
-                    </button>
-                </div>
-
-                <!-- Custom Simulator dropdowns -->
-                <div class="live-custom-sim-row">
-                    <div class="live-custom-item">
-                        <label for="live-sim-dow">День тижня:</label>
-                        <select id="live-sim-dow" onchange="applyCustomSimulation()">
-                            <option value="0">Понеділок (Пн)</option>
-                            <option value="1">Вівторок (Вт)</option>
-                            <option value="2">Середа (Ср)</option>
-                            <option value="3">Четвер (Чт)</option>
-                            <option value="4">П'ятниця (Пт)</option>
-                            <option value="5">Субота (Сб)</option>
-                            <option value="6">Неділя (Нд)</option>
-                        </select>
-                    </div>
-                    <div class="live-custom-item">
-                        <label for="live-sim-hour">Година доби:</label>
-                        <select id="live-sim-hour" onchange="applyCustomSimulation()">
-                            <!-- Generated by JS 0..23 -->
-                        </select>
-                    </div>
-                    <div class="live-custom-item" style="display: flex; align-items: flex-end;">
-                        <button type="button" class="btn btn-secondary" onclick="setLiveSimulation('live')" style="padding: 8px 14px; font-size: 0.88em;">
-                            ↺ Скинути на зараз
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -3597,18 +3356,10 @@
                 // Update meta if main widget
                 const metaEl = document.getElementById('today-tariffs-meta');
                 if (metaEl && targetId === 'today-tariffs-table-content') {
-                    const morningTag = data.morning_active ? '<span class="badge-now">🌅 Ранок активний</span>' : '';
-                    const nightTag = data.night_active ? '<span class="badge-now">🌙 Ніч активна</span>' : '';
-                    const schoolTag = data.school_active ? `<span class="badge-now">🎒 Школяр ${data.school_price}₴</span>` : '';
                     metaEl.innerHTML = `
                         <span>📅 ${data.day_name} · ${data.day_type_label}</span>
-                        ${morningTag} ${schoolTag} ${nightTag}
                     `;
                 }
-
-                const isMorn = data.morning_active;
-                const isNight = data.night_active;
-                const isReg = !isMorn && !isNight;
 
                 const zones = data.zones || [];
                 const pcZones = zones.filter(z => z.id !== 'tv');
@@ -3647,24 +3398,12 @@
                     pcRowsHtml += `
                         <tr>
                             <td class="zone-name-cell">${name}</td>
-                            <td class="${isMorn ? 'highlight-active' : ''}">
-                                <span class="price-val ${isMorn ? 'highlight-active' : ''}">${mornPrice}</span>
-                                ${isMorn ? '<span class="badge-now">ЗАРАЗ</span>' : ''}
-                            </td>
-                            <td class="${isReg ? 'highlight-active' : ''}">
-                                <span class="price-val ${isReg ? 'highlight-active' : ''}">${stdPrice}</span>
-                                ${isReg ? '<span class="badge-now">ЗАРАЗ</span>' : ''}
-                            </td>
-                            <td>
-                                <span class="price-val">${schoolCol}</span>
-                                ${data.school_active && id === 'gamer' ? '<span class="badge-now">ЗАРАЗ</span>' : ''}
-                            </td>
-                            <td><span class="price-val price-gold">${p3Price}</span></td>
-                            <td><span class="price-val price-gold">${p5Price}</span></td>
-                            <td class="${isNight ? 'highlight-active' : ''}">
-                                <span class="price-val ${isNight ? 'highlight-active' : ''}">${nightPrice}</span>
-                                ${isNight && nightPkg ? '<span class="badge-now">ЗАРАЗ</span>' : ''}
-                            </td>
+                            <td><span class="price-val">${mornPrice}</span></td>
+                            <td><span class="price-val">${stdPrice}</span></td>
+                            <td><span class="price-val">${schoolCol}</span></td>
+                            <td><span class="price-val">${p3Price}</span></td>
+                            <td><span class="price-val">${p5Price}</span></td>
+                            <td><span class="price-val">${nightPrice}</span></td>
                             <td><span class="price-val">${p30Price}</span></td>
                         </tr>
                     `;
@@ -3688,20 +3427,11 @@
                     tvRowsHtml = `
                         <tr>
                             <td class="zone-name-cell">${tvZone.name}</td>
-                            <td class="${isMorn ? 'highlight-active' : ''}">
-                                <span class="price-val ${isMorn ? 'highlight-active' : ''}">${mornPrice}</span>
-                                ${isMorn ? '<span class="badge-now">ЗАРАЗ</span>' : ''}
-                            </td>
-                            <td class="${isReg ? 'highlight-active' : ''}">
-                                <span class="price-val ${isReg ? 'highlight-active' : ''}">${stdPrice}</span>
-                                ${isReg ? '<span class="badge-now">ЗАРАЗ</span>' : ''}
-                            </td>
-                            <td><span class="price-val price-gold">${p2Price}</span></td>
-                            <td><span class="price-val price-gold">${p3Price}</span></td>
-                            <td class="${isNight ? 'highlight-active' : ''}">
-                                <span class="price-val ${isNight ? 'highlight-active' : ''}">${nightPrice}</span>
-                                ${isNight && nightPkg ? '<span class="badge-now">ЗАРАЗ</span>' : ''}
-                            </td>
+                            <td><span class="price-val">${mornPrice}</span></td>
+                            <td><span class="price-val">${stdPrice}</span></td>
+                            <td><span class="price-val">${p2Price}</span></td>
+                            <td><span class="price-val">${p3Price}</span></td>
+                            <td><span class="price-val">${nightPrice}</span></td>
                         </tr>
                     `;
                 }
@@ -3716,12 +3446,12 @@
                         <thead>
                             <tr>
                                 <th>Зона</th>
-                                <th class="${isMorn ? 'col-active' : ''}">🌅 Ранок (1г)</th>
-                                <th class="${isReg ? 'col-active' : ''}">☀️ 1 година</th>
+                                <th>🌅 Ранок (1г)</th>
+                                <th>☀️ 1 година</th>
                                 <th>🎒 Школяр (3г)</th>
                                 <th>⏱️ 3 години</th>
                                 <th>⏱️ 5 годин</th>
-                                <th class="${isNight ? 'col-active' : ''}">🌙 Ніч (10г)</th>
+                                <th>🌙 Ніч (10г)</th>
                                 <th>⏳ 30 годин</th>
                             </tr>
                         </thead>
@@ -3737,11 +3467,11 @@
                         <thead>
                             <tr>
                                 <th>Зона</th>
-                                <th class="${isMorn ? 'col-active' : ''}">🌅 Ранок (2г пакет)</th>
-                                <th class="${isReg ? 'col-active' : ''}">☀️ 1 година</th>
+                                <th>🌅 Ранок (2г пакет)</th>
+                                <th>☀️ 1 година</th>
                                 <th>⏱️ 2 години</th>
                                 <th>⏱️ 3 години</th>
-                                <th class="${isNight ? 'col-active' : ''}">🌙 Ніч (10г)</th>
+                                <th>🌙 Ніч (10г)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -5050,21 +4780,6 @@
             "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота", "Неділя"
         ];
 
-        function initLivePricingHoursSelect() {
-            const select = document.getElementById('live-sim-hour');
-            if (!select || select.children.length > 0) return;
-            for (let h = 0; h < 24; h++) {
-                const opt = document.createElement('option');
-                opt.value = h;
-                const hh = String(h).padStart(2, '0');
-                let tag = '';
-                if (h >= 9 && h < 15) tag = ' (🌅 Ранок)';
-                else if (h >= 22 || h < 8) tag = ' (🌙 Ніч)';
-                opt.textContent = `${hh}:00${tag}`;
-                select.appendChild(opt);
-            }
-        }
-
         function updateLiveClockDisplay() {
             const timeEl = document.getElementById('live-clock-time');
             const dateEl = document.getElementById('live-clock-date');
@@ -5073,43 +4788,27 @@
             if (!timeEl || !dateEl) return;
 
             const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            timeEl.textContent = `${hh}:${mm}:${ss}`;
 
-            if (livePricingState.mode === 'live') {
-                const hh = String(now.getHours()).padStart(2, '0');
-                const mm = String(now.getMinutes()).padStart(2, '0');
-                const ss = String(now.getSeconds()).padStart(2, '0');
-                timeEl.textContent = `${hh}:${mm}:${ss}`;
+            const dd = String(now.getDate()).padStart(2, '0');
+            const mo = String(now.getMonth() + 1).padStart(2, '0');
+            const yyyy = now.getFullYear();
+            const dow = (now.getDay() + 6) % 7; // 0=Mon .. 6=Sun
+            const dowName = DOW_NAMES_UK[dow];
+            const dayTypeBadge = (dow <= 3) ? 'Будні (Пн–Чт)' : "Вихідні / свята (Пт–Нд)";
 
-                const dd = String(now.getDate()).padStart(2, '0');
-                const mo = String(now.getMonth() + 1).padStart(2, '0');
-                const yyyy = now.getFullYear();
-                const dow = (now.getDay() + 6) % 7; // 0=Mon .. 6=Sun
-                const dowName = DOW_NAMES_UK[dow];
-                const dayTypeBadge = (dow <= 3) ? 'Будні (Пн–Чт)' : "Вихідні / свята (Пт–Нд)";
-
-                dateEl.innerHTML = `${dowName}, ${dd}.${mo}.${yyyy} <span class="live-clock-dow-badge">${dayTypeBadge}</span>`;
-                if (indEl) indEl.classList.remove('simulated');
-                if (statusLabel) statusLabel.textContent = 'РЕЖИМ НАЖИВО';
-            } else {
-                const simH = livePricingState.hour ?? 12;
-                const simD = livePricingState.dow ?? 0;
-                const hh = String(simH).padStart(2, '0');
-                timeEl.textContent = `${hh}:00 (моделювання)`;
-
-                const dowName = DOW_NAMES_UK[simD];
-                const dayTypeBadge = (simD <= 3) ? 'Будні (Пн–Чт)' : "Вихідні / свята (Пт–Нд)";
-                dateEl.innerHTML = `Симуляція: <strong>${dowName}</strong>, ${hh}:00 <span class="live-clock-dow-badge">${dayTypeBadge}</span>`;
-                if (indEl) indEl.classList.add('simulated');
-                if (statusLabel) statusLabel.textContent = 'СИМУЛЯЦІЯ ЧАСУ';
-            }
+            dateEl.innerHTML = `${dowName}, ${dd}.${mo}.${yyyy} <span class="live-clock-dow-badge">${dayTypeBadge}</span>`;
+            if (indEl) indEl.classList.remove('simulated');
+            if (statusLabel) statusLabel.textContent = 'РЕЖИМ НАЖИВО';
         }
 
         async function loadLivePricing(forceReload = false) {
-            initLivePricingHoursSelect();
-
             if (!livePricingState.clockTimer) {
                 livePricingState.clockTimer = setInterval(() => {
-                    if (currentSubTab === 'live-pricing' && livePricingState.mode === 'live') {
+                    if (currentSubTab === 'live-pricing') {
                         updateLiveClockDisplay();
                     }
                 }, 1000);
@@ -5119,13 +4818,8 @@
             const container = document.getElementById('live-zones-container');
             if (!container) return;
 
-            let url = '/api/pricing/live';
-            if (livePricingState.mode !== 'live' && livePricingState.hour !== null && livePricingState.dow !== null) {
-                url += `?hour=${livePricingState.hour}&dow=${livePricingState.dow}`;
-            }
-
             try {
-                const res = await fetch(url);
+                const res = await fetch('/api/pricing/live');
                 if (!res.ok) throw new Error('Network error');
                 const data = await res.json();
                 livePricingState.data = data;
@@ -5143,31 +4837,7 @@
         function renderLivePricing(data) {
             updateLiveClockDisplay();
 
-            // Status pills
-            const pillsContainer = document.getElementById('live-status-pills');
-            if (pillsContainer) {
-                const morningHtml = data.morning_active
-                    ? `<span class="live-pill active">🌅 Ранок: АКТИВНИЙ (09:00–15:00)</span>`
-                    : `<span class="live-pill inactive" title="Діє з Пн по Чт з 09:00 до 15:00">🌅 Ранок: Не активний</span>`;
 
-                const schoolHtml = data.school_active
-                    ? `<span class="live-pill active">🎒 Школяр: АКТИВНИЙ (${data.school_price} ₴ / 3 год)</span>`
-                    : `<span class="live-pill inactive" title="Gamer Zone до 16 р. (Будні 09:00-17:00, Вихідні 09:00-15:00)">🎒 Школяр: Не активний</span>`;
-
-                const nightHtml = data.night_active
-                    ? `<span class="live-pill active">🌙 Ніч: АКТИВНИЙ (22:00–08:00)</span>`
-                    : `<span class="live-pill inactive" title="Діє щодня з 22:00 до 08:00">🌙 Ніч: Не активний</span>`;
-
-                const pkg30Html = `<span class="live-pill active" title="Діє 30 днів">⏳ Пакети 30/50 год: Доступні</span>`;
-
-                pillsContainer.innerHTML = morningHtml + schoolHtml + nightHtml + pkg30Html;
-            }
-
-            // Sync custom selects
-            const dowSel = document.getElementById('live-sim-dow');
-            const hourSel = document.getElementById('live-sim-hour');
-            if (dowSel && data.dow !== undefined) dowSel.value = data.dow;
-            if (hourSel && data.hour !== undefined) hourSel.value = data.hour;
 
             // Render Zones Grid
             const container = document.getElementById('live-zones-container');
@@ -5194,24 +4864,18 @@
 
                 let pkgRows = '';
                 (z.packages || []).forEach(pkg => {
-                    const isActive = pkg.active_now;
-                    const activeBadge = isActive
-                        ? `<span class="live-pkg-status-badge badge-active">Діє зараз</span>`
-                        : `<span class="live-pkg-status-badge badge-sched">За графіком</span>`;
-
                     const perHourNote = pkg.hours > 1 && pkg.price_per_hour
                         ? ` · (${fmtMoney(pkg.price_per_hour)} ₴/год)`
                         : '';
 
                     pkgRows += `
-                        <div class="live-pkg-row ${isActive ? 'active-now' : ''}">
+                        <div class="live-pkg-row">
                             <div class="live-pkg-info">
                                 <div class="live-pkg-name">${pkg.name}</div>
                                 <div class="live-pkg-note">${pkg.note || ''}${perHourNote}</div>
                             </div>
                             <div class="live-pkg-right">
                                 <div class="live-pkg-price">${fmtMoney(pkg.price)} ₴</div>
-                                ${activeBadge}
                             </div>
                         </div>
                     `;
@@ -5259,62 +4923,8 @@
             container.innerHTML = html;
         }
 
-        function setLiveSimulation(preset) {
-            livePricingState.mode = preset;
-
-            document.querySelectorAll('.live-preset-btn').forEach(b => b.classList.remove('active'));
-            const btn = document.getElementById(`sim-preset-${preset}`);
-            if (btn) btn.classList.add('active');
-
-            const noteEl = document.getElementById('live-sim-active-note');
-
-            if (preset === 'live') {
-                livePricingState.hour = null;
-                livePricingState.dow = null;
-                if (noteEl) noteEl.textContent = 'Показує реальний час клубу';
-            } else if (preset === 'morning') {
-                livePricingState.dow = 1; // Вівторок
-                livePricingState.hour = 11;
-                if (noteEl) noteEl.textContent = 'Симуляція: Вівторок 11:00 (Ранковий тариф)';
-            } else if (preset === 'weekday-day') {
-                livePricingState.dow = 2; // Середа
-                livePricingState.hour = 16;
-                if (noteEl) noteEl.textContent = 'Симуляція: Середа 16:30 (Будні стандарт)';
-            } else if (preset === 'friday') {
-                livePricingState.dow = 4; // П'ятниця
-                livePricingState.hour = 19;
-                if (noteEl) noteEl.textContent = "Симуляція: П'ятниця 19:00 (Тариф вихідного)";
-            } else if (preset === 'weekend') {
-                livePricingState.dow = 5; // Субота
-                livePricingState.hour = 13;
-                if (noteEl) noteEl.textContent = 'Симуляція: Субота 13:00 (Вихідні день)';
-            } else if (preset === 'night') {
-                livePricingState.dow = 5; // Субота ніч
-                livePricingState.hour = 23;
-                if (noteEl) noteEl.textContent = 'Симуляція: Ніч 23:30 (Нічний пакет 10 год)';
-            }
-
-            loadLivePricing();
-        }
-
-        function applyCustomSimulation() {
-            const dowSel = document.getElementById('live-sim-dow');
-            const hourSel = document.getElementById('live-sim-hour');
-            if (!dowSel || !hourSel) return;
-
-            livePricingState.mode = 'custom';
-            livePricingState.dow = parseInt(dowSel.value);
-            livePricingState.hour = parseInt(hourSel.value);
-
-            document.querySelectorAll('.live-preset-btn').forEach(b => b.classList.remove('active'));
-            const noteEl = document.getElementById('live-sim-active-note');
-            if (noteEl) {
-                const dowName = DOW_NAMES_UK[livePricingState.dow];
-                noteEl.textContent = `Власний час: ${dowName}, ${livePricingState.hour}:00`;
-            }
-
-            loadLivePricing();
-        }
+        function setLiveSimulation() {}
+        function applyCustomSimulation() {}
 
         function jumpToCalculator(zoneId, hours = 1, amount = null) {
             // Switch main tab to calculator if not already
