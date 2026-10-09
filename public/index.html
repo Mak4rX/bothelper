@@ -2178,6 +2178,74 @@
             flex-wrap: wrap;
         }
 
+        .today-tariffs-clock {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: #00E5FF;
+            background: rgba(0, 229, 255, 0.12);
+            padding: 2px 7px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .today-badge-now {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .today-badge-now.badge-morn {
+            background: rgba(255, 170, 0, 0.15);
+            border: 1px solid #FFAA00;
+            color: #FFAA00;
+        }
+
+        .today-badge-now.badge-school {
+            background: rgba(0, 229, 255, 0.15);
+            border: 1px solid #00E5FF;
+            color: #00E5FF;
+        }
+
+        .today-badge-now.badge-night {
+            background: rgba(168, 85, 247, 0.18);
+            border: 1px solid #A855F7;
+            color: #C084FC;
+        }
+
+        .today-badge-now.badge-std {
+            background: rgba(0, 255, 102, 0.14);
+            border: 1px solid #00FF66;
+            color: #00FF66;
+        }
+
+        .today-badge-now.badge-pulse {
+            background: rgba(0, 255, 102, 0.1);
+            border: 1px solid rgba(0, 255, 102, 0.4);
+            color: #00FF66;
+        }
+
+        .badge-active-col {
+            display: inline-block;
+            font-size: 0.65em;
+            font-weight: 800;
+            background: rgba(0, 255, 102, 0.2);
+            color: #00FF66;
+            border: 1px solid rgba(0, 255, 102, 0.5);
+            padding: 1px 4px;
+            border-radius: 4px;
+            margin-left: 4px;
+            vertical-align: middle;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .today-tariffs-table-wrap {
             width: 100%;
             overflow-x: auto;
@@ -2432,6 +2500,7 @@
                     <div class="live-clock-time" id="live-clock-time">--:--:--</div>
                     <div class="live-clock-date" id="live-clock-date">Визначення часу клубу...</div>
                 </div>
+                <div class="live-status-tags" id="live-clock-tags" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;"></div>
             </div>
 
             <!-- Zones Live Table / Grid -->
@@ -3338,14 +3407,18 @@
 
         // ─── Today Tariffs Widget Generator ────────────────────────────
 
-        async function renderTodayTariffsWidget(targetId = 'today-tariffs-table-content') {
+        async function renderTodayTariffsWidget(targetId = 'today-tariffs-table-content', forceReload = false) {
             const container = document.getElementById(targetId);
             if (!container) return;
 
             try {
+                const now = new Date();
+                const curHour = now.getHours();
+                const curDow = (now.getDay() + 6) % 7;
+
                 let data = livePricingState.data;
-                if (!data) {
-                    const res = await fetch('/api/pricing/live');
+                if (!data || forceReload) {
+                    const res = await fetch(`/api/pricing/live?hour=${curHour}&dow=${curDow}`);
                     if (res.ok) {
                         data = await res.json();
                         livePricingState.data = data;
@@ -3356,10 +3429,26 @@
                 // Update meta if main widget
                 const metaEl = document.getElementById('today-tariffs-meta');
                 if (metaEl && targetId === 'today-tariffs-table-content') {
+                    const morningTag = data.morning_active ? '<span class="today-badge-now badge-morn">🌅 Ранок активний (до 15:00)</span>' : '';
+                    const nightTag = data.night_active ? '<span class="today-badge-now badge-night">🌙 Ніч активна (22:00–08:00)</span>' : '';
+                    const schoolTag = data.school_active ? `<span class="today-badge-now badge-school">🎒 Школяр ${data.school_price}₴ (${data.school_window || 'до 17:00'})</span>` : '';
+                    const stdTag = (!data.morning_active && !data.night_active) ? '<span class="today-badge-now badge-std">☀️ Базовий тариф</span>' : '';
+
+                    const hh = String(now.getHours()).padStart(2, '0');
+                    const mm = String(now.getMinutes()).padStart(2, '0');
+                    const ss = String(now.getSeconds()).padStart(2, '0');
+
                     metaEl.innerHTML = `
                         <span>📅 ${data.day_name} · ${data.day_type_label}</span>
+                        <span class="today-tariffs-clock" title="Поточний час клубу">🕒 <span id="today-tariffs-clock">${hh}:${mm}:${ss}</span></span>
+                        <span class="today-badge-now badge-pulse" style="display:inline-flex; align-items:center; gap:5px;"><span class="live-pulse-dot" style="width:7px; height:7px;"></span>НАЖИВО</span>
+                        ${morningTag} ${schoolTag} ${nightTag} ${stdTag}
                     `;
                 }
+
+                const isMorn = !!data.morning_active;
+                const isNight = !!data.night_active;
+                const isReg = !isMorn && !isNight;
 
                 const zones = data.zones || [];
                 const pcZones = zones.filter(z => z.id !== 'tv');
@@ -3398,12 +3487,12 @@
                     pcRowsHtml += `
                         <tr>
                             <td class="zone-name-cell">${name}</td>
-                            <td><span class="price-val">${mornPrice}</span></td>
-                            <td><span class="price-val">${stdPrice}</span></td>
-                            <td><span class="price-val">${schoolCol}</span></td>
+                            <td><span class="price-val">${mornPrice}</span>${isMorn ? ' <span class="badge-active-col">ЗАРАЗ</span>' : ''}</td>
+                            <td><span class="price-val">${stdPrice}</span>${isReg ? ' <span class="badge-active-col">ЗАРАЗ</span>' : ''}</td>
+                            <td><span class="price-val">${schoolCol}</span>${data.school_active && id === 'gamer' ? ' <span class="badge-active-col">ЗАРАЗ</span>' : ''}</td>
                             <td><span class="price-val">${p3Price}</span></td>
                             <td><span class="price-val">${p5Price}</span></td>
-                            <td><span class="price-val">${nightPrice}</span></td>
+                            <td><span class="price-val">${nightPrice}</span>${isNight && nightPkg ? ' <span class="badge-active-col">ЗАРАЗ</span>' : ''}</td>
                             <td><span class="price-val">${p30Price}</span></td>
                         </tr>
                     `;
@@ -3424,14 +3513,14 @@
                     const nightPkg = (tvZone.packages || []).find(p => p.name.includes('Ніч'));
                     const nightPrice = nightPkg ? `${nightPkg.price} ₴` : '—';
 
-                    tvRowsHtml = `
+                    tvRowsHtml += `
                         <tr>
                             <td class="zone-name-cell">${tvZone.name}</td>
-                            <td><span class="price-val">${mornPrice}</span></td>
-                            <td><span class="price-val">${stdPrice}</span></td>
+                            <td><span class="price-val">${mornPrice}</span>${isMorn ? ' <span class="badge-active-col">ЗАРАЗ</span>' : ''}</td>
+                            <td><span class="price-val">${stdPrice}</span>${isReg ? ' <span class="badge-active-col">ЗАРАЗ</span>' : ''}</td>
                             <td><span class="price-val">${p2Price}</span></td>
                             <td><span class="price-val">${p3Price}</span></td>
-                            <td><span class="price-val">${nightPrice}</span></td>
+                            <td><span class="price-val">${nightPrice}</span>${isNight && nightPkg ? ' <span class="badge-active-col">ЗАРАЗ</span>' : ''}</td>
                         </tr>
                     `;
                 }
@@ -3598,7 +3687,9 @@
             if (container && (!promotionsCache || !promotionsCache.length)) {
                 container.innerHTML = '<div class="loading">Завантаження...</div>';
             }
-            renderTodayTariffsWidget('today-tariffs-table-content');
+            initGlobalPricingClock();
+            renderTodayTariffsWidget('today-tariffs-table-content', false);
+            checkAndAutoRefreshPricing(false);
 
             // Акції зберігаються ТІЛЬКИ в локальній пам'яті браузера (localStorage)
             promotionsCache = getLocalPromotions();
@@ -4774,6 +4865,10 @@
             dow: null,
             data: null,
             clockTimer: null,
+            lastFetchHour: null,
+            lastFetchDow: null,
+            lastFetchTimestamp: 0,
+            refreshInFlight: false
         };
 
         const DOW_NAMES_UK = [
@@ -4785,13 +4880,16 @@
             const dateEl = document.getElementById('live-clock-date');
             const indEl = document.getElementById('live-pulse-indicator');
             const statusLabel = document.getElementById('live-clock-status-label');
-            if (!timeEl || !dateEl) return;
+            const todayClockEl = document.getElementById('today-tariffs-clock');
 
             const now = new Date();
             const hh = String(now.getHours()).padStart(2, '0');
             const mm = String(now.getMinutes()).padStart(2, '0');
             const ss = String(now.getSeconds()).padStart(2, '0');
-            timeEl.textContent = `${hh}:${mm}:${ss}`;
+            const timeStr = `${hh}:${mm}:${ss}`;
+
+            if (timeEl) timeEl.textContent = timeStr;
+            if (todayClockEl) todayClockEl.textContent = timeStr;
 
             const dd = String(now.getDate()).padStart(2, '0');
             const mo = String(now.getMonth() + 1).padStart(2, '0');
@@ -4800,44 +4898,90 @@
             const dowName = DOW_NAMES_UK[dow];
             const dayTypeBadge = (dow <= 3) ? 'Будні (Пн–Чт)' : "Вихідні / свята (Пт–Нд)";
 
-            dateEl.innerHTML = `${dowName}, ${dd}.${mo}.${yyyy} <span class="live-clock-dow-badge">${dayTypeBadge}</span>`;
+            if (dateEl) {
+                dateEl.innerHTML = `${dowName}, ${dd}.${mo}.${yyyy} <span class="live-clock-dow-badge">${dayTypeBadge}</span>`;
+            }
             if (indEl) indEl.classList.remove('simulated');
             if (statusLabel) statusLabel.textContent = 'РЕЖИМ НАЖИВО';
         }
 
-        async function loadLivePricing(forceReload = false) {
-            if (!livePricingState.clockTimer) {
-                livePricingState.clockTimer = setInterval(() => {
-                    if (currentSubTab === 'live-pricing') {
-                        updateLiveClockDisplay();
-                    }
-                }, 1000);
-            }
-            updateLiveClockDisplay();
+        async function checkAndAutoRefreshPricing(force = false) {
+            if (livePricingState.refreshInFlight) return;
 
-            const container = document.getElementById('live-zones-container');
-            if (!container) return;
+            const now = new Date();
+            const curHour = now.getHours();
+            const curDow = (now.getDay() + 6) % 7;
+            const nowTs = Date.now();
 
+            const hourChanged = livePricingState.lastFetchHour !== null && livePricingState.lastFetchHour !== curHour;
+            const dowChanged = livePricingState.lastFetchDow !== null && livePricingState.lastFetchDow !== curDow;
+            const intervalPassed = (nowTs - livePricingState.lastFetchTimestamp > 30000);
+            const needsFetch = force || !livePricingState.data || hourChanged || dowChanged || intervalPassed;
+
+            if (!needsFetch) return;
+
+            livePricingState.refreshInFlight = true;
             try {
-                const res = await fetch('/api/pricing/live');
+                const res = await fetch(`/api/pricing/live?hour=${curHour}&dow=${curDow}`);
                 if (!res.ok) throw new Error('Network error');
                 const data = await res.json();
                 livePricingState.data = data;
+                livePricingState.lastFetchHour = curHour;
+                livePricingState.lastFetchDow = curDow;
+                livePricingState.lastFetchTimestamp = Date.now();
+
+                // Оновлюємо відображення в залежності від відкритих панелей
                 renderLivePricing(data);
+                if (currentMainTab === 'promotions') {
+                    renderTodayTariffsWidget('today-tariffs-table-content', false);
+                }
             } catch (err) {
-                console.error('Помилка завантаження живих цін:', err);
-                container.innerHTML = `
-                    <div class="alert alert-warning" style="grid-column: 1 / -1;">
-                        ⚠️ Не вдалося зв'язатися з сервером тарифів. Перевірте локальний сервер.
-                    </div>
-                `;
+                console.warn('Автоматичне оновлення тарифів:', err);
+                const container = document.getElementById('live-zones-container');
+                if (container && !livePricingState.data) {
+                    container.innerHTML = `
+                        <div class="alert alert-warning" style="grid-column: 1 / -1;">
+                            ⚠️ Не вдалося зв'язатися з сервером тарифів. Перевірте локальний сервер.
+                        </div>
+                    `;
+                }
+            } finally {
+                livePricingState.refreshInFlight = false;
             }
+        }
+
+        function initGlobalPricingClock() {
+            updateLiveClockDisplay();
+            if (!livePricingState.clockTimer) {
+                livePricingState.clockTimer = setInterval(() => {
+                    updateLiveClockDisplay();
+                    checkAndAutoRefreshPricing(false);
+                }, 1000);
+            }
+        }
+
+        async function loadLivePricing(forceReload = false) {
+            initGlobalPricingClock();
+            updateLiveClockDisplay();
+
+            if (livePricingState.data && !forceReload) {
+                renderLivePricing(livePricingState.data);
+            }
+
+            await checkAndAutoRefreshPricing(forceReload);
         }
 
         function renderLivePricing(data) {
             updateLiveClockDisplay();
 
-
+            const clockTagsEl = document.getElementById('live-clock-tags');
+            if (clockTagsEl && data) {
+                const morningTag = data.morning_active ? '<span class="today-badge-now badge-morn">🌅 Ранок активний (до 15:00)</span>' : '';
+                const nightTag = data.night_active ? '<span class="today-badge-now badge-night">🌙 Ніч активна (22:00–08:00)</span>' : '';
+                const schoolTag = data.school_active ? `<span class="today-badge-now badge-school">🎒 Школяр ${data.school_price}₴</span>` : '';
+                const stdTag = (!data.morning_active && !data.night_active) ? '<span class="today-badge-now badge-std">☀️ Базовий тариф</span>' : '';
+                clockTagsEl.innerHTML = `${morningTag} ${schoolTag} ${nightTag} ${stdTag}`;
+            }
 
             // Render Zones Grid
             const container = document.getElementById('live-zones-container');
@@ -6510,6 +6654,8 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             initInteractiveBackground();
+            initGlobalPricingClock();
+            checkAndAutoRefreshPricing(true);
             restoreReportDraft();
             restoreShiftGenDraft();
             initReviewsTab();

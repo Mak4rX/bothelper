@@ -4,6 +4,20 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal
 
+try:
+    from zoneinfo import ZoneInfo
+    KYIV_TZ = ZoneInfo("Europe/Kyiv")
+except Exception:
+    KYIV_TZ = None
+
+
+def get_now_kyiv() -> datetime:
+    """Повертає поточний час за Києвом (Europe/Kyiv) для коректного визначення тарифів клубу."""
+    if KYIV_TZ:
+        return datetime.now(KYIV_TZ)
+    return datetime.now()
+
+
 DayType = Literal["weekday", "weekend"]
 PackageType = Literal["hour", "package3", "package5", "package10", "package2", "package30"]
 
@@ -13,7 +27,7 @@ MORNING_END_HOUR = 16
 
 def is_morning_rate_active(current_hour: int | None = None) -> bool:
     """Чи діє ранковий тариф: з 09:00 включно до 16:00 невключно."""
-    hour = datetime.now().hour if current_hour is None else current_hour
+    hour = get_now_kyiv().hour if current_hour is None else current_hour
     if not 0 <= hour <= 23:
         raise ValueError("current_hour must be between 0 and 23")
     return MORNING_START_HOUR <= hour < MORNING_END_HOUR
@@ -253,7 +267,7 @@ SCHOOL_ZONES = {"gamer"}
 
 def is_school_package_active(day_type: DayType, current_hour: int | None = None) -> bool:
     """Чи можна зараз продати пакет Школяр для вибраного типу дня."""
-    hour = datetime.now().hour if current_hour is None else current_hour
+    hour = get_now_kyiv().hour if current_hour is None else current_hour
     if not 0 <= hour <= 23:
         raise ValueError("current_hour must be between 0 and 23")
     return hour < SCHOOL_PACKAGE[day_type]["end_hour"]
@@ -380,7 +394,7 @@ def calculate_price(hours: float, zone_id: str, day_type: DayType,
 
 def get_live_pricing_data(current_hour: int | None = None, day_of_week: int | None = None) -> dict:
     """Повертає живі ціни та доступні пакети за зонами на даний момент часу."""
-    now = datetime.now()
+    now = get_now_kyiv()
     hour = now.hour if current_hour is None else current_hour
     dow = now.weekday() if day_of_week is None else day_of_week  # 0=Mon .. 6=Sun
     day_names = ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота", "Неділя"]
