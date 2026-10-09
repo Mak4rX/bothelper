@@ -6,11 +6,6 @@ primary_region = "waw"  # Warsaw — найближче до України
 
 [env]
   PORT = "8080"
-  DB_PATH = "/data/bothelper.db"
-
-[mounts]
-  source = "bothelper_data"
-  destination = "/data"
 
 [[services]]
   http_checks = []

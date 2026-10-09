@@ -2,9 +2,9 @@ import unittest
 
 from pricing import (
     ZONES,
-    calculate_compensation,
     calculate_hours,
     calculate_price,
+    get_live_pricing_data,
     is_morning_rate_active,
     is_school_package_active,
 )
@@ -12,10 +12,22 @@ from pricing import (
 
 class PricingTests(unittest.TestCase):
     def test_morning_rate_window(self):
+        # Пн-Чт з 09:00 включно до 15:00 невключно
         self.assertFalse(is_morning_rate_active(8))
         self.assertTrue(is_morning_rate_active(9))
-        self.assertTrue(is_morning_rate_active(15))
-        self.assertFalse(is_morning_rate_active(16))
+        self.assertTrue(is_morning_rate_active(14))
+        self.assertFalse(is_morning_rate_active(15))
+
+    def test_morning_rate_not_on_weekend(self):
+        for hour in (9, 12, 14):
+            self.assertFalse(is_morning_rate_active(hour, "weekend"))
+        for zone in ZONES.values():
+            options = zone.get_options("weekend", current_hour=11)
+            self.assertFalse(any("Ранок" in o.name for o in options))
+        self.assertFalse(any(
+            "Ранок" in row["package"]
+            for row in calculate_hours(500, "gamer", "weekend", current_hour=11)
+        ))
 
     def test_tv_zone_has_no_zero_price_options(self):
         for day_type in ("weekday", "weekend"):
@@ -35,11 +47,11 @@ class PricingTests(unittest.TestCase):
 
     def test_morning_option_only_during_morning_window(self):
         active = ZONES["tv"].get_options("weekday", current_hour=9)
-        inactive = ZONES["tv"].get_options("weekday", current_hour=16)
+        inactive = ZONES["tv"].get_options("weekday", current_hour=15)
         self.assertEqual(active[0].price, 130)
         self.assertEqual(active[0].hours, 2)
         self.assertEqual(active[0].price_per_hour, 65)
-        self.assertIn("09:00–16:00", active[0].name)
+        self.assertIn("09:00–15:00", active[0].name)
         self.assertNotIn(130, [option.price for option in inactive])
 
         # Розрахунок у калькуляторі: 130 грн дає 2 години гри
@@ -54,49 +66,84 @@ class PricingTests(unittest.TestCase):
         self.assertEqual(morn_price_opt["price"], 130)
 
     def test_school_package_time_windows(self):
-        self.assertTrue(is_school_package_active("weekday", 14))
-        self.assertFalse(is_school_package_active("weekday", 15))
-        self.assertTrue(is_school_package_active("weekend", 11))
-        self.assertFalse(is_school_package_active("weekend", 12))
+        # Пн-Чт: до 17:00
+        self.assertTrue(is_school_package_active("weekday", 16, dow=2))
+        self.assertFalse(is_school_package_active("weekday", 17, dow=2))
+        # Пт: теж до 17:00, хоча тариф «вихідний»
+        self.assertTrue(is_school_package_active("weekend", 16, dow=4))
+        self.assertFalse(is_school_package_active("weekend", 17, dow=4))
+        # Сб-Нд: до 15:00
+        self.assertTrue(is_school_package_active("weekend", 14, dow=5))
+        self.assertFalse(is_school_package_active("weekend", 15, dow=5))
+        self.assertTrue(is_school_package_active("weekend", 14, dow=6))
+        self.assertFalse(is_school_package_active("weekend", 15, dow=6))
+        # Раніше 09:00 пакет не діє
+        self.assertFalse(is_school_package_active("weekday", 8, dow=2))
 
     def test_school_package_money_to_hours_rules(self):
-        weekday = calculate_hours(130, "gamer", "weekday", current_hour=14)
-        weekend = calculate_hours(180, "gamer", "weekend", current_hour=11)
+        weekday = calculate_hours(130, "gamer", "weekday", current_hour=16, dow=1)
+        friday = calculate_hours(180, "gamer", "weekend", current_hour=16, dow=4)
+        saturday = calculate_hours(180, "gamer", "weekend", current_hour=14, dow=5)
         weekday_school = [row for row in weekday if "ШКОЛЯР" in row["package"]]
-        weekend_school = [row for row in weekend if "ШКОЛЯР" in row["package"]]
+        friday_school = [row for row in friday if "ШКОЛЯР" in row["package"]]
+        saturday_school = [row for row in saturday if "ШКОЛЯР" in row["package"]]
         self.assertEqual(weekday_school[0]["hours"], 3)
         self.assertEqual(weekday_school[0]["price"], 130)
-        self.assertEqual(weekend_school[0]["hours"], 3)
-        self.assertEqual(weekend_school[0]["price"], 180)
+        self.assertEqual(friday_school[0]["price"], 180)
+        self.assertEqual(saturday_school[0]["price"], 180)
         self.assertIn("до 16 років", weekday_school[0]["package"])
 
     def test_school_package_stops_at_boundary_and_only_gamer(self):
         self.assertFalse(any(
             "ШКОЛЯР" in row["package"]
-            for row in calculate_hours(180, "gamer", "weekday", current_hour=15)
+            for row in calculate_hours(180, "gamer", "weekday", current_hour=17, dow=1)
         ))
         self.assertNotIn("school", ZONES)
         for zone_id in ("pro", "bootcamp", "tv"):
             self.assertFalse(any(
                 "ШКОЛЯР" in row["package"]
-                for row in calculate_hours(180, zone_id, "weekday", current_hour=14)
+                for row in calculate_hours(180, zone_id, "weekday", current_hour=14, dow=1)
             ))
 
     def test_school_package_hours_to_money(self):
-        weekday = calculate_price(3, "gamer", "weekday", current_hour=14)
-        weekend = calculate_price(3, "gamer", "weekend", current_hour=11)
-        self.assertEqual(
-            [row["price"] for row in weekday if "ШКОЛЯР" in row["package"]],
-            [130],
-        )
-        self.assertEqual(
-            [row["price"] for row in weekend if "ШКОЛЯР" in row["package"]],
-            [180],
-        )
+        weekday = calculate_price(3, "gamer", "weekday", current_hour=14, dow=0)
+        friday = calculate_price(3, "gamer", "weekend", current_hour=16, dow=4)
+        saturday = calculate_price(3, "gamer", "weekend", current_hour=11, dow=5)
+        self.assertEqual([r["price"] for r in weekday if "ШКОЛЯР" in r["package"]], [130])
+        self.assertEqual([r["price"] for r in friday if "ШКОЛЯР" in r["package"]], [180])
+        self.assertEqual([r["price"] for r in saturday if "ШКОЛЯР" in r["package"]], [180])
         self.assertFalse(any(
             "ШКОЛЯР" in row["package"]
-            for row in calculate_price(3, "gamer", "weekend", current_hour=12)
+            for row in calculate_price(3, "gamer", "weekend", current_hour=15, dow=6)
         ))
+
+    def test_school_package_without_dow_follows_day_type(self):
+        # Без дня тижня п'ятницю не відрізнити від Сб-Нд — рахуємо за типом дня
+        self.assertTrue(is_school_package_active("weekday", 16))
+        self.assertFalse(is_school_package_active("weekend", 16))
+
+    def test_calculator_and_live_pricing_agree(self):
+        """Калькулятор і «живі» тарифи мають давати однакову відповідь в усі години тижня."""
+        for dow in range(7):
+            day_type = "weekday" if dow <= 3 else "weekend"
+            for hour in range(24):
+                live = get_live_pricing_data(current_hour=hour, day_of_week=dow)
+                self.assertEqual(
+                    live["morning_active"],
+                    is_morning_rate_active(hour, day_type),
+                    f"ранок dow={dow} hour={hour}",
+                )
+                self.assertEqual(
+                    live["school_active"],
+                    is_school_package_active(day_type, hour, dow),
+                    f"школяр dow={dow} hour={hour}",
+                )
+                calc = calculate_hours(1000, "gamer", day_type, current_hour=hour, dow=dow)
+                calc_school = [r for r in calc if "ШКОЛЯР" in r["package"]]
+                self.assertEqual(bool(calc_school), live["school_active"], f"dow={dow} hour={hour}")
+                if calc_school:
+                    per_package = calc_school[0]["price"] // (calc_school[0]["hours"] // 3)
+                    self.assertEqual(per_package, live["school_price"], f"dow={dow} hour={hour}")
 
     def test_package30_calculations(self):
         # PC GAMER: 1699 грн за 30 год
@@ -118,45 +165,7 @@ class PricingTests(unittest.TestCase):
         self.assertTrue(bootcamp_opt)
         self.assertEqual(bootcamp_opt[0]["price"], 2499)
 
-    def test_calculate_compensation_standard(self):
-        # 100 грн + 35% кешбеку -> 35 грн бонус, 135 грн разом, 65 грн зі знижкою
-        res = calculate_compensation(100, 35)
-        self.assertEqual(res["amount"], 100)
-        self.assertEqual(res["percent"], 35)
-        self.assertEqual(res["compensation"], 35.0)
-        self.assertEqual(res["total_with_bonus"], 135.0)
-        self.assertEqual(res["discounted_price"], 65.0)
-
-    def test_calculate_compensation_edge_cases(self):
-        # 0% кешбеку
-        zero_pct = calculate_compensation(200, 0)
-        self.assertEqual(zero_pct["compensation"], 0.0)
-        self.assertEqual(zero_pct["total_with_bonus"], 200.0)
-        self.assertEqual(zero_pct["discounted_price"], 200.0)
-
-        # 100% кешбеку
-        full_pct = calculate_compensation(150, 100)
-        self.assertEqual(full_pct["compensation"], 150.0)
-        self.assertEqual(full_pct["total_with_bonus"], 300.0)
-        self.assertEqual(full_pct["discounted_price"], 0.0)
-
-        # Дробові відсотки та копійки
-        frac = calculate_compensation(100.50, 33.33)
-        self.assertEqual(frac["compensation"], 33.5)
-        self.assertEqual(frac["total_with_bonus"], 134.0)
-        self.assertEqual(frac["discounted_price"], 67.0)
-
-        # Валідація некоректних значень
-        with self.assertRaises(ValueError):
-            calculate_compensation(100, -5)
-        with self.assertRaises(ValueError):
-            calculate_compensation(100, 105)
-        with self.assertRaises(ValueError):
-            calculate_compensation(-10, 20)
-
     def test_live_pricing_data(self):
-        from pricing import get_live_pricing_data
-
         # Будень 11:00 (Вівторок, dow=1) -> Ранок активний, Школяр 130
         data_tue_morn = get_live_pricing_data(current_hour=11, day_of_week=1)
         self.assertTrue(data_tue_morn["morning_active"])

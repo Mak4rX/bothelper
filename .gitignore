@@ -45,7 +45,8 @@ htmlcov/
 dmypy.json
 
 # Артефакти тестів
-tests/screenshot-*.png
+tests/screenshot*.png
+tests/test_width_*.png
 gui-test-screenshots/
 
 # Executables

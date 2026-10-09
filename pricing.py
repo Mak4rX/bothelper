@@ -21,16 +21,31 @@ def get_now_kyiv() -> datetime:
 DayType = Literal["weekday", "weekend"]
 PackageType = Literal["hour", "package3", "package5", "package10", "package2", "package30"]
 
+# Пн-Чт (dow 0..3) = weekday, Пт-Нд (dow 4..6) = weekend. Свята вибирає касир вручну.
+FRIDAY = 4
+
+
+def day_type_for_dow(dow: int) -> DayType:
+    """Тип дня за днем тижня (0=Пн .. 6=Нд)."""
+    return "weekday" if dow < FRIDAY else "weekend"
+
+
+# Тариф «Ранок»: Пн-Чт з 09:00 включно до 15:00 невключно (як в акції «Ранок»).
 MORNING_START_HOUR = 9
-MORNING_END_HOUR = 16
+MORNING_END_HOUR = 15
 
 
-def is_morning_rate_active(current_hour: int | None = None) -> bool:
-    """Чи діє ранковий тариф: з 09:00 включно до 16:00 невключно."""
-    hour = get_now_kyiv().hour if current_hour is None else current_hour
+def _check_hour(hour: int) -> int:
     if not 0 <= hour <= 23:
         raise ValueError("current_hour must be between 0 and 23")
-    return MORNING_START_HOUR <= hour < MORNING_END_HOUR
+    return hour
+
+
+def is_morning_rate_active(current_hour: int | None = None,
+                           day_type: DayType = "weekday") -> bool:
+    """Чи діє ранковий тариф: тільки у будні (Пн-Чт), з 09:00 до 15:00."""
+    hour = _check_hour(get_now_kyiv().hour if current_hour is None else current_hour)
+    return day_type == "weekday" and MORNING_START_HOUR <= hour < MORNING_END_HOUR
 
 
 @dataclass
@@ -73,20 +88,20 @@ class Zone:
     morning_hours: int = 1
 
     def get_options(self, day_type: DayType, current_hour: int | None = None) -> list[PriceOption]:
-        """Повертає доступні варіанти; ранковий тариф діє з 09:00 до 16:00."""
+        """Повертає доступні варіанти; ранковий тариф діє Пн-Чт з 09:00 до 15:00."""
         options = []
 
-        if is_morning_rate_active(current_hour):
+        if is_morning_rate_active(current_hour, day_type):
             if self.morning_hours > 1:
                 options.append(PriceOption(
-                    name=f"🌅 Ранок {self.morning_hours} години (09:00–16:00)",
+                    name=f"🌅 Ранок {self.morning_hours} години (Пн-Чт 09:00–15:00)",
                     hours=self.morning_hours,
                     price=self.morning_price,
                     price_per_hour=self.morning_price // self.morning_hours
                 ))
             else:
                 options.append(PriceOption(
-                    name="🌅 Ранок (09:00–16:00)",
+                    name="🌅 Ранок (Пн-Чт 09:00–15:00)",
                     hours=1,
                     price=self.morning_price,
                     price_per_hour=self.morning_price
@@ -247,30 +262,50 @@ ZONES = {
 
 
 # Пакет Школяр — для відвідувачів до 16 років включно, тільки PC GAMER.
+# Умови з акції «Школяр»: Пн-Чт 130 ₴ до 17:00, Пт 180 ₴ до 17:00,
+# Сб-Нд та свята 180 ₴ до 15:00; початок завжди з 09:00.
+SCHOOL_START_HOUR = 9
+
 SCHOOL_PACKAGE = {
     "weekday": {
         "hours": 3,
         "price": 130,
-        "end_hour": 15,
-        "name": "🎒 ШКОЛЯР 3 години (до 16 років, Пн-Чт до 15:00)",
+        "end_hour": 17,
+        "name": "🎒 ШКОЛЯР 3 години (до 16 років, Пн-Чт 09:00–17:00)",
     },
     "weekend": {
         "hours": 3,
         "price": 180,
-        "end_hour": 12,
-        "name": "🎒 ШКОЛЯР 3 години (до 16 років, Пт-Нд/свята до 12:00)",
+        "end_hour": 15,
+        "name": "🎒 ШКОЛЯР 3 години (до 16 років, Сб-Нд/свята 09:00–15:00)",
     },
+}
+
+SCHOOL_PACKAGE_FRIDAY = {
+    "hours": 3,
+    "price": 180,
+    "end_hour": 17,
+    "name": "🎒 ШКОЛЯР 3 години (до 16 років, Пт 09:00–17:00)",
 }
 
 SCHOOL_ZONES = {"gamer"}
 
 
-def is_school_package_active(day_type: DayType, current_hour: int | None = None) -> bool:
+def get_school_package(day_type: DayType, dow: int | None = None) -> dict:
+    """Умови пакета Школяр. П'ятниця у «вихідному» тарифі (180 ₴), але до 17:00 —
+    як у будні, тому її не відрізнити від Сб-Нд за одним `day_type`: потрібен `dow`.
+    Без `dow` (або якщо касир вручну вибрав інший тип дня) рахуємо за `day_type`."""
+    if day_type == "weekend" and dow == FRIDAY:
+        return SCHOOL_PACKAGE_FRIDAY
+    return SCHOOL_PACKAGE[day_type]
+
+
+def is_school_package_active(day_type: DayType, current_hour: int | None = None,
+                             dow: int | None = None) -> bool:
     """Чи можна зараз продати пакет Школяр для вибраного типу дня."""
-    hour = get_now_kyiv().hour if current_hour is None else current_hour
-    if not 0 <= hour <= 23:
-        raise ValueError("current_hour must be between 0 and 23")
-    return hour < SCHOOL_PACKAGE[day_type]["end_hour"]
+    hour = _check_hour(get_now_kyiv().hour if current_hour is None else current_hour)
+    school = get_school_package(day_type, dow)
+    return SCHOOL_START_HOUR <= hour < school["end_hour"]
 
 
 def apply_discount(price: int, discount_percent: float) -> int:
@@ -282,33 +317,10 @@ def apply_discount(price: int, discount_percent: float) -> int:
     return round(price * (100 - discount_percent) / 100)
 
 
-def calculate_compensation(amount: float, percent: float) -> dict:
-    """Розрахунок компенсації / кешбеку при поповненні або знижки від суми.
-
-    amount: сума поповнення або початкова сума (грн)
-    percent: відсоток компенсації / кешбеку / знижки (0-100%)
-    """
-    if not 0 <= percent <= 100:
-        raise ValueError("percent must be between 0 and 100")
-    if amount < 0:
-        raise ValueError("amount must be non-negative")
-
-    compensation = round(amount * percent / 100, 2)
-    total_with_bonus = round(amount + compensation, 2)
-    discounted_price = round(amount - compensation, 2)
-
-    return {
-        "amount": amount,
-        "percent": percent,
-        "compensation": compensation,
-        "total_with_bonus": total_with_bonus,
-        "discounted_price": discounted_price,
-    }
-
-
 def calculate_hours(amount: int, zone_id: str, day_type: DayType,
                     current_hour: int | None = None,
-                    discount_percent: float = 0) -> list[dict]:
+                    discount_percent: float = 0,
+                    dow: int | None = None) -> list[dict]:
     """Рахує скільки годин можна отримати за дану суму."""
     if zone_id not in ZONES:
         return []
@@ -332,8 +344,8 @@ def calculate_hours(amount: int, zone_id: str, day_type: DayType,
             })
 
     # Пакет ШКОЛЯР доступний лише в Gamer і тільки до граничного часу.
-    if zone_id in SCHOOL_ZONES and is_school_package_active(day_type, current_hour):
-        school = SCHOOL_PACKAGE[day_type]
+    if zone_id in SCHOOL_ZONES and is_school_package_active(day_type, current_hour, dow):
+        school = get_school_package(day_type, dow)
         price = apply_discount(school["price"], discount_percent)
         if price > 0 and amount >= price:
             packages = amount // price
@@ -350,7 +362,8 @@ def calculate_hours(amount: int, zone_id: str, day_type: DayType,
 
 def calculate_price(hours: float, zone_id: str, day_type: DayType,
                     current_hour: int | None = None,
-                    discount_percent: float = 0) -> list[dict]:
+                    discount_percent: float = 0,
+                    dow: int | None = None) -> list[dict]:
     """Рахує скільки коштує задана кількість годин."""
     if zone_id not in ZONES:
         return []
@@ -375,8 +388,8 @@ def calculate_price(hours: float, zone_id: str, day_type: DayType,
             })
 
     # Пакет ШКОЛЯР доступний в обох напрямках калькулятора.
-    if zone_id in SCHOOL_ZONES and is_school_package_active(day_type, current_hour):
-        school = SCHOOL_PACKAGE[day_type]
+    if zone_id in SCHOOL_ZONES and is_school_package_active(day_type, current_hour, dow):
+        school = get_school_package(day_type, dow)
         if hours >= school["hours"]:
             price = apply_discount(school["price"], discount_percent)
             packages = int(hours / school["hours"])
@@ -400,26 +413,19 @@ def get_live_pricing_data(current_hour: int | None = None, day_of_week: int | No
     day_names = ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота", "Неділя"]
     day_name = day_names[dow]
 
-    # Понеділок-Четвер (0..3) = weekday, П'ятниця-Неділя (4..6) = weekend
-    day_type: DayType = "weekday" if dow <= 3 else "weekend"
+    day_type = day_type_for_dow(dow)
 
-    # Ранковий тариф: Пн-Чт з 09:00 до 15:00 (у системі до 16:00)
-    morning_active = (0 <= dow <= 3) and (9 <= hour < 15)
+    # Ранковий тариф: Пн-Чт з 09:00 до 15:00
+    morning_active = is_morning_rate_active(hour, day_type)
 
     # Нічний пакет: щодня з 22:00 до 08:00
     night_active = (hour >= 22 or hour < 8)
 
-    # Пакет Школяр:
-    # Пн-Пт: з 9:00 до 17:00 (Пн-Чт 130 ₴, Пт 180 ₴)
-    # Сб-Нд та свята: з 9:00 до 15:00 (180 ₴)
-    if dow <= 4:  # Пн-Пт
-        school_active = (9 <= hour < 17)
-        school_window = "09:00–17:00 (Будні)"
-        school_price = 130 if dow <= 3 else 180
-    else:  # Сб-Нд
-        school_active = (9 <= hour < 15)
-        school_window = "09:00–15:00 (Вихідні)"
-        school_price = 180
+    # Пакет Школяр (умови спільні з калькулятором — див. SCHOOL_PACKAGE)
+    school = get_school_package(day_type, dow)
+    school_active = is_school_package_active(day_type, hour, dow)
+    school_price = school["price"]
+    school_window = f"{SCHOOL_START_HOUR:02d}:00–{school['end_hour']:02d}:00 ({'Будні' if dow <= FRIDAY else 'Вихідні'})"
 
     zones_data = []
     for zone_id, zone in ZONES.items():

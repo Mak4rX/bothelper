@@ -2513,7 +2513,7 @@
         <div id="calculator" class="panel">
             <h2>🧮 Калькулятор годин</h2>
             <p style="color: #666; margin-bottom: 8px;">Розрахунок часу для пакетів</p>
-            <p style="color: #A0A0A0; margin-bottom: 20px;">🌅 Ранковий тариф автоматично діє з 09:00 до 16:00.</p>
+            <p style="color: #A0A0A0; margin-bottom: 20px;">🌅 Ранковий тариф автоматично діє Пн–Чт з 09:00 до 15:00.</p>
 
             <div class="calculator-mode">
                 <div class="mode-btn selected" onclick="selectMode('money')" id="mode-money">
@@ -2541,7 +2541,7 @@
                     <small id="calc-day-type-hint" style="color:#4FC3F7; margin-top:4px; display:block;"></small>
                 </div>
             </div>
-            <small style="color:#A0A0A0; margin-top:-6px; margin-bottom:12px; display:block;">Пакет «Школяр»: до 16 років включно, 3 години; тільки PC GAMER.</small>
+            <small style="color:#A0A0A0; margin-top:-6px; margin-bottom:12px; display:block;">Пакет «Школяр»: до 16 років включно, 3 години; тільки PC GAMER. Пн–Чт 130 ₴ і Пт 180 ₴ до 17:00, Сб–Нд та свята 180 ₴ до 15:00.</small>
 
             <div class="form-group" id="money-input-group">
                 <label>Сума (грн)</label>
@@ -2976,6 +2976,7 @@
 
     <script type="module" src="/static/change.js"></script>
     <script type="module" src="/static/cash-register.js"></script>
+    <script type="module" src="/static/report.js"></script>
     <script>
         let selectedShift = 'day';
         let selectedMode = 'money';
@@ -3021,8 +3022,6 @@
                     initReviewsTab();
                 } else if (mainTabName === 'promotions') {
                     loadPromotions();
-                } else if (mainTabName === 'stats') {
-                    loadStats();
                 }
                 if (shouldSave) saveActiveTabState(currentMainTab, null);
             }
@@ -4175,16 +4174,6 @@
             if (val !== null && !isNaN(val)) {
                 applyExpectedCash(val, fromCache);
             }
-
-            // 2. Фоново звіряємо з сервером, якщо є мережа
-            try {
-                const cashRes = await fetch('/api/expected-cash').then(r => r.json()).catch(() => null);
-                if (cashRes && cashRes.expected_cash !== null && cashRes.expected_cash !== undefined) {
-                    val = cashRes.expected_cash;
-                    localStorage.setItem(LAST_CLOSE_CASH_KEY, String(val));
-                    applyExpectedCash(val, false);
-                }
-            } catch (e) {}
         }
 
         // Жива підказка біля «Нараховано у сенеті»: скільки має заробити зміна.
@@ -4225,69 +4214,38 @@
                 return;
             }
 
-            let reportData = null;
-            let isOfflineFallback = false;
+            // Звіт рахується в браузері й зберігається в localStorage — сервер не потрібен.
+            const built = window.ShiftReport.buildReport({
+                shift: selectedShift,
+                openCash: open_cash,
+                closeCash: close_cash,
+                expenses,
+                collection,
+                senet,
+                note,
+            });
 
-            try {
-                const response = await fetch('/api/reports', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ shift: selectedShift, open_cash, close_cash, expenses, collection, senet, note })
-                });
-                if (response.ok) {
-                    reportData = await response.json();
-                }
-            } catch (e) {}
+            const now = new Date();
+            const nowStr = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0') + ':' +
+                String(now.getSeconds()).padStart(2, '0');
 
-            // Якщо сервер офлайн або повернув помилку — рахуємо та зберігаємо звіт локально
-            if (!reportData) {
-                const earned = close_cash - open_cash + expenses + collection;
-                const surplus = earned - senet;
-                const noteSuffix = note ? `, ${note}` : '';
-                let surplusStr = '';
-                if (surplus > 0) {
-                    surplusStr = `${fmtMoney(surplus)} грн надлишку${noteSuffix}.`;
-                } else if (surplus < 0) {
-                    surplusStr = `${fmtMoney(Math.abs(surplus))} грн недостачі${noteSuffix}.`;
-                } else {
-                    surplusStr = `Надлишок: 0 грн${noteSuffix}`;
-                }
-
-                const isDay = selectedShift === 'day';
-                const openLabel = isDay ? 'Каса готівки зранку' : 'Каса готівки вечері';
-                const earnedLabel = isDay ? 'Зароблено за день готівки' : 'Зароблено за ніч готівки';
-                const closeLabel = isDay ? 'Каса готівки ввечері' : 'Каса готівки зранку';
-
-                const now = new Date();
-                const nowStr = now.getFullYear() + '-' +
-                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(now.getDate()).padStart(2, '0') + ' ' +
-                    String(now.getHours()).padStart(2, '0') + ':' +
-                    String(now.getMinutes()).padStart(2, '0') + ':' +
-                    String(now.getSeconds()).padStart(2, '0');
-
-                let text = `Закриття зміни.\n` +
-                           `${openLabel}: ${fmtMoney(open_cash)}\n` +
-                           `${earnedLabel}: ${fmtMoney(earned)}\n` +
-                           `Торгівельні витрати: ${fmtMoney(expenses)}\n`;
-                if (collection > 0) text += `Інкасація: ${fmtMoney(collection)}\n`;
-                text += `${closeLabel}: ${fmtMoney(close_cash)}\n${surplusStr}`;
-
-                reportData = {
-                    id: Date.now(),
-                    shift: selectedShift,
-                    open_cash,
-                    close_cash,
-                    earned,
-                    expenses,
-                    senet,
-                    surplus,
-                    report_text: text,
-                    created_at: nowStr,
-                    collection_amount: collection > 0 ? collection : null
-                };
-                isOfflineFallback = true;
-            }
+            const reportData = {
+                id: Date.now(),
+                shift: selectedShift,
+                open_cash,
+                close_cash,
+                earned: built.earned,
+                expenses,
+                senet,
+                surplus: built.surplus,
+                report_text: built.text,
+                created_at: nowStr,
+                collection_amount: collection > 0 ? collection : null
+            };
 
             if (reportData) {
                 // Гарантуємо повні поля для кешу та коректного відображення
@@ -4313,10 +4271,7 @@
                 saveReportToStorage(reportData);
                 clearReportDraft();
 
-                const toastMsg = isOfflineFallback 
-                    ? '💾 Звіт створено та збережено в кеш браузера!' 
-                    : '✅ Звіт успішно створено та зафіксовано!';
-                showToast(toastMsg, 'success', 3500);
+                showToast('✅ Звіт створено та збережено в браузері!', 'success', 3500);
 
                 resultDiv.innerHTML = `
                     <div class="report-preview">${reportData.report_text}</div>
@@ -4397,158 +4352,17 @@
             }
         }
 
-        async function loadHistory() {
-            const period  = parseInt(document.getElementById('history-period').value) || 7;
-            const storedRows = getStoredReports();
-
-            // 1. Негайно відображаємо збережені звіти з локальної пам'яті
-            renderHistoryList(storedRows.slice(0, period), true);
-
-            // 2. Фоново підтягуємо звіти з сервера (якщо доступний) і об'єднуємо
-            let serverRows = [];
-            let serverSuccess = false;
-            try {
-                const res = await fetch(`/api/reports?limit=${period}`);
-                if (res.ok) {
-                    serverRows = await res.json();
-                    serverSuccess = true;
-                }
-            } catch (e) {}
-
-            if (serverSuccess && Array.isArray(serverRows)) {
-                const reportsMap = new Map();
-
-                storedRows.forEach(r => {
-                    if (!r) return;
-                    const key = (r.id !== undefined && r.id !== null) ? String(r.id) : `${r.created_at || ''}_${(r.report_text || '').slice(0, 30)}`;
-                    reportsMap.set(key, r);
-                });
-
-                serverRows.forEach(r => {
-                    if (!r) return;
-                    const key = (r.id !== undefined && r.id !== null) ? String(r.id) : `${r.created_at || ''}_${(r.report_text || '').slice(0, 30)}`;
-                    if (reportsMap.has(key)) {
-                        reportsMap.set(key, { ...reportsMap.get(key), ...r });
-                    } else {
-                        reportsMap.set(key, r);
-                    }
-                });
-
-                const allMerged = sortReportsDesc(Array.from(reportsMap.values()));
-                localStorage.setItem(REPORTS_BACKUP_KEY, JSON.stringify(allMerged.slice(0, 100)));
-                if (allMerged.length > 0 && allMerged[0].close_cash !== undefined && allMerged[0].close_cash !== null) {
-                    localStorage.setItem(LAST_CLOSE_CASH_KEY, String(allMerged[0].close_cash));
-                }
-
-                renderHistoryList(allMerged.slice(0, period), false);
-            }
+        function loadHistory() {
+            const period = parseInt(document.getElementById('history-period').value) || 7;
+            renderHistoryList(getStoredReports().slice(0, period), true);
         }
 
-        async function deleteReport(id) {
+        function deleteReport(id) {
             if (!confirm('Видалити цей звіт з історії?')) return;
             removeReportFromStorage(id);
-            try {
-                await fetch(`/api/reports/${id}`, { method: 'DELETE' });
-            } catch (e) {}
             loadHistory();
             loadExpectedCash();
             showToast('🗑 Звіт видалено з історії', 'info', 2000);
-        }
-
-        // ─── Stats ──────────────────────────────────────────────────────
-
-        function calculateStatsFromStorage(days) {
-            const stored = getStoredReports();
-            if (!stored || stored.length === 0) return { cnt: 0, earned: 0, expenses: 0, surplus: 0, is_cached: true };
-
-            const cutoff = new Date();
-            cutoff.setDate(cutoff.getDate() - days);
-            cutoff.setHours(0, 0, 0, 0);
-            const cutoffTime = cutoff.getTime();
-
-            let earned = 0, expenses = 0, surplus = 0, count = 0;
-            stored.forEach(r => {
-                if (!r) return;
-                let include = false;
-                if (r.created_at) {
-                    const t = parseReportDate(r.created_at);
-                    include = t > 0 ? t >= cutoffTime : true;
-                } else {
-                    include = true;
-                }
-
-                if (include) {
-                    count++;
-                    earned += (Number(r.earned) || 0);
-                    expenses += (Number(r.expenses) || 0);
-                    surplus += (Number(r.surplus) || 0);
-                }
-            });
-
-            return { cnt: count, earned, expenses, surplus, is_cached: true };
-        }
-
-        function renderStatsData(data) {
-            const contentDiv = document.getElementById('stats-content');
-            if (!contentDiv) return;
-
-            if (data && data.cnt > 0) {
-                contentDiv.innerHTML = `
-                    ${data.is_cached ? '<div class="alert alert-info" style="margin-bottom:12px">💾 Статистика розрахована з локальної пам\'яті браузера</div>' : ''}
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <h3>Звітів</h3>
-                            <div class="value">${data.cnt}</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Зароблено готівки</h3>
-                            <div class="value">${fmtMoney(data.earned)} <span style="font-size:0.5em">грн</span></div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Витрати</h3>
-                            <div class="value">${fmtMoney(data.expenses)} <span style="font-size:0.5em">грн</span></div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Надлишок / Недостача</h3>
-                            <div class="value" style="color:${data.surplus >= 0 ? '#FFEA00' : '#E50914'}">
-                                ${data.surplus >= 0 ? '+' : ''}${fmtMoney(data.surplus)} <span style="font-size:0.5em">грн</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                contentDiv.innerHTML = '<div class="alert alert-info">Немає даних за обраний період</div>';
-            }
-        }
-
-        async function loadStats() {
-            const days = parseInt(document.getElementById('stats-period').value) || 7;
-
-            // 1. Негайно розраховуємо з локальної пам'яті браузера
-            const localData = calculateStatsFromStorage(days);
-            if (localData && localData.cnt > 0) {
-                renderStatsData(localData);
-            } else {
-                const contentDiv = document.getElementById('stats-content');
-                if (contentDiv) contentDiv.innerHTML = '<div class="loading">Завантаження статистики...</div>';
-            }
-
-            // 2. Фоново звіряємо із сервером
-            try {
-                const res = await fetch(`/api/stats?days=${days}`);
-                if (res.ok) {
-                    const serverData = await res.json();
-                    if (serverData && serverData.cnt > 0) {
-                        renderStatsData(serverData);
-                    } else if (!localData || localData.cnt === 0) {
-                        renderStatsData({ cnt: 0, earned: 0, expenses: 0, surplus: 0 });
-                    }
-                }
-            } catch (e) {
-                if (!localData || localData.cnt === 0) {
-                    renderStatsData({ cnt: 0, earned: 0, expenses: 0, surplus: 0 });
-                }
-            }
         }
 
         // ─── Calculator ─────────────────────────────────────────────────
@@ -4761,15 +4575,19 @@
             }
 
             const zInfo = zonesData[zone] || {};
-            const currentHour = new Date().getHours();
-            const morningActive = currentHour >= 9 && currentHour < 16;
+            const nowDate = new Date();
+            const currentHour = nowDate.getHours();
+            // JS: 0=Нд..6=Сб → сервер: 0=Пн..6=Нд
+            const dow = (nowDate.getDay() + 6) % 7;
+            // Ранок діє лише у будні (Пн-Чт) з 09:00 до 15:00; «Тип дня» міг бути змінений вручну
+            const morningActive = dayType === 'weekday' && currentHour >= 9 && currentHour < 15;
             const mornH = zInfo.morning_hours_count || (zone === 'tv' ? 2 : 1);
             const mornRatePerHour = mornH > 1 ? Math.round(zInfo.morning_price / mornH) : zInfo.morning_price;
             const hourRate = morningActive
                 ? mornRatePerHour
                 : (dayType === 'weekday' ? zInfo.weekday_hour : zInfo.weekend_hour);
             const rateLabel = morningActive
-                ? (mornH > 1 ? `ранковому тарифу 09:00–16:00 (${zInfo.morning_price} грн за ${mornH} год)` : 'ранковому тарифу 09:00–16:00')
+                ? (mornH > 1 ? `ранковому тарифу Пн–Чт 09:00–15:00 (${zInfo.morning_price} грн за ${mornH} год)` : 'ранковому тарифу Пн–Чт 09:00–15:00')
                 : 'погодинному тарифу';
 
             try {
@@ -4781,7 +4599,7 @@
                         resDiv.innerHTML = '<div class="alert alert-warning">Введіть суму</div>';
                         return;
                     }
-                    data = await fetch(`/api/calculator/money-to-hours?amount=${amount}&zone=${zone}&day_type=${dayType}&current_hour=${currentHour}`).then(r => r.json());
+                    data = await fetch(`/api/calculator/money-to-hours?amount=${amount}&zone=${zone}&day_type=${dayType}&current_hour=${currentHour}&dow=${dow}`).then(r => r.json());
 
                     const options = data.options || [];
 
@@ -4819,7 +4637,7 @@
                         resDiv.innerHTML = '<div class="alert alert-warning">Введіть кількість годин (напр. 3.20 = 3 год 20 хв)</div>';
                         return;
                     }
-                    data = await fetch(`/api/calculator/hours-to-money?hours=${hours}&zone=${zone}&day_type=${dayType}&current_hour=${currentHour}`).then(r => r.json());
+                    data = await fetch(`/api/calculator/hours-to-money?hours=${hours}&zone=${zone}&day_type=${dayType}&current_hour=${currentHour}&dow=${dow}`).then(r => r.json());
 
                     const options = data.options || [];
 

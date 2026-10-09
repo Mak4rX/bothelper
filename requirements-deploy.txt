@@ -1,4 +1,0 @@
-python-dotenv>=1.0
-aiosqlite>=0.19
-fastapi>=0.109
-uvicorn[standard]>=0.27

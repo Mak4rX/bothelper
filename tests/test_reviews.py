@@ -1,14 +1,10 @@
 import unittest
-from fastapi.testclient import TestClient
-from webapp.main import app
 
-from reviews import (
-    normalize_phone,
-    normalize_login,
-    parse_csv_rows,
-    check_contact,
-    add_contact,
-)
+from fastapi.testclient import TestClient
+
+import reviews
+from reviews import normalize_phone, parse_csv_rows
+from webapp.main import app
 
 SAMPLE_CSV = """✨ ЧИСТА БАЗА,,,,📥 ЗОНА ВСТАВКИ,,,
 Усі непотрібні номери САМІ ВИДАЛЯЮТЬСЯ,,,,,,,
@@ -21,6 +17,7 @@ SAMPLE_CSV = """✨ ЧИСТА БАЗА,,,,📥 ЗОНА ВСТАВКИ,,,
 5,0974403535,📱 Телефон,,відгук гугл карта,0974403535,0974403535,✅ ЗАЛИШЕНО В БАЗІ (Google)
 """
 
+
 class ReviewsTests(unittest.TestCase):
     def test_normalize_phone(self):
         self.assertEqual(normalize_phone("+380679119400"), "0679119400")
@@ -29,81 +26,59 @@ class ReviewsTests(unittest.TestCase):
         self.assertEqual(normalize_phone("067-911-94-00"), "0679119400")
         self.assertEqual(normalize_phone("+38 (067) 911 94 00"), "0679119400")
 
-    def test_normalize_login(self):
-        self.assertEqual(normalize_login("  @hqck "), "hqck")
-        self.assertEqual(normalize_login("Karma1488"), "karma1488")
-
     def test_parse_csv_rows(self):
         entries = parse_csv_rows(SAMPLE_CSV)
         self.assertEqual(len(entries), 5)
         self.assertEqual(entries[0]["clean"], "380639436554")
         self.assertEqual(entries[0]["note"], "Відгук гугл карта")
 
-    def test_check_contact_found_by_phone(self):
-        entries = parse_csv_rows(SAMPLE_CSV)
-        res = check_contact("0639436554", entries)
-        self.assertTrue(res["found"])
-        self.assertIn("ВЖЕ В БАЗІ", res["status"])
-        self.assertEqual(len(res["matches"]), 1)
-
-        res2 = check_contact("+380639436554", entries)
-        self.assertTrue(res2["found"])
-
-        res3 = check_contact("0974403535", entries)
-        self.assertTrue(res3["found"])
-
-    def test_check_contact_found_by_login(self):
-        entries = parse_csv_rows(SAMPLE_CSV)
-        res = check_contact("hqck", entries)
-        self.assertTrue(res["found"])
-        self.assertIn("Логін", res["status"])
-
-        res2 = check_contact("buuurmalda", entries)
-        self.assertTrue(res2["found"])
-
-    def test_check_contact_not_found(self):
-        entries = parse_csv_rows(SAMPLE_CSV)
-        res = check_contact("0991112233", entries)
-        self.assertFalse(res["found"])
-        self.assertIn("НЕМАЄ В БАЗІ", res["status"])
-
-        res2 = check_contact("super_new_user", entries)
-        self.assertFalse(res2["found"])
-        self.assertIn("НЕМАЄ В БАЗІ", res2["status"])
-
-    def test_add_contact_locally(self):
-        res = add_contact("0509998877", "Відгук гугл карта")
-        self.assertTrue(res["success"])
-        check_res = check_contact("0509998877")
-        self.assertTrue(check_res["found"])
+    def test_parse_csv_skips_headers(self):
+        clean = [e["clean"] for e in parse_csv_rows(SAMPLE_CSV)]
+        self.assertFalse(any("Чистий контакт" in c or "ЧИСТА" in c for c in clean))
 
 
 class ReviewsAPITests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.client = TestClient(app)
-
-    def test_api_check_existing_contact(self):
-        resp = self.client.get("/api/reviews/check", params={"q": "0639436554"})
+    def test_database_endpoint_serves_parsed_entries(self):
+        original = reviews.fetch_database
+        reviews.fetch_database = lambda force_refresh=False: parse_csv_rows(SAMPLE_CSV)
+        try:
+            resp = TestClient(app).get("/api/reviews/database")
+        finally:
+            reviews.fetch_database = original
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
-        self.assertTrue(data["found"])
-        self.assertIn("ВЖЕ В БАЗІ", data["status"])
+        self.assertEqual(data["total"], 5)
+        self.assertEqual(data["entries"][0]["clean"], "380639436554")
 
-    def test_api_check_new_contact(self):
-        resp = self.client.get("/api/reviews/check", params={"q": "0999999999"})
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertFalse(data["found"])
-        self.assertIn("НЕМАЄ В БАЗІ", data["status"])
+    def test_fetch_failure_returns_last_cache(self):
+        saved = dict(reviews._CACHE)
+        reviews._CACHE.update(entries=[{"clean": "x"}], last_fetched=0.0)
+        original = reviews.urllib.request.urlopen
 
-    def test_api_add_contact(self):
-        resp = self.client.post("/api/reviews/add", json={"contact": "0681112233", "note": "Відгук гугл карта"})
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertTrue(data["success"])
+        def boom(*args, **kwargs):
+            raise OSError("offline")
 
-        # Now should be found
-        check_resp = self.client.get("/api/reviews/check", params={"q": "0681112233"})
-        self.assertEqual(check_resp.status_code, 200)
-        self.assertTrue(check_resp.json()["found"])
+        reviews.urllib.request.urlopen = boom
+        try:
+            self.assertEqual(reviews.fetch_database(force_refresh=True), [{"clean": "x"}])
+        finally:
+            reviews.urllib.request.urlopen = original
+            reviews._CACHE.update(saved)
+
+    def test_removed_endpoints_are_gone(self):
+        client = TestClient(app)
+        for method, path in (
+            ("get", "/api/reviews/check?q=1"),
+            ("post", "/api/reviews/add"),
+            ("get", "/api/promotions"),
+            ("get", "/api/reports"),
+            ("post", "/api/reports"),
+            ("get", "/api/collections"),
+            ("get", "/api/stats"),
+            ("get", "/api/expected-cash"),
+        ):
+            self.assertIn(getattr(client, method)(path).status_code, (404, 405), path)
+
+
+if __name__ == "__main__":
+    unittest.main()
